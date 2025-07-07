@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
+using CeramicaCanelas.Application.Services.SMTPEmail;
 using CeramicaCanelas.Application.Services.TokenJwt;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ namespace CeramicaCanelas.Application.IoC
         {
 
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ISend, Send>();
 
             return services;
         }

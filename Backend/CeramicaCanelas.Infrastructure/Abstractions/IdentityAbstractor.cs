@@ -37,6 +37,11 @@ public class IdentityAbstractor : IIdentityAbstractor {
         return await _signInManager.CheckPasswordSignInAsync(user, password, false);
     }
 
+    public async Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword)
+    {
+        return await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+    }
+
     public async Task<IList<string>> GetRolesAsync(User user)
     {
         return await _userManager.GetRolesAsync(user);

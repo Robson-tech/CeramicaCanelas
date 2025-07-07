@@ -19,7 +19,7 @@ public class Program {
         // Configure Swagger with JWT support
         builder.Services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "RO.DevTest API", Version = "v1" });
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ceramica Canelas API", Version = "v1" });
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

@@ -104,4 +104,5 @@ public interface IIdentityAbstractor {
     Task<IList<string>> GetRolesAsync(User user);
     Task<string> GeneratePasswordResetTokenAsync(User user);
 
+    public Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword);
 }
