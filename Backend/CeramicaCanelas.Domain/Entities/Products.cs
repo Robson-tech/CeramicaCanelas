@@ -21,6 +21,4 @@ namespace CeramicaCanelas.Domain.Entities
 
     }
 
-
-
 }
