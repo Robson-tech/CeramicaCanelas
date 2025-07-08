@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CeramicaCanelas.Domain.Abstract;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,17 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Domain.Entities
 {
-    internal class ProductEntry
+    public class ProductEntry : BaseEntity
     {
+        public Guid ProductId { get; set; }
+        public Products Product { get; set; } = null!;
+
+        public DateTime EntryDate { get; set; }
+        public int Quantity { get; set; }
+        public float UnitPrice { get; set; }
+
+        public Guid UserId { get; set; }
+        public User User { get; set; } = null!;
     }
+
 }
