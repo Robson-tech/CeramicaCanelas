@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Cerâmica Canelas</title>
+  
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 100 100">
+                    <rect x="10" y="60" width="80" height="30" fill="#e67e22" rx="3"/>
+                    <rect x="20" y="40" width="60" height="25" fill="#d35400" rx="3"/>
+                    <rect x="30" y="20" width="40" height="25" fill="#e67e22" rx="3"/>
+                    <circle cx="50" cy="15" r="3" fill="#e67e22"/>
+                </svg>
+            </div>
+            <div class="company-name">CERÂMICA CANELAS</div>
+        </div>
+
+        <div class="menu">
+            <div class="menu-section">
+                <div class="menu-title expandable" onclick="toggleSubmenu(this)">
+                    <svg class="expand-icon" viewBox="0 0 24 24">
+                        <path d="M7,10L12,15L17,10H7Z"/>
+                    </svg>
+                    <span>Almoxarifado</span>
+                </div>
+                
+                <div class="submenu-container" id="almoxarifado-submenu">
+                    <div class="menu-subsection">
+                        <div class="menu-subtitle">Cadastro</div>
+                        
+                     <a href="#" class="menu-item" onclick="event.preventDefault(); loadProductForm(); setActive(this);">
+
+                            <svg class="menu-icon" viewBox="0 0 24 24">
+            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L9 7V9H21M23 15V17H1V15H23M12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20Z"/>
+        </svg>
+        <span class="menu-text">Produtos</span>
+</a>
+
+                        <a href="#" class="menu-item" onclick="event.preventDefault(); loadEmployeeForm(); setActive(this);">
+
+                            <svg class="menu-icon" viewBox="0 0 24 24">
+                                <path d="M12 4A4 4 0 0 1 16 8A4 4 0 0 1 12 12A4 4 0 0 1 8 8A4 4 0 0 1 12 4M12 14C16.42 14 20 15.79 20 18V20H4V18C4 15.79 7.58 14 12 14Z"/>
+                            </svg>
+                            <span class="menu-text">Funcionários</span>
+                        </a>
+
+                       <a href="#" class="menu-item" onclick="event.preventDefault(); loadUserForm(); setActive(this);">
+
+                            <svg class="menu-icon" viewBox="0 0 24 24">
+                                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7M12 13C13.37 13 15.14 13.5 16 14.38V11C16 9.67 12.33 9 12 9S8 9.67 8 11V14.38C8.86 13.5 10.63 13 12 13Z"/>
+                            </svg>
+                            <span class="menu-text">Usuários do Sistema</span>
+                        </a>
+                    </div>
+
+                    <div class="menu-subsection">
+                        <div class="menu-subtitle">Produtos</div>
+                        
+                        <a href="#" class="menu-item" onclick="setActive(this)">
+                            <svg class="menu-icon" viewBox="0 0 24 24">
+                                <path d="M5 3L19 3V5H21V7H19L18 19C18 20.1 17.1 21 16 21H8C6.9 21 6 20.1 6 19L5 7H3V5H5V3M9 8V17H11V8H9M13 8V17H15V8H13Z"/>
+                            </svg>
+                            <span class="menu-text">Pegar</span>
+                        </a>
+
+                        <a href="#" class="menu-item" onclick="setActive(this)">
+                            <svg class="menu-icon" viewBox="0 0 24 24">
+                                <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M15.5 11L14.09 9.59L11 12.67L9.91 11.59L8.5 13L11 15.5L15.5 11Z"/>
+                            </svg>
+                            <span class="menu-text">Devolver</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <div id="form-container"></div>
+    <div class="main-content">
+        <div class="welcome-card" id="welcome-message">
+            <h1 class="welcome-title">Bem-vindo ao Sistema Cerâmica Canelas</h1>
+            <p class="welcome-text">Selecione uma opção no menu lateral para começar</p>
+            <div id="form-container"></div>
+
+        </div>
+    </div>
+
+    <script>
+        function setActive(element) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            element.classList.add('active');
+        }
+
+        function toggleSubmenu(element) {
+            const submenu = element.nextElementSibling;
+            const icon = element.querySelector('.expand-icon');
+            
+            if (submenu.classList.contains('expanded')) {
+                submenu.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                submenu.classList.add('expanded');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Initialize - expand submenu by default and set first item as active
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenu = document.getElementById('almoxarifado-submenu');
+            const icon = document.querySelector('.expand-icon');
+            
+            submenu.classList.add('expanded');
+            icon.classList.add('rotated');
+            
+            // Set first menu item as active
+            document.querySelector('.menu-item').classList.add('active');
+        });
+          function setActive(element) {
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+
+    function toggleSubmenu(element) {
+        const submenu = element.nextElementSibling;
+        const icon = element.querySelector('.expand-icon');
+        submenu.classList.toggle('expanded');
+        icon.classList.toggle('rotated');
+    }
+
+    function loadProductForm() {
+        document.getElementById('welcome-message').style.display = 'none';
+
+        const formHTML = `
+            <h2>Cadastro de Produto</h2>
+            <form class="product-form">
+                <label>ID: <input type="text" name="id" readonly></label><br>
+                <label>Codigo Do Produto: <input type="text" name="sku"></label><br>
+                <label>Nome: <input type="text" name="nome"></label><br>
+                <label>Unidade de Medida: 
+                    <select name="unidade">
+                        <option value="unidade">Unidade</option>
+                        <option value="kg">Kg</option>
+                        <option value="metro">Metro</option>
+                        <option value="litro">Litro</option>
+                    </select>
+                </label><br>
+                <label>Estoque Mínimo: <input type="number" name="estoque_minimo"></label><br>
+                <label>Estoque Inicial: <input type="number" name="estoque_inicial"></label><br>
+                <label>Valor Unitário: <input type="number" step="0.01" name="valor_unitario"></label><br>
+                <label>Data de Cadastro: <input type="date" name="data_cadastro"></label><br>
+                <label>Categoria: <input type="text" name="categoria"></label><br>
+                <label>Item Devolvível?
+                    <select name="devolvivel">
+                        <option value="sim">Sim</option>
+                        <option value="nao">Não</option>
+                    </select>
+                </label><br>
+                <label>Observações: <textarea name="observacoes" rows="3"></textarea></label><br>
+                <button type="submit">Salvar Produto</button>
+            </form>
+        `;
+
+        document.getElementById('form-container').innerHTML = formHTML;
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+        const submenu = document.getElementById('almoxarifado-submenu');
+        const icon = document.querySelector('.expand-icon');
+        submenu.classList.add('expanded');
+        icon.classList.add('rotated');
+
+        document.querySelector('.menu-item').classList.add('active');
+    });
+    function loadEmployeeForm() {
+    document.getElementById('welcome-message').style.display = 'none';
+
+    const formHTML = `
+        <h2>Cadastro de Funcionário</h2>
+        <form class="employee-form">
+            <label>ID: <input type="text" name="id" readonly></label><br>
+            <label>Nome Completo: <input type="text" name="nome_completo"></label><br>
+            <label>Cargo: <input type="text" name="cargo"></label><br>
+            <label>Setor: 
+                <select name="setor">
+                    <option value="producao">Produção</option>
+                    <option value="manutencao">Manutenção</option>
+                    <option value="expedicao">Expedição</option>
+                    <option value="administrativo">Administrativo</option>
+                </select>
+            </label><br>
+            <label>CPF: <input type="text" name="cpf"></label><br>
+            <label>Matrícula: <input type="text" name="matricula"></label><br>
+            <label>Status:
+                <select name="status">
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                </select>
+            </label><br>
+            <button type="submit">Salvar Funcionário</button>
+        </form>
+    `;
+
+    document.getElementById('form-container').innerHTML = formHTML;
+}
+function loadUserForm() {
+    document.getElementById('welcome-message').style.display = 'none';
+
+    const formHTML = `
+        <h2>Cadastro de Usuário do Sistema</h2>
+        <form class="user-form" onsubmit="event.preventDefault(); encryptPassword(this);">
+            <label>Nome de Usuário: <input type="text" name="username" required></label><br>
+            <label>Senha: <input type="password" name="senha" required></label><br>
+            <label>Permissão:
+                <select name="permissao">
+                    <option value="admin">Admin</option>
+                    <option value="operador">Operador</option>
+                    <option value="leitura">Somente Leitura</option>
+                </select>
+            </label><br>
+            <button type="submit">Salvar Usuário</button>
+        </form>
+    `;
+
+    document.getElementById('form-container').innerHTML = formHTML;
+}
+
+    </script>
+</body>
+</html>
