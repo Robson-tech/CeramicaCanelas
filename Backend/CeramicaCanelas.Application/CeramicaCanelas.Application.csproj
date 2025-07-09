@@ -19,4 +19,12 @@
     <ProjectReference Include="..\CeramicaCanelas.Domain\CeramicaCanelas.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Employees\Queries\" />
+    <Folder Include="Features\Product\Commands\CreatedProductCommand\" />
+    <Folder Include="Features\Product\Commands\DeleteProductCommand\" />
+    <Folder Include="Features\Product\Commands\UpdateProductCommand\" />
+    <Folder Include="Features\Product\Queries\GetAllProductsQueries\" />
+  </ItemGroup>
+
 </Project>

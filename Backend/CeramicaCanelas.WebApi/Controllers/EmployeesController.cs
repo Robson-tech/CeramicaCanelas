@@ -1,0 +1,30 @@
+﻿using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
+using CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployeesCommand;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using NSwag.Annotations;
+
+namespace CeramicaCanelas.WebApi.Controllers
+{
+    [Route("api/employees")]
+    [OpenApiTags("Employees")]
+    [ApiController]
+    public class EmployeesController(IMediator mediator) : ControllerBase
+    {
+        private readonly IMediator _mediator = mediator;
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreatedEmployee([FromForm] CreatedEmployeesCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+
+    }
+}
