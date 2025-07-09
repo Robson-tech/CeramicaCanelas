@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
 
-namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
 {
     public class CreatedCategoriesCommand : IRequest<Unit>
     {
@@ -12,8 +12,7 @@ namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesComma
 
         public string Description { get; set; } = string.Empty;
 
-        public IFormFile Imagem { get; set; }
-        public ICollection<Products> Products { get; set; } = new List<Products>();
+        public IFormFile? Imagem { get; set; }
 
         public Domain.Entities.Categories AssignToCategories()
         {
@@ -21,7 +20,7 @@ namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesComma
             {
                 Name = Name,
                 Description = Description,
-                Products = Products
+                CreatedOn = DateTime.UtcNow,
             };
         }
     }

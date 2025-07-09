@@ -4,7 +4,7 @@ using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
 
-namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
 {
     public class CreatedCategoriesCommandHandler : IRequestHandler<CreatedCategoriesCommand, Unit>
     {
