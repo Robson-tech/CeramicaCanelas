@@ -57,7 +57,7 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
             return Unit.Value;
         }
 
-        public async Task ValidateCategories (CreatedCategoriesCommand request, CancellationToken cancellationToken)
+        private async Task ValidateCategories (CreatedCategoriesCommand request, CancellationToken cancellationToken)
         {
             var validator = new CreatedCategoriesCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);

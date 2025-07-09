@@ -6,7 +6,7 @@ namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
     {
         public Task<Categories?> GetByIdAsync(Guid id);
 
-        public Task<IEnumerable<Categories>> GetAllAsync();
+        public Task<List<Categories>> GetAllAsync();
 
 
     }

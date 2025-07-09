@@ -47,16 +47,16 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategor
 
             category.Name = request.Name;
             category.Description = request.Description;
-            category.ImageUrl = url;
+            category!.ImageUrl = url;
             category.ModifiedOn = DateTime.UtcNow;
 
-            _categoryRepository.Update(category);
+            await _categoryRepository.Update(category);
 
             return Unit.Value;
 
         }
 
-        public async Task<Domain.Entities.Categories> ValidateCategories(UpdateCategoriesCommand request, CancellationToken cancellationToken)
+        private async Task<Domain.Entities.Categories> ValidateCategories(UpdateCategoriesCommand request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
 

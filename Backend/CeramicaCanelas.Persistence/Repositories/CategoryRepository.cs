@@ -13,7 +13,7 @@ namespace CeramicaCanelas.Persistence.Repositories
         /// <returns>
         /// A list of <see cref="Categories"/> entities
         /// </returns>
-        public async Task<IEnumerable<Categories>> GetAllAsync()
+        public async Task<List<Categories>> GetAllAsync()
         {
             return await Context.Categories.ToListAsync();
         }
