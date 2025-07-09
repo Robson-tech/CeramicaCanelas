@@ -1,5 +1,7 @@
 ﻿using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
+using CeramicaCanelas.Application.Features.Categories.Commands.DeleteCategoriesCommand;
 using CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategoriesCommand;
+using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +36,31 @@ namespace CeramicaCanelas.WebApi.Controllers
             await _mediator.Send(request);
             return NoContent();
         }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteCategories([FromRoute] Guid id)
+        {
+            var request = new DeleteCategoriesCommand { Id = id };
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetCategories()
+        {
+            var request = new GetAllCategoriesQueries();
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
+        }
+
+
 
     }
 }
