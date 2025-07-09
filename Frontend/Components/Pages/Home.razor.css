@@ -1,9 +1,17 @@
- .main-content {
-            margin-left: 280px;
-            padding: 30px;
-            height: 100vh;
-            overflow-y: auto;
-        }
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+.main-content {
+    height: calc(100% - 0px); /* você pode ajustar isso caso tenha header/footer fixos */
+    overflow-y: auto;
+    margin-left: 250px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
 
         .welcome-card {
             background: white;

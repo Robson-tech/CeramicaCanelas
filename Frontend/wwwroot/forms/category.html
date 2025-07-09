@@ -1,0 +1,21 @@
+<body>
+  <h2>Cadastro de Categoria</h2>
+  <div class="form-container">
+    <form class="category-form" onsubmit="event.preventDefault(); alert('Categoria salva!');">
+
+      <div class="form-row">
+        <label class="half-width">Nome da Categoria:
+          <input type="text" name="category" required>
+        </label>
+
+        <label class="half-width">Descrição:
+          <textarea name="description" rows="3"></textarea>
+        </label>
+      </div>
+
+      <button type="submit">Salvar Categoria</button>
+    </form>
+  </div>
+
+  <link rel="stylesheet" href="/css/category.css">
+</body>

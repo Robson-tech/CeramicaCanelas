@@ -1,0 +1,13 @@
+.main-content {
+    margin-left: 250px; /* Espaço para o menu lateral */
+    padding: 20px;
+    height: 100vh; /* AGORA SIM: Define a altura exata do main-content para 100% do viewport */
+    background-color: #f5f5f5;
+    box-sizing: border-box; /* Garante que o padding não adicione altura extra ao 100vh */
+}
+html, body {
+    height: 100%; /* Faz com que html e body ocupem 100% da altura do viewport */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Importante: Remove a rolagem do body/html */
+}
