@@ -1,10 +1,11 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
 
-namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
 {
     public class CreatedCategoriesCommandHandler : IRequestHandler<CreatedCategoriesCommand, Unit>
     {

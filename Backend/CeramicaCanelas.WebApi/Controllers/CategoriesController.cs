@@ -1,4 +1,4 @@
-﻿using CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand;
+﻿using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

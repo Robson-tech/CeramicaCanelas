@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
 {
     public class CreatedCategoriesCommandValidator :AbstractValidator<CreatedCategoriesCommand>
     {

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
 
-namespace CeramicaCanelas.Application.Features.Categories.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
 {
     public class CreatedCategoriesCommand : IRequest<Unit>
     {
