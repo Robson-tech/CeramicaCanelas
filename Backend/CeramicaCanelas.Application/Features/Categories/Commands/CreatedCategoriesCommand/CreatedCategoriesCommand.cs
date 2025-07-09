@@ -12,8 +12,7 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
 
         public string Description { get; set; } = string.Empty;
 
-        public IFormFile Imagem { get; set; }
-        public ICollection<Products> Products { get; set; } = new List<Products>();
+        public IFormFile? Imagem { get; set; }
 
         public Domain.Entities.Categories AssignToCategories()
         {
@@ -21,7 +20,7 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
             {
                 Name = Name,
                 Description = Description,
-                Products = Products
+                CreatedOn = DateTime.UtcNow,
             };
         }
     }

@@ -1,33 +1,29 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
-
-namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategoriesCommand
 {
-    public class CreatedCategoriesCommandHandler : IRequestHandler<CreatedCategoriesCommand, Unit>
+    public class UpdateCategoriesCommandHandle : IRequestHandler<UpdateCategoriesCommand, Unit>
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly ILogged _logged;
-
-        public CreatedCategoriesCommandHandler(
-            ICategoryRepository categoryRepository,
-            ILogged logged)
+        public UpdateCategoriesCommandHandle(ICategoryRepository categoryRepository, ILogged logged)
         {
             _categoryRepository = categoryRepository;
             _logged = logged;
         }
-
-        public async Task<Unit> Handle (CreatedCategoriesCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateCategoriesCommand request, CancellationToken cancellationToken)
         {
             var user = await _logged.UserLogged();
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Usuário não autenticado");
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
-            
-            await ValidateCategories(request, cancellationToken);
+
+            var category = await ValidateCategories(request, cancellationToken);
 
             var pasta = Path.Combine("wwwroot", "categories", "images");
             if (!Directory.Exists(pasta))
@@ -49,23 +45,36 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
                 url = $"{UrlBase}{nomeArquivo}";
             }
 
-            var category = request.AssignToCategories();
+            category.Name = request.Name;
+            category.Description = request.Description;
             category.ImageUrl = url;
+            category.ModifiedOn = DateTime.UtcNow;
 
-            await _categoryRepository.CreateAsync(category, cancellationToken);
+            _categoryRepository.Update(category);
 
             return Unit.Value;
+
         }
 
-        public async Task ValidateCategories (CreatedCategoriesCommand request, CancellationToken cancellationToken)
+        public async Task<Domain.Entities.Categories> ValidateCategories(UpdateCategoriesCommand request, CancellationToken cancellationToken)
         {
-            var validator = new CreatedCategoriesCommandValidator();
+            var category = await _categoryRepository.GetByIdAsync(request.Id);
+
+            if (category == null)
+            {
+                throw new BadRequestException("Categória não encontrada.");
+            }
+
+            var validator = new UpdateCategoriesCommandValidator();
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
             if (!validationResult.IsValid)
             {
                 throw new BadRequestException(validationResult);
             }
+
+            return category;     
+
         }
     }
 }
