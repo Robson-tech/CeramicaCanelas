@@ -4,6 +4,8 @@ using CeramicaCanelas.Application.Contracts.Infrastructure;
 using CeramicaCanelas.Domain.Entities;
 using CeramicaCanelas.Infrastructure.Abstractions;
 using CeramicaCanelas.Persistence;
+using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Persistence.Repositories;
 
 namespace CeramicaCanelas.Infrastructure.IoC;
 
@@ -25,6 +27,7 @@ public static class InfrastructureDependecyInjector {
             .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentityAbstractor, IdentityAbstractor>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
 
         return services;
     }
