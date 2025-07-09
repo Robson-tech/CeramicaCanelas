@@ -25,6 +25,18 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateEmployee([FromForm] CreatedEmployeesCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+        
+
+
 
     }
 }
