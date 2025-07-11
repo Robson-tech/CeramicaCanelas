@@ -73,10 +73,11 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
 
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-            if (validationResult != null)
+            if (!validationResult.IsValid)
             {
                 throw new BadRequestException(validationResult);
             }
+
 
             return employee;
 
