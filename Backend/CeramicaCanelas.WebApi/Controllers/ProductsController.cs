@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand;
+using CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,16 @@ namespace CeramicaCanelas.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreatedProduct([FromForm] CreatedProductCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductCommand request)
         {
             await _mediator.Send(request);
             return NoContent();

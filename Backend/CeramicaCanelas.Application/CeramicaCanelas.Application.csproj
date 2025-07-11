@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Product\Commands\DeleteProductCommand\" />
-    <Folder Include="Features\Product\Commands\UpdateProductCommand\" />
     <Folder Include="Features\Product\Queries\GetAllProductsQueries\" />
   </ItemGroup>
 
