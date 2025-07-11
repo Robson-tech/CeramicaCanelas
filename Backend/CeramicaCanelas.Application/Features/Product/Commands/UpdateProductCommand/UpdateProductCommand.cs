@@ -17,7 +17,7 @@ namespace CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCom
         public UnitOfMeasure UnitOfMeasure { get; set; }
         public int StockInitial { get; set; }
         public int StockMinium { get; set; }
-        public float ValueUnit { get; set; }
+        public float Value { get; set; }
         public IFormFile? Imagem { get; set; }
         public bool IsReturnable { get; set; }
         public string Observation { get; set; } = string.Empty;
