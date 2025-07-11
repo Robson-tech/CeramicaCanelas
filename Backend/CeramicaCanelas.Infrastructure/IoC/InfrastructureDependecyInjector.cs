@@ -30,6 +30,7 @@ public static class InfrastructureDependecyInjector {
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IEmployeesRepository, EmployeesRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IMovimentacaoEntradasProductsRepository, MovimentacaoEntradasProductsRepository>();
 
         return services;
     }

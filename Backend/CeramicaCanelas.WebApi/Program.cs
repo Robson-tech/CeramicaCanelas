@@ -117,7 +117,7 @@ public class Program {
                 typeof(ApplicationLayer).Assembly,
                 typeof(Program).Assembly
             );
-        });
+        }); 
 
         var app = builder.Build();
 

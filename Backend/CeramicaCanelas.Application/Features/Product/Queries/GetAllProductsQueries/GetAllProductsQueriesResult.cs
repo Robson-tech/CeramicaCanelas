@@ -9,7 +9,7 @@ public class GetAllProductsQueriesResult
     public int StockInitial { get; set; }
     public int StockMinium { get; set; }
     public int StockCurrent { get; set; }
-    public float ValueUnit { get; set; }
+    public float Value { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
     public bool IsReturnable { get; set; }
     public string? Observation { get; set; }
@@ -25,7 +25,7 @@ public class GetAllProductsQueriesResult
         StockInitial = product.StockInitial;
         StockMinium = product.StockMinium;
         StockCurrent = product.StockCurrent;
-        ValueUnit = product.ValueUnit;
+        Value = product.Value;
         ImageUrl = string.IsNullOrWhiteSpace(product.ImageUrl)
             ? "https://localhost:7014/products/images/default.png"
             : product.ImageUrl;

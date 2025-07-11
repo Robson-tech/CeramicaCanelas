@@ -19,4 +19,10 @@
     <ProjectReference Include="..\CeramicaCanelas.Domain\CeramicaCanelas.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Movimentacoes-ES\Entradas\Queries\" />
+    <Folder Include="Features\Movimentacoes-ES\Saidas\Command\" />
+    <Folder Include="Features\Movimentacoes-ES\Saidas\Queries\" />
+  </ItemGroup>
+
 </Project>
