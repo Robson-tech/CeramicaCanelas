@@ -1,11 +1,5 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployeesCommand
+using System;namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployeesCommand
 {
     public class UpdateEmployeesCommandValidator : AbstractValidator<UpdateEmployeesCommand>
     {
@@ -15,8 +9,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
                 .NotEmpty().WithMessage("O nome é obrigatório.")
                 .MaximumLength(100).WithMessage("O nome não pode exceder 100 caracteres.");
             RuleFor(x => x.Positiions)
-                .IsInEnum().WithMessage("O cargo informado é inválido.");
-
+                .IsInEnum().WithMessage("O cargo informada é inválido.");
         }
     }
 }
