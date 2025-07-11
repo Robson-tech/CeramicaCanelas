@@ -1,6 +1,8 @@
-﻿using CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand;
+﻿using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
+using CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand;
 using CeramicaCanelas.Application.Features.Product.Commands.DeleteProductCommand;
 using CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand;
+using CeramicaCanelas.Application.Features.Product.Queries.GetAllProductsQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -45,6 +47,18 @@ namespace CeramicaCanelas.WebApi.Controllers
             var request = new DeleteProductCommand { Id = id };
             await _mediator.Send(request);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetProducts()
+        {
+            var request = new GetAllProductsQueries();
+            var response = await _mediator.Send(request);
+            return Ok(response);
+
         }
     }
 }
