@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand;
+using CeramicaCanelas.Application.Features.Product.Commands.DeleteProductCommand;
 using CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +32,17 @@ namespace CeramicaCanelas.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductCommand request)
         {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
+        {
+            var request = new DeleteProductCommand { Id = id };
             await _mediator.Send(request);
             return NoContent();
         }
