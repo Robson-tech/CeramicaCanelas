@@ -7,78 +7,6 @@
   <title>Cadastro de Categoria</title>
   <link rel="stylesheet" href="/css/category.css" />
   
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 2rem;
-      background-color: #f4f4f4;
-    }
-    .container {
-      margin: auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    .form-container, .table-container {
-      margin-top: 2rem;
-    }
-    .category-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .form-row {
-      display: flex;
-      gap: 1rem;
-    }
-    .half-width {
-      width: 50%;
-      display: flex;
-      flex-direction: column;
-    }
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box; /* Garante que padding não afete a largura total */
-    }
-    button {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      cursor: pointer;
-    }
-    #btnSalvar {
-      background-color: #28a745; /* Verde */
-    }
-    .category-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    .category-table th, .category-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    .category-table th {
-      background-color: #f2f2f2;
-    }
-    .btn-edit {
-      background-color: #007bff; /* Azul */
-      margin-right: 5px;
-    }
-    .btn-delete {
-      background-color: #dc3545; /* Vermelho */
-    }
-  </style>
 </head>
 <body>
 <div class="container">
@@ -117,6 +45,14 @@
           </td>
         </tr>
         <tr>
+          <td>Materiais de Embalagem</td>
+          <td>Itens para embalar produtos, como caixas, filmes plásticos e paletes.</td>
+          <td>
+            <button class="btn-edit">Editar</button>
+            <button class="btn-delete">Excluir</button>
+          </td>
+        </tr>
+         <tr>
           <td>Materiais de Embalagem</td>
           <td>Itens para embalar produtos, como caixas, filmes plásticos e paletes.</td>
           <td>
