@@ -1,4 +1,4 @@
-using CeramicaCanelas.Application;
+﻿using CeramicaCanelas.Application;
 using CeramicaCanelas.Application.IoC;
 using CeramicaCanelas.Infrastructure.IoC;
 using CeramicaCanelas.Persistence.IoC;
@@ -55,6 +55,19 @@ public class Program {
         // JWT Configuration
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
         var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
+
+        //Adicionando Cors para integrações
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin", policy =>
+            {
+                policy.WithOrigins("http://localhost:3001")  // Coloque a URL do seu frontend aqui
+                      .WithOrigins("http://localhost:5236")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();  // Permitir cookies/autentica��o com credenciais
+            });
+        });
 
         builder.Services.AddAuthentication(options =>
         {
@@ -128,6 +141,8 @@ public class Program {
         }
 
         app.UseStaticFiles();
+
+        app.UseCors("AllowSpecificOrigin");
 
         app.UseMiddleware<CustomExceptionMiddleware>();
 
