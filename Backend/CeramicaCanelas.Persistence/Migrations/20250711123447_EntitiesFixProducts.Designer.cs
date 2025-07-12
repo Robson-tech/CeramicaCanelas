@@ -3,6 +3,7 @@ using System;
 using CeramicaCanelas.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CeramicaCanelas.Persistence.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250711123447_EntitiesFixProducts")]
+    partial class EntitiesFixProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,7 +190,12 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsReturnable")
@@ -201,6 +209,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Observation")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("StockCurrent")
@@ -215,10 +224,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.Property<int>("UnitOfMeasure")
                         .HasColumnType("integer");
 
-                    b.Property<float>("Value")
-                        .HasColumnType("real");
-
-                    b.Property<float>("ValueTotal")
+                    b.Property<float>("ValueUnit")
                         .HasColumnType("real");
 
                     b.HasKey("Id");

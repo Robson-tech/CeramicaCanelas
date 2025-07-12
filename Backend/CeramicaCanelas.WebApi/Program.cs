@@ -2,6 +2,7 @@ using CeramicaCanelas.Application;
 using CeramicaCanelas.Application.IoC;
 using CeramicaCanelas.Infrastructure.IoC;
 using CeramicaCanelas.Persistence.IoC;
+using CeramicaCanelas.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -100,6 +101,8 @@ public class Program {
 
             options.AddPolicy("UserOnly", policy =>
                 policy.RequireRole("User"));
+            options.AddPolicy("CustomerOnly", policy =>
+                policy.RequireRole("Customer"));
         });
         builder.Services
             .InjectPersistenceDependencies(builder.Configuration)
@@ -114,7 +117,7 @@ public class Program {
                 typeof(ApplicationLayer).Assembly,
                 typeof(Program).Assembly
             );
-        });
+        }); 
 
         var app = builder.Build();
 
@@ -125,6 +128,8 @@ public class Program {
         }
 
         app.UseStaticFiles();
+
+        app.UseMiddleware<CustomExceptionMiddleware>();
 
         app.UseHttpsRedirection();
 

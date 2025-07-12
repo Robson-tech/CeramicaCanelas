@@ -3,6 +3,7 @@ using System;
 using CeramicaCanelas.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CeramicaCanelas.Persistence.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    partial class DefaultContextModelSnapshot : ModelSnapshot
+    [Migration("20250711124251_EntitiesFixProducts2")]
+    partial class EntitiesFixProducts2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,6 +191,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsReturnable")
@@ -215,10 +219,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.Property<int>("UnitOfMeasure")
                         .HasColumnType("integer");
 
-                    b.Property<float>("Value")
-                        .HasColumnType("real");
-
-                    b.Property<float>("ValueTotal")
+                    b.Property<float>("ValueUnit")
                         .HasColumnType("real");
 
                     b.HasKey("Id");

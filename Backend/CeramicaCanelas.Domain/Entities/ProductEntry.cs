@@ -15,8 +15,7 @@ namespace CeramicaCanelas.Domain.Entities
         public DateTime EntryDate { get; set; }
         public int Quantity { get; set; }
         public float UnitPrice { get; set; }
-
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
     }
 

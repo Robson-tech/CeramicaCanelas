@@ -10,11 +10,12 @@ namespace CeramicaCanelas.Domain.Entities
         public UnitOfMeasure UnitOfMeasure { get; set; }
         public int StockInitial {  get; set; }
         public int StockMinium { get; set; }
-        public float ValueUnit { get; set; }
-        public string ImageUrl { get; set; } = string.Empty;
+        public int StockCurrent { get; set; }
+        public float Value { get; set; }
+        public float ValueTotal { get; set; }
+        public string? ImageUrl { get; set; } = string.Empty;
         public bool IsReturnable { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public string Observation { get; set; } = string.Empty;
+        public string? Observation { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
         public Categories Category { get; set; } = new Categories();
 
