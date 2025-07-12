@@ -61,13 +61,13 @@ public class Program {
         {
             options.AddPolicy("AllowSpecificOrigin", policy =>
             {
-                policy.WithOrigins("http://localhost:3001")  // Coloque a URL do seu frontend aqui
-                      .WithOrigins("http://localhost:5236")
+                policy.WithOrigins("http://localhost:3001", "http://localhost:5236")
                       .AllowAnyMethod()
                       .AllowAnyHeader()
-                      .AllowCredentials();  // Permitir cookies/autentica��o com credenciais
+                      .AllowCredentials();  // Permite cookies/autenticação
             });
         });
+
 
         builder.Services.AddAuthentication(options =>
         {
@@ -148,6 +148,7 @@ public class Program {
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();  
         app.UseAuthorization();
 
         app.MapControllers();
