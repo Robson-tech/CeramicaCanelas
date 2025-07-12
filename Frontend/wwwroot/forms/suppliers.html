@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Fornecedores</title>
+    <link rel="stylesheet" href="/css/suppliers.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastro de Fornecedores</h2>
+    <div class="form-container">
+        <form class="suppliers-form">
+            <div class="form-row">
+                <label class="half-width">Nome/Razão Social:
+                    <input type="text" name="nome_supplie" required>
+                </label>
+                <label class="half-width">CNPJ:
+                    <input type="text" name="cnpj" required>
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="half-width">Contato (Telefone):
+                    <input type="text" name="telefone">
+                </label>
+                <label class="half-width">Endereço:
+                    <input type="text" name="endereco">
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="full-width">Produtos Fornecidos:
+                    <input type="text" name="produtos_fornecidos">
+                </label>
+            </div>
+            <button type="submit">Salvar Fornecedor</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <h2>Fornecedores Cadastrados</h2>
+        <table class="suppliers-table">
+            <thead>
+                <tr>
+                    <th>CNPJ</th>
+                    <th>Razão Social</th>
+                    <th>Contato</th>
+                    <th>Produtos Fornecidos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>12.345.678/0001-99</td>
+                    <td>Argilas do Nordeste Ltda.</td>
+                    <td>(86) 9999-8888</td>
+                    <td>Argila, Caulim, Feldspato</td>
+                    <td>
+                        <button class="btn-edit">Editar</button>
+                        <button class="btn-delete">Excluir</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>98.765.432/0001-11</td>
+                    <td>EmbalaTudo Embalagens S.A.</td>
+                    <td>(11) 5555-4444</td>
+                    <td>Caixas de papelão, Plástico filme</td>
+                    <td>
+                        <button class="btn-edit">Editar</button>
+                        <button class="btn-delete">Excluir</button>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>22.555.888/0001-33</td>
+                    <td>Manutenção Industrial Picos</td>
+                    <td>(89) 3422-7777</td>
+                    <td>Peças de reposição, Lubrificantes</td>
+                    <td>
+                        <button class="btn-edit">Editar</button>
+                        <button class="btn-delete">Excluir</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const suppliersForm = document.querySelector('.suppliers-form');
+
+        suppliersForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o recarregamento da página
+
+            const formData = new FormData(suppliersForm);
+            const data = {
+                companyName: formData.get('nome_supplie'),
+                cnpj: formData.get('cnpj'),
+                contactPhone: formData.get('telefone'),
+                address: formData.get('endereco'),
+                suppliedProducts: formData.get('produtos_fornecidos')
+            };
+
+            // Validação simples
+            if (!data.companyName || !data.cnpj) {
+                alert('Por favor, preencha a Razão Social e o CNPJ.');
+                return;
+            }
+
+            // Simulação de envio para uma API
+            try {
+                // Substitua a URL pela sua API real
+                const response = await fetch('http://localhost:5087/api/suppliers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Fornecedor salvo com sucesso!');
+                    suppliersForm.reset();
+                    // Idealmente, aqui você recarregaria os dados da tabela
+                } else {
+                    const errorData = await response.json();
+                    alert(`Erro ao salvar: ${errorData.message || 'Verifique os dados.'}`);
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                alert('Não foi possível conectar ao servidor.');
+            }
+        });
+    });
+</script>
+<link rel="stylesheet" href="/css/suppliers.css">
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Usuário do Sistema</title>
+  
+</head>
+<body>
+
+<div class="container">
+    <h2>Cadastro de Usuário do Sistema</h2>
+    <div class="form-container">
+        <form class="user-form" onsubmit="event.preventDefault(); encryptPassword(this);">
+            <div class="form-row">
+                <label class="half-width">Nome de Usuário:
+                    <input type="text" name="username" required>
+                </label>
+                <label class="half-width">Senha:
+                    <input type="password" name="senha" required>
+                </label>
+            </div>
+            <div class="form-row">
+                <label class="half-width">Permissão:
+                    <select name="permissao">
+                        <option value="Admin">Admin</option>
+                        <option value="Operador">Operador</option>
+                        <option value="Leitura">Somente Leitura</option>
+                    </select>
+                </label>
+            </div>
+            <button type="submit">Salvar Usuário</button>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <h2>Usuários Cadastrados</h2>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Permissão</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>admin_master</td>
+                    <td>Admin</td>
+                    <td><button class="btn-edit">Editar</button><button class="btn-delete">Excluir</button></td>
+                </tr>
+                <tr>
+                    <td>joao.silva</td>
+                    <td>Operador</td>
+                    <td><button class="btn-edit">Editar</button><button class="btn-delete">Excluir</button></td>
+                </tr>
+                <tr>
+                    <td>ana.costa</td>
+                    <td>Somente Leitura</td>
+                    <td><button class="btn-edit">Editar</button><button class="btn-delete">Excluir</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    /**
+     * Função principal chamada pelo formulário.
+     * Ela pega a senha, a criptografa e depois chama a função para enviar os dados.
+     */
+    async function encryptPassword(form) {
+        const passwordInput = form.querySelector('input[name="senha"]');
+        const password = passwordInput.value;
+
+        if (!password) {
+            alert('O campo de senha é obrigatório.');
+            return;
+        }
+
+        try {
+            // Criptografa a senha usando a API nativa do navegador (SHA-256)
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            
+            // Converte o resultado para uma string hexadecimal
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashedPassword = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // Chama a função de envio com a senha já criptografada
+            await sendData(form, hashedPassword);
+
+        } catch (error) {
+            console.error('Erro ao criptografar a senha:', error);
+            alert('Não foi possível processar a senha. Tente novamente.');
+        }
+    }
+
+    /**
+     * Função que envia os dados do formulário para a API.
+     */
+    async function sendData(form, hashedPassword) {
+        const formData = new FormData(form);
+        const data = {
+            username: formData.get('username'),
+            passwordHash: hashedPassword, // Enviamos o hash, não a senha original
+            permission: formData.get('permissao')
+        };
+
+        if (!data.username) {
+            alert('O nome de usuário é obrigatório.');
+            return;
+        }
+
+        console.log('Enviando para a API:', { username: data.username, permission: data.permission, passwordHash: '...' });
+
+        try {
+            // Substitua pela URL da sua API
+            const response = await fetch('http://localhost:5087/api/system-users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Usuário salvo com sucesso!');
+                form.reset();
+                // Aqui você chamaria uma função para recarregar os dados da tabela
+            } else {
+                const errorData = await response.json();
+                alert(`Erro ao salvar usuário: ${errorData.message || 'Verifique os dados.'}`);
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            alert('Falha na comunicação com o servidor.');
+        }
+    }
+</script>
+  <link rel="stylesheet" href="/css/usersys.css">
+</body>
+</html>
