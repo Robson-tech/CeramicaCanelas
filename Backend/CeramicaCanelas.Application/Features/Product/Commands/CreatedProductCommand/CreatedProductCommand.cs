@@ -28,7 +28,6 @@ namespace CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCo
                 StockInitial = StockInitial,
                 StockMinium = StockMinium,
                 StockCurrent = StockInitial,
-                Value = Value,
                 IsReturnable = IsReturnable,
                 Observation = Observation,
                 CategoryId = CategoryId,
