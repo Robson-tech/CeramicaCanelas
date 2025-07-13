@@ -1,73 +1,71 @@
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM completamente carregado. Iniciando script.');
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DEBUG: DOM carregado.');
 
-  const categoryForm = document.querySelector('.category-form');
-
-  if (categoryForm) {
-    console.log('Formulário encontrado com a classe .category-form');
-    categoryForm.addEventListener('submit', async (event) => {
-      console.log('Evento de submit do formulário detectado.');
-      event.preventDefault(); // Impede o comportamento padrão de envio do formulário
-
-      // Cria um objeto FormData a partir do formulário
-      const formData = new FormData();
-      const categoryName = categoryForm.querySelector('input[name="category"]').value;
-      const categoryDescription = categoryForm.querySelector('textarea[name="description"]').value;
-
-      // Adiciona os campos ao FormData com os nomes que a API espera
-      // (Certifique-se de que 'Name' e 'Description' são os nomes exatos esperados pela API)
-      formData.append('Name', categoryName);
-      formData.append('Description', categoryDescription);
-      // Se houver um ImageUrl opcional, adicione-o também.
-      // Por exemplo, se você tivesse um input de arquivo:
-      // const imageFile = categoryForm.querySelector('input[name="imageUrl"]').files[0];
-      // if (imageFile) {
-      //     formData.append('ImageUrl', imageFile);
-      // } else {
-      //     formData.append('ImageUrl', ''); // Envia string vazia se não houver imagem
-      // }
-      // Para o seu caso, se ImageUrl é apenas uma string e não um arquivo, mantenha como string vazia se não tiver um campo específico
-      formData.append('ImageUrl', ''); // Ou o valor de um campo de URL de imagem, se houver.
-
-      console.log('Dados coletados do formulário para FormData:');
-      // Para debug, você pode iterar sobre o FormData para ver os valores
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+      const btnSalvar = document.getElementById('btnSalvar');
+      if (!btnSalvar) {
+        console.error('ERRO: Botão de salvar não encontrado!');
+        return;
+      } else {
+        console.log('DEBUG: Botão de salvar encontrado.');
       }
 
-      try {
-        console.log('Enviando requisição para:', 'http://localhost:5087/api/categories');
-        // Ao usar FormData, não defina Content-Type; o navegador faz isso automaticamente
-        const response = await fetch('http://localhost:5087/api/categories', {
-          method: 'POST',
-          body: formData, // Envia o objeto FormData diretamente
-        });
+      const categoryForm = document.querySelector('.category-form');
+      if (!categoryForm) {
+        console.error('ERRO: Formulário com a classe .category-form não encontrado!');
+        return;
+      } else {
+        console.log('DEBUG: Formulário encontrado.');
+      }
 
-        console.log('Resposta da API recebida. Status:', response.status);
+      btnSalvar.addEventListener('click', async () => {
+        console.log('DEBUG: Botão salvar clicado.');
 
-        if (response.ok) {
-          console.log('Requisição bem-sucedida!');
-          alert('Categoria salva com sucesso!');
-          categoryForm.reset();
-        } else {
-          // Tente ler a resposta como texto se não for JSON, ou JSON se for.
-          // Às vezes, erros de FormData vêm como texto puro.
-          const errorText = await response.text();
-          try {
-              const errorData = JSON.parse(errorText);
-              console.error('Erro na resposta da API (JSON):', errorData);
-              alert(`Erro ao salvar categoria: ${errorData.message || JSON.stringify(errorData) || response.statusText}`);
-          } catch (e) {
-              console.error('Erro na resposta da API (Texto):', errorText);
-              alert(`Erro ao salvar categoria: ${errorText || response.statusText}`);
-          }
+        const categoryName = categoryForm.querySelector('input[name="categoryName"]').value.trim();
+        const categoryDescription = categoryForm.querySelector('textarea[name="categoryDescription"]').value.trim();
+
+        console.log('DEBUG: Valores capturados:', { categoryName, categoryDescription });
+
+        if (!categoryName) {
+          alert('O nome da categoria é obrigatório.');
+          return;
         }
-      } catch (error) {
-        console.error('Erro na requisição Fetch:', error);
-        alert('Ocorreu um erro ao tentar conectar ao servidor.');
-      }
+
+        const data = {
+          name: categoryName,
+          description: categoryDescription,
+          imageUrl: ''
+        };
+
+        try {
+          console.log('DEBUG: Enviando dados para a API...', data);
+
+          const response = await fetch('http://localhost:5087/api/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          console.log('DEBUG: Resposta da API:', response.status);
+
+          if (response.ok) {
+            alert('Categoria salva com sucesso!');
+            categoryForm.reset();
+            // Aqui você adicionaria a lógica para recarregar a tabela ou adicionar a nova linha
+          } else {
+            const errorText = await response.text();
+            console.error('DEBUG: Erro da API:', errorText);
+
+            try {
+              const errorJson = JSON.parse(errorText);
+              alert(`Erro ao salvar categoria: ${errorJson.message || JSON.stringify(errorJson)}`);
+            } catch {
+              alert(`Erro ao salvar categoria: ${errorText || response.statusText}`);
+            }
+          }
+        } catch (error) {
+          console.error('ERRO na requisição:', error);
+          alert('Erro ao conectar com o servidor.');
+        }
+      });
+      
     });
-  } else {
-    console.error('ERRO: Formulário com a classe ".category-form" NÃO encontrado!');
-  }
-});
