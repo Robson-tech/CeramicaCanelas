@@ -43,7 +43,7 @@ namespace CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCom
             product.UnitOfMeasure = request.UnitOfMeasure;
             product.StockInitial = request.StockInitial;
             product.StockMinium = request.StockMinium;
-            product.Value = request.Value;
+            product.ValueTotal = request.Value;
             product.ImageUrl = url;
             product.IsReturnable = request.IsReturnable;
             product.Observation = request.Observation;

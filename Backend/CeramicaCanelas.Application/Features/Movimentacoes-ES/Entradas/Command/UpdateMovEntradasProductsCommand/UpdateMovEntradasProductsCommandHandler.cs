@@ -38,7 +38,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
             var movimentacaoES = await ValidateUpdateMovimentacaoES(command, cancellationToken);
 
             // Atualiza o estoque do produto
-            var product = await _productRepository.GetProductByIdAsync(command.ProductId);
+            var product = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId);
             if (product == null)
             {
                 throw new BadRequestException("Produto não encontrado.");
@@ -51,7 +51,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
 
 
             //Atualizando com os novos valores
-            movimentacaoES.ProductId = command.ProductId;
+            movimentacaoES.ProductId = movimentacaoES.ProductId;
             movimentacaoES.Quantity = command.Quantity;
             movimentacaoES.UnitPrice = command.UnitPrice;
             movimentacaoES.ModifiedOn = DateTime.UtcNow;
@@ -75,7 +75,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
                 throw new BadRequestException("Movimentação de entrada não encontrada.");
             }
 
-            var product = await _productRepository.GetProductByIdAsync(command.ProductId);
+            var product = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId);
             if (product == null)
             {
                 throw new BadRequestException("Produto não encontrado.");

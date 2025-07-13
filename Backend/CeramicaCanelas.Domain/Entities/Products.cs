@@ -12,11 +12,11 @@ namespace CeramicaCanelas.Domain.Entities
         public int StockMinium { get; set; }
         public int StockCurrent { get; set; }
         public float ValueTotal { get; set; }
-        public string? ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
         public bool IsReturnable { get; set; }
         public string? Observation { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
-        public Categories Category { get; set; } = new Categories();
+        public Categories Category { get; set; } = null!;
 
 
     }

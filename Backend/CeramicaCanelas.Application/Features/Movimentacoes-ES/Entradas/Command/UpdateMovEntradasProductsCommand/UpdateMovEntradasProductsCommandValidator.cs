@@ -7,8 +7,6 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
     {
         public UpdateMovEntradasProductsCommandValidator()
         {
-            RuleFor(x => x.ProductId)
-                .NotEmpty().WithMessage("O ID do produto é obrigatório.");
             RuleFor(x => x.Quantity)
                 .GreaterThan(0).WithMessage("A quantidade deve ser maior que zero.");
             RuleFor(x => x.UnitPrice)

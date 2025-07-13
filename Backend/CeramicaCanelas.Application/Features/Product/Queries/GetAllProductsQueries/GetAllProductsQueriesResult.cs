@@ -25,7 +25,7 @@ public class GetAllProductsQueriesResult
         StockInitial = product.StockInitial;
         StockMinium = product.StockMinium;
         StockCurrent = product.StockCurrent;
-        Value = product.Value;
+        Value = product.ValueTotal;
         ImageUrl = string.IsNullOrWhiteSpace(product.ImageUrl)
             ? "https://localhost:7014/products/images/default.png"
             : product.ImageUrl;

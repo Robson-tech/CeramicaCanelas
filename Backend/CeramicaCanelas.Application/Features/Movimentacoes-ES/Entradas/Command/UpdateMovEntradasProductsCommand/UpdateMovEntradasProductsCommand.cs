@@ -10,7 +10,6 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
     public class UpdateMovEntradasProductsCommand : IRequest<Unit>
     {
         public Guid Id { get; set; }
-        public Guid ProductId { get; set; }
         public int Quantity { get; set; }
         public float UnitPrice { get; set; }
     }
