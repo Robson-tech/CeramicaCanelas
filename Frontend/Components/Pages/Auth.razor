@@ -69,109 +69,38 @@
         </div>
     </div>
 
-    <script>
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-button').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.form-content').forEach(content => content.classList.remove('active'));
-            
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            
-            hideAlert();
-        }
+ 
 
-        function showAlert(message, type = 'success') {
-            const alert = document.getElementById('alert');
-            alert.textContent = message;
-            alert.className = `alert ${type} show`;
-            
-            setTimeout(() => {
-                hideAlert();
-            }, 5000);
-        }
-
-        function hideAlert() {
-            const alert = document.getElementById('alert');
-            alert.classList.remove('show');
-        }
-
-        // --- FUNÇÃO DE LOGIN MODIFICADA ---
-        async function handleLogin(event) {
-            event.preventDefault(); // Impede o recarregamento da página pelo formulário
-            hideAlert(); // Oculta alertas anteriores
-
-            const form = event.target;
-            const formData = new FormData(form);
-            const username = formData.get('username');
-            const password = formData.get('password');
-
-            // A URL do seu endpoint da API
-            const apiUrl = 'http://localhost:5087/api/auth';
-
-            // Mostra um estado de carregamento no botão para melhor experiência do usuário
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.textContent = 'Entrando...';
-            submitButton.disabled = true;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    // O backend espera um objeto JSON, então convertemos as credenciais
-                    body: JSON.stringify({
-                        username: username, // ou email, dependendo da sua API
-                        password: password
-                    })
-                });
-
-                if (response.ok) { // Código de status 200-299 indica sucesso
-                    // Supondo que a API retorne um token, você pode salvá-lo aqui
-                    // const result = await response.json();
-                    // localStorage.setItem('authToken', result.token);
-
-                    showAlert('Login realizado com sucesso! Redirecionando...', 'success');
-                    
-                    // Aguarda 2 segundos e redireciona para a página /home
-                    setTimeout(() => {
-                        window.location.href = '/home'; 
-                    }, 2000);
-
-                } else {
-                    // Trata erros de login (ex: 401 não autorizado, 400 requisição inválida)
-                    const errorData = await response.json();
-                    const errorMessage = errorData.message || 'Usuário ou senha inválidos.';
-                    showAlert(errorMessage, 'error');
-                }
-
-            } catch (error) {
-                // Trata erros de rede (ex: API fora do ar)
-                console.error('Falha na requisição de login:', error);
-                showAlert('Não foi possível conectar ao servidor. Tente novamente mais tarde.', 'error');
-            } finally {
-                // Restaura o botão ao seu estado original, independentemente do resultado
-                submitButton.textContent = 'Entrar';
-                submitButton.disabled = false;
-            }
-        }
-
-        function handleRecover(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const email = formData.get('email');
-            
-            if (email) {
-                showAlert('Instruções enviadas para seu email!', 'success');
-                setTimeout(() => {
-                    switchTab('login');
-                }, 3000);
-            }
-        }
-        
-        // Outras funções de ajuda como 'handleRegister' e 'checkPasswordStrength'
-        // foram omitidas pois não estavam no seu código inicial, mas podem ser adicionadas aqui se necessário.
-
-    </script>
 </body>
 </html>
+
+ <script>
+    async function handleLogin(event) {
+        event.preventDefault();
+        const form = event.target;
+        const username = form.username.value;
+        const password = form.password.value;
+
+        const rawBody = `Username=${encodeURIComponent(username)}&Password=${encodeURIComponent(password)}`;
+
+        const response = await fetch('http://localhost:5087/api/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: rawBody
+        });
+
+        const alertDiv = document.getElementById("alert");
+
+        if (response.ok) {
+            const data = await response.text(); // ou .json() dependendo do retorno
+            alertDiv.style.color = "green";
+            alertDiv.innerText = "Login realizado com sucesso!";
+        } else {
+            const error = await response.text();
+            alertDiv.style.color = "red";
+            alertDiv.innerText = "Erro: " + error;
+        }
+    }
+</script>
