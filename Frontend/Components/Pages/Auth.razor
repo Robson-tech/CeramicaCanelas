@@ -1,14 +1,34 @@
 @page "/"
-@inherits LayoutComponentBase
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Cerâmica Canelas</title>
     <style>
-        /* Seu CSS existente vai aqui. O deixei em branco para focar na funcionalidade. */
+        /* Estilos gerais e para o formulário */
+        body { font-family: sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .header .logo svg { width: 60px; height: 60px; margin-bottom: 10px; }
+        .header .company-name { font-size: 24px; font-weight: bold; color: #333; }
+        .header .company-subtitle { font-size: 14px; color: #777; margin-bottom: 20px; }
+        .form-tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+        .tab-button { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; font-size: 16px; color: #777; }
+        .tab-button.active { font-weight: bold; color: #e67e22; border-bottom: 2px solid #e67e22; }
+        .form-content { display: none; }
+        .form-content.active { display: block; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-button { width: 100%; padding: 12px; background-color: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .form-button:hover { background-color: #d35400; }
+        .forgot-password { text-align: right; margin-top: 10px; }
+        .forgot-password a { color: #e67e22; text-decoration: none; font-size: 14px; }
+        
+        /* CSS para a div de alerta */
+        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; text-align: center; display: none; /* Começa escondido */ }
+        .alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
+        .alert-success { color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6; }
     </style>
 </head>
 <body>
@@ -16,10 +36,10 @@
         <div class="header">
             <div class="logo">
                 <svg viewBox="0 0 100 100">
-                    <rect x="10" y="60" width="80" height="30" fill="#e67e22" rx="3"/>
-                    <rect x="20" y="40" width="60" height="25" fill="#d35400" rx="3"/>
-                    <rect x="30" y="20" width="40" height="25" fill="#e67e22" rx="3"/>
-                    <circle cx="50" cy="15" r="3" fill="#e67e22"/>
+                    <rect x="10" y="60" width="80" height="30" fill="#e67e22" rx="3" />
+                    <rect x="20" y="40" width="60" height="25" fill="#d35400" rx="3" />
+                    <rect x="30" y="20" width="40" height="25" fill="#e67e22" rx="3" />
+                    <circle cx="50" cy="15" r="3" fill="#e67e22" />
                 </svg>
             </div>
             <div class="company-name">CERÂMICA CANELAS</div>
@@ -35,27 +55,25 @@
             <div id="alert" class="alert"></div>
 
             <div id="login" class="form-content active">
-                <form onsubmit="handleLogin(event)">
+                <form id="loginForm">
                     <div class="form-group">
                         <label class="form-label">Email ou Usuário</label>
-                        <input type="text" class="form-input" name="username" required>
+                        <input type="text" class="form-input" name="username" required />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Senha</label>
-                        <input type="password" class="form-input" name="password" required>
+                        <input type="password" class="form-input" name="password" required />
                     </div>
                     <button type="submit" class="form-button">Entrar</button>
                 </form>
-                <div class="forgot-password">
-                    
-                </div>
+                <div class="forgot-password"></div>
             </div>
 
             <div id="recover" class="form-content">
-                <form onsubmit="handleRecover(event)">
+                <form id="recoverForm">
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-input" name="email" required>
+                        <input type="email" class="form-input" name="email" required />
                         <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
                             Digite o email associado à sua conta para receber as instruções de recuperação.
                         </small>
@@ -69,38 +87,64 @@
         </div>
     </div>
 
- 
+    <script>
+        // Função para trocar de abas (Login / Recuperar Senha)
+        function switchTab(tabName) {
+            const contents = document.getElementsByClassName("form-content");
+            const buttons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < contents.length; i++) {
+                contents[i].classList.remove("active");
+                buttons[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
 
+        // Função para mostrar alertas
+        function showAlert(message, type = 'danger') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+        }
+
+        // Lógica para o formulário de login
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const alertDiv = document.getElementById('alert');
+
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                alertDiv.style.display = 'none';
+
+                const formData = new FormData(loginForm);
+                const params = new URLSearchParams();
+                params.append('Username', formData.get('username'));
+                params.append('Password', formData.get('password'));
+
+                // Constrói a URL com os parâmetros de consulta
+                const url = `http://localhost:5087/api/auth?${params.toString()}`;
+
+                try {
+                    // Faz a requisição POST enviando os dados na URL, sem corpo (body)
+                    const response = await fetch(url, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        showAlert('Login bem-sucedido! Redirecionando...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/pagina-principal'; // Mude para sua página de destino
+                        }, 1500);
+                    } else {
+                        showAlert('Falha no login. Verifique seu usuário e senha.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Erro de conexão:', error);
+                    showAlert('Não foi possível conectar ao servidor. Tente novamente mais tarde.', 'danger');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-
- <script>
-    async function handleLogin(event) {
-        event.preventDefault();
-        const form = event.target;
-        const username = form.username.value;
-        const password = form.password.value;
-
-        const rawBody = `Username=${encodeURIComponent(username)}&Password=${encodeURIComponent(password)}`;
-
-        const response = await fetch('http://localhost:5087/api/auth', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: rawBody
-        });
-
-        const alertDiv = document.getElementById("alert");
-
-        if (response.ok) {
-            const data = await response.text(); // ou .json() dependendo do retorno
-            alertDiv.style.color = "green";
-            alertDiv.innerText = "Login realizado com sucesso!";
-        } else {
-            const error = await response.text();
-            alertDiv.style.color = "red";
-            alertDiv.innerText = "Erro: " + error;
-        }
-    }
-</script>
