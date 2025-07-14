@@ -5,7 +5,7 @@ using CeramicaCanelas.Domain.Entities;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
-namespace CeramicaCanelas.Application.Features.Product.Queries.GetAllProductsQueries
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.GetAllProductsQueries
 {
 
     public class GetAllProductsQueries : IRequest<List<GetAllProductsQueriesResult>> { }

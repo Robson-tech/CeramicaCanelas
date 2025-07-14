@@ -15,6 +15,8 @@ namespace CeramicaCanelas.Domain.Entities
 
         public DateTime ExitDate { get; set; }
         public int Quantity { get; set; }
+        public int ReturnedQuantity { get; set; } = 0; // Total devolvido
+
 
         public bool IsReturnable { get; set; }
         public bool IsReturned { get; set; }

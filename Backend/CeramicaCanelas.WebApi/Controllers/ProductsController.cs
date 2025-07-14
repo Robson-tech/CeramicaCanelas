@@ -1,8 +1,8 @@
-﻿using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
-using CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand;
-using CeramicaCanelas.Application.Features.Product.Commands.DeleteProductCommand;
-using CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand;
-using CeramicaCanelas.Application.Features.Product.Queries.GetAllProductsQueries;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.DeleteProductCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.UpdateProductCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.GetAllProductsQueries;
+using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
