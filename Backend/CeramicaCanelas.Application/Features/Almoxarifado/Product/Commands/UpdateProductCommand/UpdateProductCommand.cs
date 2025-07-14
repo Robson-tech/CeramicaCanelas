@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.UpdateProductCommand
 {
     public class UpdateProductCommand : IRequest<Unit>
     {

@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 
-namespace CeramicaCanelas.Application.Features.Product.Commands.CreatedProductCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand
 {
     public class CreatedProductCommand : IRequest<Unit>
     {

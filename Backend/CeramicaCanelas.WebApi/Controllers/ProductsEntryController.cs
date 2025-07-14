@@ -2,8 +2,6 @@
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.DeleteMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.UpdateMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries.GetAllProductsEntryQueries;
-using CeramicaCanelas.Application.Features.Product.Commands.DeleteProductCommand;
-using CeramicaCanelas.Application.Features.Product.Queries.GetAllProductsQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand
 {
-    public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+    public class CreatedProductCommandValidator : AbstractValidator<CreatedProductCommand>
     {
-        public UpdateProductCommandValidator()
+        public CreatedProductCommandValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("O nome é obrigatório.")
@@ -25,7 +25,6 @@ namespace CeramicaCanelas.Application.Features.Product.Commands.UpdateProductCom
                 .GreaterThanOrEqualTo(0).WithMessage("O estoque mínimo deve ser maior ou igual a zero.");
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("A categoria é obrigatória.");
-
         }
     }
 }
