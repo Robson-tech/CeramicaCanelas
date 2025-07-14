@@ -12,11 +12,11 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
 {
     public class UpdateMovEntradasProductsCommandHandler : IRequestHandler<UpdateMovEntradasProductsCommand, Unit>
     {
-        private readonly IMovimentacaoEntradasProductsRepository _movimentacaoESRepository;
+        private readonly IMovEntryProductsRepository _movimentacaoESRepository;
         private readonly IProductRepository _productRepository;
         private readonly ILogged _logged;
 
-        public UpdateMovEntradasProductsCommandHandler(IMovimentacaoEntradasProductsRepository movimentacaoEntradasProductsRepository,
+        public UpdateMovEntradasProductsCommandHandler(IMovEntryProductsRepository movimentacaoEntradasProductsRepository,
             IProductRepository productRepository,
             ILogged logged)
 

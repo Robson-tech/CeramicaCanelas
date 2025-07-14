@@ -12,10 +12,10 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
 {
     public class DeleteMovEntradasProductsCommandHandler : IRequestHandler<DeleteMovEntradasProductsCommand, Unit>
     {
-        private readonly IMovimentacaoEntradasProductsRepository _repository;
+        private readonly IMovEntryProductsRepository _repository;
         private readonly ILogged _logged;
 
-        public DeleteMovEntradasProductsCommandHandler(IMovimentacaoEntradasProductsRepository repository, ILogged logged)
+        public DeleteMovEntradasProductsCommandHandler(IMovEntryProductsRepository repository, ILogged logged)
         {
             _repository = repository;
             _logged = logged;

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Persistence.Repositories
 {
-    public class MovimentacaoEntradasProductsRepository(DefaultContext context) : BaseRepository<ProductEntry>(context), IMovimentacaoEntradasProductsRepository
+    public class MovEntryProductsRepository(DefaultContext context) : BaseRepository<ProductEntry>(context), IMovEntryProductsRepository
     {
         public async Task<List<Domain.Entities.ProductEntry>> GetAllAsync()
         {
