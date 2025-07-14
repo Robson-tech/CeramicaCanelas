@@ -90,7 +90,15 @@
                             <span class="menu-text">Devolver</span>
                             
                         </a>
-                     
+                     <div class="menu-section">
+    <a href="#" class="menu-item logout" onclick="logout()">
+        <svg class="menu-icon" viewBox="0 0 24 24">
+            <path d="M16 13V11H8V8L3 12L8 16V13H16M20 3H12V5H20V19H12V21H20A2 2 0 0 0 22 19V5A2 2 0 0 0 20 3Z" />
+        </svg>
+        <span class="menu-text">Sair</span>
+    </a>
+</div>
+
                     </div>
                 </div>
             </div>
@@ -127,6 +135,11 @@
             firstItem.classList.add('active');
         }
     });
+    function logout() {
+    localStorage.removeItem('accessToken');
+    window.location.href = "/"; // redirecione para a página de login correta
+}
+
 </script>
 
      

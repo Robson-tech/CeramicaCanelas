@@ -5,31 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - Cerâmica Canelas</title>
-    <style>
-        /* Estilos gerais e para o formulário */
-        body { font-family: sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .header .logo svg { width: 60px; height: 60px; margin-bottom: 10px; }
-        .header .company-name { font-size: 24px; font-weight: bold; color: #333; }
-        .header .company-subtitle { font-size: 14px; color: #777; margin-bottom: 20px; }
-        .form-tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
-        .tab-button { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; font-size: 16px; color: #777; }
-        .tab-button.active { font-weight: bold; color: #e67e22; border-bottom: 2px solid #e67e22; }
-        .form-content { display: none; }
-        .form-content.active { display: block; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        .form-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .form-button { width: 100%; padding: 12px; background-color: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .form-button:hover { background-color: #d35400; }
-        .forgot-password { text-align: right; margin-top: 10px; }
-        .forgot-password a { color: #e67e22; text-decoration: none; font-size: 14px; }
-        
-        /* CSS para a div de alerta */
-        .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; text-align: center; display: none; /* Começa escondido */ }
-        .alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
-        .alert-success { color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6; }
-    </style>
 </head>
 <body>
     <div class="login-container">
@@ -132,9 +107,17 @@
                     });
 
                     if (response.ok) {
+                        const data = await response.json();
+
+                        // Salvar tokens e informações no localStorage
+                        localStorage.setItem('accessToken', data.accessToken);
+                        localStorage.setItem('refreshToken', data.refreshToken);
+                        localStorage.setItem('issuedAt', data.issuedAt);
+                        localStorage.setItem('expirationDate', data.expirationDate);
+                        localStorage.setItem('roles', JSON.stringify(data.roles));
                         showAlert('Login bem-sucedido! Redirecionando...', 'success');
                         setTimeout(() => {
-                            window.location.href = '/pagina-principal'; // Mude para sua página de destino
+                            window.location.href = '/home'; // Ajuste para a página desejada
                         }, 1500);
                     } else {
                         showAlert('Falha no login. Verifique seu usuário e senha.', 'danger');
