@@ -26,6 +26,7 @@ namespace CeramicaCanelas.WebApi.Controllers
         {
             await _mediator.Send(request);
             return NoContent();
+
         }
 
         [Authorize(Roles = "Custoumer,Admin")]
