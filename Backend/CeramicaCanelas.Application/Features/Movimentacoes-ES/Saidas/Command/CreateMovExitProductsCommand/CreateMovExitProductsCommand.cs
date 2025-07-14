@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿
+
+using MediatR;
 
 
 namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand
