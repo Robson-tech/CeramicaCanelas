@@ -6,13 +6,13 @@ using MediatR;
 
 namespace CeramicaCanelas.Application.Features.Categories.Commands.DeleteCategoriesCommand
 {
-    public class DeleteCategoriesCommandHandle : IRequestHandler<DeleteCategoriesCommand, Unit>
+    public class DeleteCategoriesCommandHandler : IRequestHandler<DeleteCategoriesCommand, Unit>
     {
 
         private readonly ICategoryRepository _categoryRepository;
         private readonly ILogged _logged;
 
-        public DeleteCategoriesCommandHandle (ICategoryRepository categoryRepository, ILogged logged)
+        public DeleteCategoriesCommandHandler (ICategoryRepository categoryRepository, ILogged logged)
         {
             _categoryRepository = categoryRepository;
             _logged = logged;   
