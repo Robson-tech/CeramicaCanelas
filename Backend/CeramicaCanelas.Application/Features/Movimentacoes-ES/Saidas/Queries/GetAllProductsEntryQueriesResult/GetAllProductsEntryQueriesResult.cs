@@ -12,6 +12,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
     {
         public class GetAllProductsExitQueriesResult
         {
+            public Guid Id { get; set; } 
             public string NameProduct { get; set; } = string.Empty;
             public string NameEmployee { get; set; } = string.Empty;
             public DateTime ExitDate { get; set; }
@@ -24,6 +25,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
 
             public GetAllProductsExitQueriesResult(Domain.Entities.ProductExit productExit)
             {
+                Id = productExit.Id;
                 NameProduct = productExit.Product?.Name ?? "Desconhecido";
                 NameEmployee = productExit.Employee?.Name ?? "Desconhecido";
                 ExitDate = productExit.ExitDate;
