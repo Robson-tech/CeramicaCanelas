@@ -10,6 +10,9 @@ namespace CeramicaCanelas.Domain.Entities
         public Guid EmployeeId { get; set; }
         public Employee Employee { get; set; } = null!;
 
+        public string UserId { get; set; } = string.Empty;
+        public User User { get; set; } = null!;
+
         public DateTime ExitDate { get; set; }
         public int Quantity { get; set; }
 

@@ -51,6 +51,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.C
             await ValidateProductExit(command, cancellationToken);
 
             var moveExit = command.AssignToProductsExit();
+            moveExit.UserId = user.Id;
             await _repository.CreateAsync(moveExit, cancellationToken);
 
             //Atualizar dados do produto no estoque

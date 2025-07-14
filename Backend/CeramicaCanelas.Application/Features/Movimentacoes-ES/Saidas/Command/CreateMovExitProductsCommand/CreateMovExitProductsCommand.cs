@@ -25,7 +25,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.C
                 IsReturned = false,
                 ReturnDate = null,
                 CreatedOn = DateTime.UtcNow,
-                ModifiedOn = DateTime.UtcNow
+                ModifiedOn = DateTime.UtcNow,                
 
             };
         }
