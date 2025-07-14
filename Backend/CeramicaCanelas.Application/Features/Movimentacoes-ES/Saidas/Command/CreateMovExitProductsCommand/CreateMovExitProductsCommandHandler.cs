@@ -36,6 +36,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.C
                 throw new BadRequestException("Produto não encontrado");
             }
 
+
             if (product.StockCurrent < command.Quantity)
             {
                 throw new BadRequestException("Quantidade em estoque insuficiente.");

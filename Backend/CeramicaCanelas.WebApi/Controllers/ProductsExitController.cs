@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.CreateMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
+using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.UpdateMovExitProdructsCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,5 +25,17 @@ namespace CeramicaCanelas.WebApi.Controllers
             await _mediator.Send(request);
             return NoContent();
         }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateProductsExit([FromForm] UpdateMovExitProdructsCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+
     }
 }

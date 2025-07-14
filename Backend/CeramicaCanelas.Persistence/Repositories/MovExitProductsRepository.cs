@@ -6,5 +6,10 @@ namespace CeramicaCanelas.Persistence.Repositories
     public class MovExitProductsRepository(DefaultContext context) : BaseRepository<ProductExit>(context), IMovExitProductsRepository
     {
 
+        public async Task<ProductExit?> GetByIdAsync(Guid id)
+        {
+            return await Context.ProductExits.FindAsync(id);
+        }
+
     }
 }
