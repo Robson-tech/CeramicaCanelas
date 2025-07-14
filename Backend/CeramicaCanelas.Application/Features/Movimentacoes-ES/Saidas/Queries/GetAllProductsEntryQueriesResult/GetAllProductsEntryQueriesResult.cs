@@ -22,6 +22,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
             public DateTime? ReturnDate { get; set; }
             public string? Observation { get; set; }
             public string NameOperator { get; set; } = string.Empty;
+            public int ReturnedQuantity { get; set; }
 
             public GetAllProductsExitQueriesResult(Domain.Entities.ProductExit productExit)
             {
@@ -35,6 +36,9 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
                 ReturnDate = productExit.ReturnDate;
                 Observation = productExit.Observation;
                 NameOperator = productExit.User.Name ?? "Desconhecido";
+                ReturnedQuantity = productExit.ReturnedQuantity;
+
+
             }
         }
     }

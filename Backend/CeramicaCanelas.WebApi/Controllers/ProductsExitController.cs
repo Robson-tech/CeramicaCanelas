@@ -1,8 +1,6 @@
-﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.CreateMovEntradasProductsCommand;
-using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.DeleteMovEntradasProductsCommand;
-using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries.GetAllProductsEntryQueries;
-using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
+﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.DeleteMovExitProdructsCommand;
+using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.ReturnProductExitCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.UpdateMovExitProdructsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries;
 using MediatR;
@@ -61,6 +59,16 @@ namespace CeramicaCanelas.WebApi.Controllers
             var response = await _mediator.Send(request);
             return Ok(response);
 
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPut("returned-products")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ReturnProductsExit([FromForm] ReturnProductExitCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
         }
     }
 }
