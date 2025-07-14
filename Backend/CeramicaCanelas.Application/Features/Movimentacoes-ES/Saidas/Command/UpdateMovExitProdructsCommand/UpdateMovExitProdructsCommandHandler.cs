@@ -47,6 +47,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
             //Desatalizando a movimentação anterior
             product.StockCurrent += productExit.Quantity;
             product.ModifiedOn = DateTime.UtcNow;
+            
             await _productRepository.Update(product);
 
             if (product.StockCurrent < command.Quantity)
@@ -63,6 +64,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
             productExit.ExitDate = DateTime.UtcNow;
             productExit.ModifiedOn = DateTime.UtcNow;
             productExit.IsReturned = false;
+            productExit.UserId = user.Id;
             await _movExitProductRepository.Update(productExit);
 
             // Atualiza o estoque do produto com os novos valores

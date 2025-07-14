@@ -11,7 +11,7 @@ namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
     {
         public Task<ProductExit?> GetByIdAsync(Guid id);
 
-
+        public Task<List<ProductExit>> GetAllAsync();
 
 
     }
