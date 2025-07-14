@@ -17,11 +17,11 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries
     }
     public class GetAllProductsEntryQueriesHandler : IRequestHandler<GetAllProductsEntryQueries, List<GetAllProductsEntryQueriesResult>>
     {
-        private readonly IMovimentacaoEntradasProductsRepository _movimentacaoEntradasProductsRepository;
+        private readonly IMovEntryProductsRepository _movimentacaoEntradasProductsRepository;
         private readonly IUserRepository _userRepository;
         private readonly ILogged _logged;
 
-        public GetAllProductsEntryQueriesHandler(IMovimentacaoEntradasProductsRepository movimentacaoEntradasProductsRepository, ILogged logged, IUserRepository userRepository)
+        public GetAllProductsEntryQueriesHandler(IMovEntryProductsRepository movimentacaoEntradasProductsRepository, ILogged logged, IUserRepository userRepository)
         {
             _movimentacaoEntradasProductsRepository = movimentacaoEntradasProductsRepository;
             _logged = logged;

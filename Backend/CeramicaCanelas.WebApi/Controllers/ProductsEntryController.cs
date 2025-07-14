@@ -15,7 +15,7 @@ namespace CeramicaCanelas.WebApi.Controllers
     [Route("api/products-entry")]
     [ApiController]
     [OpenApiTags("products-entry")]
-    public class ProductsEntry(IMediator mediator) : ControllerBase
+    public class ProductsEntryController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
 

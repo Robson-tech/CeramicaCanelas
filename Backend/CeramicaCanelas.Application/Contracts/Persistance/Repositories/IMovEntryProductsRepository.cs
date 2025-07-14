@@ -1,6 +1,6 @@
 ﻿namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
 {
-    public interface IMovimentacaoEntradasProductsRepository : IBaseRepository<Domain.Entities.ProductEntry>
+    public interface IMovEntryProductsRepository : IBaseRepository<Domain.Entities.ProductEntry>
     {
         /// <summary>
         /// Gets all product entries from the database
