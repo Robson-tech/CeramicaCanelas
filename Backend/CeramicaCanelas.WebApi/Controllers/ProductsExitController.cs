@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.CreateMovEntradasProductsCommand;
+using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.DeleteMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.UpdateMovExitProdructsCommand;
 using MediatR;
@@ -36,6 +37,16 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteProductsExit([FromQuery] DeleteMovEntradasProductsCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
 
-    }
+
+        }
 }

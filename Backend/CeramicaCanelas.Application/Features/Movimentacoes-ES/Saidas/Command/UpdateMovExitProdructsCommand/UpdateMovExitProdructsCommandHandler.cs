@@ -36,11 +36,6 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
                 throw new BadRequestException("Produto não encontrado");
             }
 
-            if (product.StockCurrent < command.Quantity)
-            {
-                throw new BadRequestException("Quantidade em estoque insuficiente.");
-            }
-
             var employee = await _employeesRepository.GetByIdAsync(command.EmployeeId);
             if (employee == null)
             {
@@ -53,6 +48,11 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
             product.StockCurrent += productExit.Quantity;
             product.ModifiedOn = DateTime.UtcNow;
             await _productRepository.Update(product);
+
+            if (product.StockCurrent < command.Quantity)
+            {
+                throw new BadRequestException("Quantidade em estoque insuficiente.");
+            }
 
             //Atualizando com os novos valores
             productExit.ProductId = command.ProductId;

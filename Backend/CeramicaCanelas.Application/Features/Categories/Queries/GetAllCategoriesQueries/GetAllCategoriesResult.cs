@@ -20,6 +20,7 @@
             Name = categories.Name;
             Description = categories.Description;
             ImageUrl = categories.ImageUrl!;
+            
 
         }
     }

@@ -5,6 +5,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Queries.GetAllEmployees
 {
     public class GetAllEmployeesQueriesResult
     {
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = string.Empty;
         public Positiions Positiions { get; set; }
         public string? CPF { get; set; } = string.Empty;
@@ -16,6 +17,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Queries.GetAllEmployees
                 throw new ArgumentNullException(nameof(employee), "Employee cannot be null");
             }
             
+            Id = employee.Id;
             Name = employee.Name;
             Positiions = employee.Positiions;
             CPF = employee.CPF;
