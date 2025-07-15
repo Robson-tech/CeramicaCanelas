@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetInventoryStatusQueries;
+using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetEmployeeMovementsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,12 +16,24 @@ namespace CeramicaCanelas.WebApi.Controllers
         [Authorize(Roles = "Custoumer,Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpGet("estoque")]
-        public async Task<IActionResult> GetEstoquePainel([FromQuery]GetInventoryStatusQuery request)
+        [HttpGet("stock")]
+        public async Task<IActionResult> GetStockPanel([FromQuery]GetInventoryStatusQuery request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
         }
+        [Authorize(Roles = "Custoumer,Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpGet("reports/employees")]
+        public async Task<IActionResult> GetReportsEmployees([FromQuery] GetEmployeeMovementsQuery request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+
+
+
 
 
     }
