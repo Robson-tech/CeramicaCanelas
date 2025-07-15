@@ -1,189 +1,257 @@
 console.log('✅ SCRIPT: js/employee.js foi carregado e está executando.');
 
-// Função para aguardar o formulário aparecer no DOM
+const API_URL = 'http://localhost:5087/api/employees';
+
+// Mapa para converter o número da posição para o nome do cargo
+const positionMap = {
+    0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',
+    4: 'Operador de Pá Carregadeira', 5: 'Motorista', 6: 'Queimador',
+    7: 'Conferente', 8: 'Caixa', 9: 'Auxiliar Administrativo',
+    10: 'Auxiliar de Limpeza', 11: 'Dono', 12: 'Gerente', 13: 'Auxiliar de Estoque'
+};
+
+const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
+
+// Objeto para armazenar o estado original da linha antes da edição
+const originalRowHTML = {};
+
+
+// =================================================================
+// FUNÇÕES DA TABELA (GET, RENDER, EDIT, DELETE)
+// =================================================================
+
+async function loadEmployees() {
+    console.log('Buscando lista de funcionários para a tabela...');
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        console.warn('Token de acesso não encontrado. A tabela não será carregada.');
+        return;
+    }
+    try {
+        const response = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error('Falha ao buscar funcionários.');
+        const employees = await response.json();
+        renderEmployeeTable(employees);
+    } catch (error) {
+        console.error('Erro ao carregar funcionários para a tabela:', error);
+    }
+}
+
+function renderEmployeeTable(employees) {
+    const tableBody = document.getElementById('employee-table-body');
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    employees.forEach(employee => {
+        const positionValue = employee.positiions;
+        const imageUrl = employee.imageUrl || 'https://via.placeholder.com/60';
+        const row = `
+            <tr id="row-${employee.id}" data-position="${positionValue}">
+                <td data-field="image"><img src="${imageUrl}" alt="${employee.name}" class="employee-photo"></td>
+                <td data-field="name">${employee.name}</td>
+                <td data-field="cpf">${employee.cpf}</td>
+                <td data-field="position">${getPositionName(positionValue)}</td>
+                <td data-field="actions">
+                    <button class="btn-edit" onclick="editEmployee('${employee.id}')">Editar</button>
+                    <button class="btn-delete" onclick="deleteEmployee('${employee.id}')">Excluir</button>
+                </td>
+            </tr>
+        `;
+        tableBody.insertAdjacentHTML('beforeend', row);
+    });
+}
+
+window.deleteEmployee = async (employeeId) => {
+    if (!confirm('Tem certeza que deseja excluir este funcionário?')) return;
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) { alert('Autenticação necessária.'); return; }
+    try {
+        // Para DELETE, a API deve usar o ID na URL
+        const response = await fetch(`${API_URL}/${employeeId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (response.ok) {
+            alert('Funcionário excluído com sucesso!');
+            loadEmployees();
+        } else {
+            throw new Error('Falha ao excluir funcionário.');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir:', error);
+        alert(error.message);
+    }
+};
+
+// --- Funções de Edição na Tabela (ATUALIZADAS) ---
+
+/**
+ * ATUALIZADO: Adiciona um campo de upload de imagem durante a edição.
+ */
+window.editEmployee = (employeeId) => {
+    document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = true);
+    const row = document.getElementById(`row-${employeeId}`);
+    if (!row) return;
+
+    originalRowHTML[employeeId] = row.innerHTML;
+    
+    const imageCell = row.querySelector('[data-field="image"]');
+    const nameCell = row.querySelector('[data-field="name"]');
+    const cpfCell = row.querySelector('[data-field="cpf"]');
+    const positionCell = row.querySelector('[data-field="position"]');
+    const actionsCell = row.querySelector('[data-field="actions"]');
+    
+    const currentName = nameCell.innerText;
+    const currentCpf = cpfCell.innerText;
+    const currentPositionValue = row.getAttribute('data-position');
+    const currentImageHTML = imageCell.innerHTML;
+
+    // Adiciona um campo para selecionar uma nova imagem
+    imageCell.innerHTML = `${currentImageHTML}<br><label style="font-size: 12px; margin-top: 5px; display: block;">Trocar Imagem:<input type="file" class="edit-file" accept="image/*"></label>`;
+    
+    // Transforma as outras células em campos editáveis
+    nameCell.innerHTML = `<input type="text" class="edit-input" value="${currentName}">`;
+    cpfCell.innerHTML = `<input type="text" class="edit-input" value="${currentCpf}">`;
+    let positionOptions = '';
+    for (const [key, value] of Object.entries(positionMap)) {
+        const isSelected = key === currentPositionValue ? 'selected' : '';
+        positionOptions += `<option value="${key}" ${isSelected}>${value}</option>`;
+    }
+    positionCell.innerHTML = `<select class="edit-select">${positionOptions}</select>`;
+    
+    actionsCell.innerHTML = `
+        <button class="btn-save" onclick="saveEmployeeChanges('${employeeId}')">Salvar</button>
+        <button class="btn-cancel" onclick="cancelEdit('${employeeId}')">Cancelar</button>
+    `;
+};
+
+/**
+ * ATUALIZADO: Envia os dados como 'multipart/form-data' e o ID no corpo.
+ */
+window.saveEmployeeChanges = async (employeeId) => {
+    const row = document.getElementById(`row-${employeeId}`);
+    if (!row) return;
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert('Autenticação necessária.');
+        return;
+    }
+
+    // 1. Cria um objeto FormData para enviar os dados
+    const formData = new FormData();
+
+    // 2. Pega os valores dos campos
+    const nameValue = row.querySelector('[data-field="name"] input').value;
+    const cpfValue = row.querySelector('[data-field="cpf"] input').value;
+    const positionValue = row.querySelector('[data-field="position"] select').value;
+    const imageFile = row.querySelector('.edit-file').files[0];
+
+    // 3. Adiciona todos os campos ao FormData, INCLUINDO O ID
+    formData.append('Id', employeeId);
+    formData.append('Name', nameValue);
+    formData.append('CPF', cpfValue);
+    formData.append('Positiions', positionValue);
+    
+    // Apenas anexa a imagem se o usuário selecionou um novo arquivo
+    if (imageFile) {
+        formData.append('Imagem', imageFile);
+    }
+
+    try {
+        // 4. Faz a requisição PUT para a URL base, sem o ID
+        const response = await fetch(API_URL, {
+            method: 'PUT',
+            headers: {
+                // Ao usar FormData, NÃO definimos o 'Content-Type'. O navegador faz isso.
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: formData // O corpo da requisição é o objeto FormData
+        });
+
+        if (response.ok) {
+            alert('Funcionário atualizado com sucesso!');
+        } else {
+            const errorText = await response.text();
+            throw new Error(`Falha ao atualizar: ${errorText}`);
+        }
+    } catch (error) {
+        console.error('Erro ao salvar alterações:', error);
+        alert(error.message);
+    } finally {
+        delete originalRowHTML[employeeId];
+        loadEmployees(); // Recarrega a tabela para mostrar o estado atualizado
+    }
+};
+
+window.cancelEdit = (employeeId) => {
+    const row = document.getElementById(`row-${employeeId}`);
+    if (row && originalRowHTML[employeeId]) {
+        row.innerHTML = originalRowHTML[employeeId];
+        delete originalRowHTML[employeeId];
+    }
+    document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = false);
+};
+
+
+// =================================================================
+// FUNÇÕES DO FORMULÁRIO DE CADASTRO (POST) - Sem alterações
+// =================================================================
+
 function waitForForm() {
-    console.log('🔍 Procurando o formulário de funcionário...');
-    
     const employeeForm = document.querySelector('.employee-form');
-    
     if (!employeeForm) {
-        console.log('⏳ Formulário ainda não encontrado. Tentando novamente em 100ms...');
         setTimeout(waitForForm, 100);
         return;
     }
-    
-    console.log('👍 SUCESSO: Formulário .employee-form encontrado!', employeeForm);
     initializeForm(employeeForm);
 }
 
-// Função para inicializar o formulário
 function initializeForm(employeeForm) {
-    const API_URL = 'http://localhost:5087/api/employees';
-
-    /**
-     * Manipula o envio do formulário para salvar um novo funcionário.
-     */
     const handleSaveEmployee = async (event) => {
-        console.log('🚀 EVENTO SUBMIT CAPTURADO!');
-        console.log('📋 Event object:', event);
-        console.log('📋 Event type:', event.type);
-        console.log('📋 Event target:', event.target);
-        
-        // MUITO IMPORTANTE: Impede o comportamento padrão IMEDIATAMENTE
         event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        
-        console.log('✅ preventDefault() executado com sucesso!');
-
         try {
             const accessToken = localStorage.getItem('accessToken');
             if (!accessToken) {
-                alert('Você não está autenticado. Por favor, faça o login novamente.');
+                alert('Você não está autenticado.');
                 return;
             }
-
             const formData = new FormData(employeeForm);
-            console.log('📝 FormData criado:', formData);
-
-            // Debug: mostra todos os valores do form
-            for (let [key, value] of formData.entries()) {
-                console.log(`📋 ${key}:`, value);
-            }
-
             if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Position')) {
                 alert('Por favor, preencha Nome, CPF e Cargo.');
                 return;
             }
-
-            // Converte a posição para número inteiro
             const positionValue = parseInt(formData.get('Position'), 10);
-            console.log('🔢 Posição convertida:', positionValue);
-            
             if (isNaN(positionValue)) {
                 alert('Por favor, selecione um cargo válido.');
                 return;
             }
 
-            const imageFile = formData.get('ImageFile');
-            console.log('🖼️ Arquivo de imagem:', imageFile);
+            // Renomeia o campo 'Position' para 'Positiions' antes de enviar
+            formData.append('Positiions', formData.get('Position'));
+            formData.delete('Position');
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${accessToken}` },
+                body: formData,
+            });
             
-            // Se há imagem, usa FormData (multipart)
-            if (imageFile && imageFile.size > 0) {
-                const finalFormData = new FormData();
-                finalFormData.append('Name', formData.get('Name'));
-                finalFormData.append('CPF', formData.get('CPF'));
-                finalFormData.append('Positiions', positionValue.toString());
-                finalFormData.append('ImageFile', imageFile);
-
-                console.log('📡 Enviando dados com imagem (FormData)...');
-                console.log('📊 Posição selecionada:', positionValue);
-                
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: finalFormData,
-                });
-
-                console.log('📡 Response status:', response.status);
-                console.log('📡 Response ok:', response.ok);
-
-                if (response.status === 401) {
-                    alert('Sua sessão expirou ou o token é inválido. Faça o login novamente.');
-                    return;
-                }
-
-                if (response.ok) {
-                    alert('Funcionário salvo com sucesso!');
-                    employeeForm.reset();
-                } else {
-                    // Captura detalhes do erro da API
-                    const errorText = await response.text();
-                    console.error('📡 Erro da API (texto):', errorText);
-                    
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        console.error('📡 Erro da API (JSON):', errorData);
-                        throw new Error(errorData.message || errorData.title || 'Erro desconhecido da API');
-                    } catch (parseError) {
-                        console.error('📡 Erro ao parsear JSON:', parseError);
-                        throw new Error(`Erro da API: ${errorText}`);
-                    }
-                }
+            if (response.ok) {
+                alert('Funcionário salvo com sucesso!');
+                employeeForm.reset();
+                loadEmployees();
             } else {
-                // Sem imagem, usa JSON para manter tipos corretos
-                const jsonData = {
-                    Name: formData.get('Name'),
-                    CPF: formData.get('CPF'),
-                    Positions: positionValue // Mantém como número
-                };
-
-                console.log('📡 Enviando dados sem imagem (JSON)...');
-                console.log('📊 Dados enviados:', jsonData);
-                
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(jsonData),
-                });
-
-                console.log('📡 Response status:', response.status);
-                console.log('📡 Response ok:', response.ok);
-
-                if (response.status === 401) {
-                    alert('Sua sessão expirou ou o token é inválido. Faça o login novamente.');
-                    return;
-                }
-
-                if (response.ok) {
-                    alert('Funcionário salvo com sucesso!');
-                    employeeForm.reset();
-                } else {
-                    // Captura detalhes do erro da API
-                    const errorText = await response.text();
-                    console.error('📡 Erro da API (texto):', errorText);
-                    
-                    try {
-                        const errorData = JSON.parse(errorText);
-                        console.error('📡 Erro da API (JSON):', errorData);
-                        throw new Error(errorData.message || errorData.title || 'Erro desconhecido da API');
-                    } catch (parseError) {
-                        console.error('📡 Erro ao parsear JSON:', parseError);
-                        throw new Error(`Erro da API: ${errorText}`);
-                    }
-                }
+                const errorText = await response.text();
+                throw new Error(`Erro ao salvar (Status ${response.status}): ${errorText}`);
             }
         } catch (error) {
-            console.error('💥 Erro completo:', error);
-            console.error('💥 Stack trace:', error.stack);
-            alert(`Erro: ${error.message}`);
+            console.error('Erro no handleSaveEmployee:', error);
+            alert(error.message);
         }
     };
-
-    console.log('🔗 Anexando o "escutador" de evento "submit" ao formulário.');
-    
-    // Adiciona múltiplos listeners para garantir interceptação
-    employeeForm.addEventListener('submit', handleSaveEmployee, true); // Captura
-    employeeForm.addEventListener('submit', handleSaveEmployee, false); // Bubble
-    
-    // Também intercepta o botão diretamente
-    const submitButton = employeeForm.querySelector('button[type="submit"]');
-    if (submitButton) {
-        console.log('🔘 Botão submit encontrado!');
-        submitButton.addEventListener('click', (e) => {
-            console.log('🖱️ Clique no botão interceptado!');
-            // Força a execução do handler do form
-            handleSaveEmployee(e);
-        });
-    }
-    
-    console.log('✅ Todos os event listeners anexados com sucesso!');
+    employeeForm.addEventListener('submit', handleSaveEmployee);
 }
 
-// Inicia a busca pelo formulário
+// --- EXECUÇÃO PRINCIPAL ---
 waitForForm();
+loadEmployees();
