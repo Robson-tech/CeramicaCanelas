@@ -89,6 +89,17 @@ public class DefaultContext : IdentityDbContext<User> {
                   .WithMany() // ou .WithMany(emp => emp.Exits)
                   .HasForeignKey(e => e.EmployeeId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                    .WithMany() // ou .WithMany(u => u.ProductExits)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.CategoryProduct)
+                    .WithMany()
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
         });
 
         base.OnModelCreating(builder);

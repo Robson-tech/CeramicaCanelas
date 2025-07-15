@@ -65,6 +65,8 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
             productExit.ModifiedOn = DateTime.UtcNow;
             productExit.IsReturned = false;
             productExit.UserId = user.Id;
+            productExit.CategoryId = product.CategoryId;
+
             await _movExitProductRepository.Update(productExit);
 
             // Atualiza o estoque do produto com os novos valores
