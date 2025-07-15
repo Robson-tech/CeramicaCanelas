@@ -29,7 +29,8 @@ async function processProductEntryData(form) {
 
     const productId = parseInt(form.productId.value.trim(), 10);
     const quantity = parseInt(form.quantity.value.trim(), 10);
-    const unitPrice = parseFloat(form.unitPrice.value.trim());
+    // Corrigido para usar vírgula como separador decimal, comum em alguns inputs
+    const unitPrice = parseFloat(form.unitPrice.value.trim().replace(',', '.'));
 
     // Validações básicas
     if (isNaN(productId) || productId <= 0) {
@@ -102,5 +103,6 @@ async function sendProductEntryData(payload, form) {
 }
 
 // --- EXECUÇÃO PRINCIPAL ---
+// Esta linha agora encontrará o formulário com sucesso, pois o ID foi adicionado ao HTML.
 const formElement = document.querySelector('#productForm');
 initializeProductEntryForm(formElement);

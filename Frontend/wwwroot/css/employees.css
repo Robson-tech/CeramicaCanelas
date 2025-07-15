@@ -283,3 +283,59 @@ button[type="submit"]:hover {
         }
         .btn-edit { background-color: #007bff; }
         .btn-delete { background-color: #dc3545; }
+
+        /* ========================================= */
+/* ESTILOS PARA OS BOTÕES DE AÇÃO DA TABELA  */
+/* ========================================= */
+
+/* Estilo base para TODOS os botões de ação na tabela */
+.employee-table button {
+    padding: 8px 12px;
+    margin: 0 4px; /* Adiciona um pequeno espaço entre os botões */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.employee-table button:hover {
+    transform: translateY(-2px); /* Efeito de levantar ao passar o mouse */
+}
+
+/* --- Botões de Edição e Exclusão (Estado Padrão) --- */
+
+.employee-table .btn-edit {
+    background-color: #007bff; /* Azul */
+}
+.employee-table .btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.employee-table .btn-delete {
+    background-color: #dc3545; /* Vermelho */
+}
+.employee-table .btn-delete:hover {
+    background-color: #c82333;
+}
+
+
+/* --- Botões de Salvar e Cancelar (Durante a Edição) --- */
+
+/* Botão SALVAR que aparece na edição */
+.employee-table .btn-save {
+    background-color: #28a745; /* Verde */
+}
+.employee-table .btn-save:hover {
+    background-color: #218838;
+}
+
+/* Botão CANCELAR que aparece na edição */
+.employee-table .btn-cancel {
+    background-color: #6c757d; /* Cinza */
+}
+.employee-table .btn-cancel:hover {
+    background-color: #5a6268;
+}
