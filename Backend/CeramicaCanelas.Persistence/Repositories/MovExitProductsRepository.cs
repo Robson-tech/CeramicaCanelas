@@ -14,7 +14,7 @@ namespace CeramicaCanelas.Persistence.Repositories
 
         public async Task<List<ProductExit>> GetAllAsync()
         {
-            return await Context.ProductExits.Include(e => e.Employee).Include(e => e.Product).Include(e => e.User).ToListAsync();
+            return await Context.ProductExits.Include(e => e.Employee).Include(e => e.Product).Include(e => e.CategoryProduct).Include(e => e.User).ToListAsync();
         }
 
     }
