@@ -1,0 +1,57 @@
+<div class="container">
+    <h2 class="form-title">Entrada no Estoque</h2>
+    
+    <div class="form-container">
+        <form class="product-entry-form">
+            <div class="form-group">
+                <label class="form-label" for="productId">ID do Produto</label>
+                <input 
+                    type="number"
+                    id="productId" 
+                    name="productId" 
+                    class="form-input" 
+                    placeholder="ex: 123"
+                    min="1"
+                    step="1"
+                    required
+                />
+                <div class="field-info">Número de identificação do produto já cadastrado.</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="quantity">Quantidade</label>
+                    <input 
+                        type="number" 
+                        id="quantity" 
+                        name="quantity" 
+                        class="form-input" 
+                        placeholder="ex: 10"
+                        min="1"
+                        step="1"
+                        required
+                    />
+                    <div class="field-info">Quantidade que está entrando.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="unitPrice">Preço Unitário de Custo</label>
+                    <input 
+                        type="number" 
+                        id="unitPrice" 
+                        name="unitPrice" 
+                        class="form-input" 
+                        placeholder="ex: 29.99"
+                        min="0"
+                        step="0.01"
+                        required
+                    />
+                    <div class="field-info">Preço de custo por unidade.</div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Registrar Entrada</button>
+        </form>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/entrada.css" />
