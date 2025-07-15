@@ -52,7 +52,6 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.C
 
             var moveExit = command.AssignToProductsExit();
             moveExit.UserId = user.Id;
-            moveExit.CategoryId = product.CategoryId;
 
             await _repository.CreateAsync(moveExit, cancellationToken);
 

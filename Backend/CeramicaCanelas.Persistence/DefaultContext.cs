@@ -95,10 +95,6 @@ public class DefaultContext : IdentityDbContext<User> {
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(e => e.CategoryProduct)
-                    .WithMany()
-                    .HasForeignKey(e => e.CategoryId)
-                    .OnDelete(DeleteBehavior.Cascade);
 
         });
 
