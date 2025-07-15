@@ -1,71 +1,100 @@
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DEBUG: DOM carregado.');
+// LOG 1: Confirma que o arquivo de script foi carregado e está sendo executado.
+console.log('Script js/category.js (padrão similar ao de usuário) EXECUTANDO.');
 
-      const btnSalvar = document.getElementById('btnSalvar');
-      if (!btnSalvar) {
-        console.error('ERRO: Botão de salvar não encontrado!');
+/**
+ * Função principal que inicializa o formulário de categoria.
+ */
+function initializeCategoryForm(form) {
+    if (!form) {
+        console.error('FALHA CRÍTICA: Elemento <form class="category-form"> não encontrado.');
         return;
-      } else {
-        console.log('DEBUG: Botão de salvar encontrado.');
-      }
+    }
 
-      const categoryForm = document.querySelector('.category-form');
-      if (!categoryForm) {
-        console.error('ERRO: Formulário com a classe .category-form não encontrado!');
-        return;
-      } else {
-        console.log('DEBUG: Formulário encontrado.');
-      }
+    console.log('🚀 Inicializando formulário de categoria...');
 
-      btnSalvar.addEventListener('click', async () => {
-        console.log('DEBUG: Botão salvar clicado.');
-
-        const categoryName = categoryForm.querySelector('input[name="categoryName"]').value.trim();
-        const categoryDescription = categoryForm.querySelector('textarea[name="categoryDescription"]').value.trim();
-
-        console.log('DEBUG: Valores capturados:', { categoryName, categoryDescription });
-
-        if (!categoryName) {
-          alert('O nome da categoria é obrigatório.');
-          return;
-        }
-
-        const data = {
-          name: categoryName,
-          description: categoryDescription,
-          imageUrl: ''
-        };
-
-        try {
-          console.log('DEBUG: Enviando dados para a API...', data);
-
-          const response = await fetch('http://localhost:5087/api/categories', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-
-          console.log('DEBUG: Resposta da API:', response.status);
-
-          if (response.ok) {
-            alert('Categoria salva com sucesso!');
-            categoryForm.reset();
-            // Aqui você adicionaria a lógica para recarregar a tabela ou adicionar a nova linha
-          } else {
-            const errorText = await response.text();
-            console.error('DEBUG: Erro da API:', errorText);
-
-            try {
-              const errorJson = JSON.parse(errorText);
-              alert(`Erro ao salvar categoria: ${errorJson.message || JSON.stringify(errorJson)}`);
-            } catch {
-              alert(`Erro ao salvar categoria: ${errorText || response.statusText}`);
-            }
-          }
-        } catch (error) {
-          console.error('ERRO na requisição:', error);
-          alert('Erro ao conectar com o servidor.');
-        }
-      });
-      
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Impede o recarregamento da página
+        console.log('Iniciando processamento dos dados da categoria...');
+        processCategoryData(form);
     });
+
+    console.log('✅ Event listener do formulário de categoria configurado com sucesso!');
+}
+
+/**
+ * Prepara os dados do formulário para envio.
+ * Usa FormData por causa do campo de arquivo.
+ */
+async function processCategoryData(form) {
+    console.log('🔍 Preparando dados (FormData)...');
+
+    // FormData é a maneira correta de capturar dados de um formulário que inclui arquivos.
+    const formData = new FormData(form);
+
+    // Renomeia os campos para corresponder ao que a API espera (ex: 'Name', 'Description', 'ImageFile')
+    formData.set('Name', formData.get('categoryName'));
+    formData.set('Description', formData.get('categoryDescription'));
+    formData.set('ImageFile', formData.get('categoryImage'));
+    
+    // Remove os nomes antigos que não serão usados
+    formData.delete('categoryName');
+    formData.delete('categoryDescription');
+    formData.delete('categoryImage');
+    
+    // Validação básica
+    if (!formData.get('Name')) {
+        alert('Por favor, preencha o nome da categoria.');
+        return;
+    }
+
+    console.log('✅ Dados prontos para envio.');
+    await sendCategoryData(formData, form);
+}
+
+/**
+ * Envia os dados da categoria para a API.
+ */
+async function sendCategoryData(formData, form) {
+    console.log('📡 Preparando dados da categoria para envio...');
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert('Você não está autenticado. Faça o login novamente.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('http://localhost:5087/api/categories', {
+            method: 'POST',
+            headers: {
+                // Ao usar FormData, o único header que definimos é o de autorização.
+                'Authorization': `Bearer ${accessToken}`
+                // NÃO defina 'Content-Type'. O navegador faz isso automaticamente com o boundary correto.
+            },
+            body: formData, // Enviamos o objeto FormData diretamente no corpo.
+        });
+
+        if (response.status === 401) {
+            alert('Sessão expirada. Faça login novamente.');
+            return;
+        }
+
+        if (response.ok) {
+            console.log('✅ Categoria salva com sucesso!');
+            alert('Categoria cadastrada com sucesso!');
+            form.reset();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.message || 'Erro ao salvar a categoria. Verifique os dados.';
+            console.error('❌ Erro da API:', errorMessage);
+            alert(`Erro: ${errorMessage}`);
+        }
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        alert('Falha na comunicação com o servidor. Verifique se a API está rodando.');
+    }
+}
+
+// --- EXECUÇÃO PRINCIPAL ---
+const formElement = document.querySelector('.category-form');
+initializeCategoryForm(formElement);

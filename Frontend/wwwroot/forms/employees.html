@@ -1,165 +1,41 @@
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Funcionários</title>
-      <link rel="stylesheet" href="/css/employees.css" />
-</head>
-<body>
-
 <div class="container">
     <h2>Cadastro de Funcionário</h2>
     <div class="form-container">
         <form class="employee-form">
             <div class="form-row">
                 <label class="half-width">Nome Completo:
-                    <input type="text" name="nome_completo" required>
+                    <input type="text" name="Name" required>
                 </label>
-                <label class="half-width">Cargo:
-                    <input type="text" name="cargo" required>
-                </label>
-            </div>
-            <div class="form-row">
-                <label class="half-width">Setor:
-                    <select name="setor">
-                        <option value="Produção">Produção</option>
-                        <option value="Manutenção">Manutenção</option>
-                        <option value="Expedição">Expedição</option>
-                        <option value="Administrativo">Administrativo</option>
-                    </select>
-                </label>
-                <label class="half-width">Status:
-                    <select name="status">
-                        <option value="Ativo">Ativo</option>
-                        <option value="Inativo">Inativo</option>
-                    </select>
-                </label>
-            </div>
-            <div class="form-row">
                 <label class="half-width">CPF:
-                    <input type="text" name="cpf" placeholder="000.000.000-00">
+                    <input type="text" name="CPF" placeholder="000.000.000-00" required>
                 </label>
-                <label class="half-width">Matrícula:
-                    <input type="text" name="matricula" required>
+            </div>
+            <div class="form-row">
+                <label class="half-width">Cargo/Posição:
+                    <select name="Position" required>
+                        <option value="">Selecione um cargo</option>
+                        <option value="0">Enfornador</option>
+                        <option value="1">Desenfornador</option>
+                        <option value="2">Soldador</option>
+                        <option value="3">Marombeiro</option>
+                        <option value="4">Operador de Pá Carregadeira</option>
+                        <option value="5">Motorista</option>
+                        <option value="6">Queimador</option>
+                        <option value="7">Conferente</option>
+                        <option value="8">Caixa</option>
+                        <option value="9">Auxiliar Administrativo</option>
+                        <option value="10">Auxiliar de Limpeza</option>
+                        <option value="11">Dono</option>
+                        <option value="12">Gerente</option>
+                        <option value="13">Auxiliar de Estoque</option>
+                    </select>
+                </label>
+                <label class="half-width">Foto do Funcionário (Opcional):
+                    <input type="file" name="ImageFile" accept="image/*">
                 </label>
             </div>
             <button type="submit">Salvar Funcionário</button>
         </form>
     </div>
-
-    <div class="table-container">
-        <h2>Funcionários Cadastrados</h2>
-        <table class="employee-table">
-            <thead>
-                <tr>
-                    <th>Matrícula</th>
-                    <th>Nome</th>
-                    <th>Cargo</th>
-                    <th>Setor</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-               <tr>
-                    <td>1023</td>
-                    <td>Carlos Albertodd da Silva</td>
-                    <td>Mecânico de Manutenção</td>
-                    <td>Manutenção</td>
-                    <td><span class="status ativo">Ativo</span></td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>1023</td>
-                    <td>Carlos Alberto da Silva</td>
-                    <td>Mecânico de Manutenção</td>
-                    <td>Manutenção</td>
-                    <td><span class="status ativo">Ativo</span></td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>1055</td>
-                    <td>Mariana Costa Pereira</td>
-                    <td>Auxiliar Administrativo</td>
-                    <td>Administrativo</td>
-                    <td><span class="status ativo">Ativo</span></td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>1089</td>
-                    <td>José Ricardo Santos</td>
-                    <td>Operador de Empilhadeira</td>
-                    <td>Expedição</td>
-                    <td><span class="status inativo">Inativo</span></td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const employeeForm = document.querySelector('.employee-form');
-
-        employeeForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Impede o recarregamento da página
-
-            // Coleta os dados do formulário
-            const formData = new FormData(employeeForm);
-            const data = {
-                fullName: formData.get('nome_completo'),
-                position: formData.get('cargo'),
-                department: formData.get('setor'),
-                status: formData.get('status'),
-                cpf: formData.get('cpf'),
-                employeeId: formData.get('matricula')
-            };
-
-            // Validação simples
-            if (!data.fullName || !data.employeeId || !data.position) {
-                alert('Por favor, preencha Nome, Cargo e Matrícula.');
-                return;
-            }
-
-            // Envio para a API (substitua a URL pela sua)
-            try {
-                const response = await fetch('http://localhost:5087/api/employees', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert('Funcionário salvo com sucesso!');
-                    employeeForm.reset();
-                    // Idealmente, aqui você chamaria uma função para recarregar a tabela
-                } else {
-                    const errorData = await response.json();
-                    alert(`Erro ao salvar: ${errorData.message || 'Erro desconhecido.'}`);
-                }
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                alert('Não foi possível conectar ao servidor.');
-            }
-        });
-    });
-</script>
-
-</body>
-</html>
-```
+<link rel="stylesheet" href="/css/employees.css" />

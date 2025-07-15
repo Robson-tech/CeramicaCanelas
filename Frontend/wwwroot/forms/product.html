@@ -1,181 +1,61 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Produtos</title> 
-</head>
-<body>
-
 <div class="container">
     <h2>Cadastro de Produto</h2>
     <div class="form-container">
         <form class="product-form">
             <div class="form-row">
                 <label class="half-width">Código do Produto (SKU):
-                    <input type="text" name="sku" required>
+                    <input type="text" name="Code" required>
                 </label>
                 <label class="half-width">Nome:
-                    <input type="text" name="nome" required>
+                    <input type="text" name="Name" required>
                 </label>
             </div>
             <div class="form-row">
                 <label class="half-width">Unidade de Medida:
-                    <select name="unidade">
-                        <option value="Unidade">Unidade</option>
-                        <option value="Kg">Kg</option>
-                        <option value="Metro">Metro</option>
-                        <option value="Litro">Litro</option>
+                    <select name="UnitOfMeasure" required>
+                        <option value="0">Unidade</option>
+                        <option value="1">Kg</option>
+                        <option value="2">Metro</option>
+                        <option value="3">Litro</option>
                     </select>
                 </label>
                 <label class="half-width">Categoria:
-                    <input type="text" name="categoria">
+                    <select name="CategoryId" required>
+                        <option value="">Carregando categorias...</option>
+                    </select>
                 </label>
             </div>
             <div class="form-row">
                 <label class="half-width">Estoque Mínimo:
-                    <input type="number" name="estoque_minimo" value="0">
+                    <input type="number" name="StockMinium" value="0" required>
                 </label>
                 <label class="half-width">Estoque Inicial:
-                    <input type="number" name="estoque_inicial" value="0">
+                    <input type="number" name="StockInitial" value="0" required>
                 </label>
             </div>
             <div class="form-row">
-                <label class="half-width">Valor Unitário:
-                    <input type="number" step="0.01" name="valor_unitario" placeholder="0.00">
+                <label class="half-width">Valor Unitário (R$):
+                    <input type="number" step="0.01" name="Value" placeholder="0.00" required>
                 </label>
-                <label class="half-width">Data de Cadastro:
-                    <input type="date" name="data_cadastro">
+                <label class="half-width">Imagem (Opcional):
+                    <input type="file" name="ImageFile" accept="image/*">
                 </label>
             </div>
             <div class="form-row">
                 <label class="half-width">Item Devolvível?
-                    <select name="devolvivel">
-                        <option value="Sim">Sim</option>
-                        <option value="Nao">Não</option>
+                    <select name="IsReturnable" required>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
                     </select>
                 </label>
             </div>
             <div class="form-row">
                 <label class="full-width">Observações:
-                    <textarea name="observacoes" rows="3"></textarea>
+                    <textarea name="Observation" rows="3"></textarea>
                 </label>
             </div>
             <button type="submit">Salvar Produto</button>
         </form>
     </div>
-
-    <div class="table-container">
-        <h2>Produtos Cadastrados</h2>
-        <table class="product-table">
-            <thead>
-                <tr>
-                    <th>SKU</th>
-                    <th>Nome</th>
-                    <th>Categoria</th>
-                    <th>Estoque</th>
-                    <th>U.M.</th>
-                    <th>Valor (R$)</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>FER-001</td>
-                    <td>Parafuso Sextavado 1/4"</td>
-                    <td>Fixadores</td>
-                    <td>1500</td>
-                    <td>Unidade</td>
-                    <td>0.75</td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>TIN-015</td>
-                    <td>Tinta Acrílica Branca</td>
-                    <td>Pintura</td>
-                    <td>50</td>
-                    <td>Litro</td>
-                    <td>120.00</td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>ARG-102</td>
-                    <td>Argamassa ACIII</td>
-                    <td>Construção</td>
-                    <td>200</td>
-                    <td>Kg</td>
-                    <td>1.50</td>
-                    <td>
-                        <button class="btn-edit">Editar</button>
-                        <button class="btn-delete">Excluir</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const productForm = document.querySelector('.product-form');
-
-        // Seta a data de hoje no campo de data de cadastro
-        const today = new Date().toISOString().split('T')[0];
-        productForm.querySelector('input[name="data_cadastro"]').value = today;
-
-        productForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const formData = new FormData(productForm);
-            const data = {
-                sku: formData.get('sku'),
-                name: formData.get('nome'),
-                unitOfMeasure: formData.get('unidade'),
-                category: formData.get('categoria'),
-                minStock: parseFloat(formData.get('estoque_minimo')),
-                initialStock: parseFloat(formData.get('estoque_inicial')),
-                unitValue: parseFloat(formData.get('valor_unitario')),
-                registrationDate: formData.get('data_cadastro'),
-                isReturnable: formData.get('devolvivel') === 'Sim',
-                observations: formData.get('observacoes')
-            };
-
-            if (!data.sku || !data.name) {
-                alert('Por favor, preencha o Código (SKU) e o Nome do produto.');
-                return;
-            }
-
-            try {
-                // Substitua a URL pela sua API real
-                const response = await fetch('http://localhost:5087/api/products', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert('Produto salvo com sucesso!');
-                    productForm.reset();
-                    // Seta a data de hoje novamente após o reset
-                    productForm.querySelector('input[name="data_cadastro"]').value = today;
-                    // Aqui você chamaria uma função para recarregar os dados da tabela
-                } else {
-                    const errorData = await response.json();
-                    alert(`Erro ao salvar produto: ${errorData.message || 'Verifique os dados e tente novamente.'}`);
-                }
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                alert('Falha na comunicação com o servidor.');
-            }
-        });
-    });
-</script>
-  <link rel="stylesheet" href="/css/product.css">
-</body>
-</html>
+<link rel="stylesheet" href="/css/product.css">
