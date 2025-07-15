@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Pages
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Pages
 {
     public class PagedRequest : IRequest<PagedResult>
     {

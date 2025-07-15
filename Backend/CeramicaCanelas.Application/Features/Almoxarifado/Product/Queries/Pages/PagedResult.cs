@@ -1,6 +1,4 @@
-﻿
-
-namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Pages
+﻿namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Pages
 {
     public class PagedResult
     {
