@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CeramicaCanelas.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,8 @@ namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
 
         public Task<IEnumerable<Domain.Entities.Products>> GetProductsByCategoryIdAsync(Guid categoryId);
 
-
+        Task<List<Products>> GetPagedAsync(int page, int pageSize, string? orderBy, bool ascending, string? search, float? minPrice, float? maxPrice, Guid? categoryId);
+        Task<int> GetTotalCountAsync(string? search, float? minPrice, float? maxPrice, Guid? categoryId);
 
     }
 }

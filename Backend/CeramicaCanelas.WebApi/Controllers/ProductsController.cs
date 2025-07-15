@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Pages;
+using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand;
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.DeleteProductCommand;
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.UpdateProductCommand;
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.GetAllProductsQueries;
@@ -59,6 +60,15 @@ namespace CeramicaCanelas.WebApi.Controllers
             var response = await _mediator.Send(request);
             return Ok(response);
 
+        }
+
+        [HttpGet("paged")]
+        [ProducesResponseType(typeof(PagedResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagedProducts([FromQuery] PagedRequest request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
         }
     }
 }

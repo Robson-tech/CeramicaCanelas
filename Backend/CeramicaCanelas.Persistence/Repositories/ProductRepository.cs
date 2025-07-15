@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,55 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .Where(p => p.CategoryId == categoryId)
                 .Include(p => p.Category)
                 .ToListAsync();
+        }
+
+        public async Task<List<Products>> GetPagedAsync(int page, int pageSize, string? orderBy, bool ascending, string? search, float? minPrice, float? maxPrice, Guid? categoryId)
+        {
+            var query = Context.Products.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(p => p.Name.Contains(search));
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.ValueTotal >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.ValueTotal <= maxPrice.Value);
+
+            if (categoryId.HasValue && categoryId.Value != Guid.Empty)
+                query = query.Where(p => p.CategoryId == categoryId);
+
+            query = orderBy?.ToLower() switch
+            {
+                "name" => ascending ? query.OrderBy(p => p.Name) : query.OrderByDescending(p => p.Name),
+                "price" => ascending ? query.OrderBy(p => p.ValueTotal) : query.OrderByDescending(p => p.ValueTotal),
+                _ => query.OrderBy(p => p.Name)
+            };
+
+            return await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+
+        public async Task<int> GetTotalCountAsync(string? search, float? minPrice, float? maxPrice, Guid? categoryId)
+        {
+            var query = Context.Products.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                query = query.Where(p => p.Name.Contains(search));
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.ValueTotal >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.ValueTotal <= maxPrice.Value);
+
+            if (categoryId.HasValue && categoryId.Value != Guid.Empty)
+                query = query.Where(p => p.CategoryId == categoryId);
+
+            return await query.CountAsync();
         }
     }
 }
