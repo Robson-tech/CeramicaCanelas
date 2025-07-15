@@ -98,3 +98,26 @@ async function sendCategoryData(formData, form) {
 // --- EXECUÇÃO PRINCIPAL ---
 const formElement = document.querySelector('.category-form');
 initializeCategoryForm(formElement);
+
+// --- 
+const fileInput = document.getElementById('categoryImage');
+const fileNameDisplay = document.getElementById('fileName');
+const imagePreview = document.getElementById('imagePreview');
+
+fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (file) {
+    fileNameDisplay.textContent = file.name;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+    } else {
+    fileNameDisplay.textContent = 'Nenhum arquivo selecionado';
+    imagePreview.src = '';
+    imagePreview.style.display = 'none';
+    }
+});
