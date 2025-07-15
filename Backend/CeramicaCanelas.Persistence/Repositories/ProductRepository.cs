@@ -36,7 +36,9 @@ namespace CeramicaCanelas.Persistence.Repositories
 
         public async Task<List<Products>> GetPagedAsync(int page, int pageSize, string? orderBy, bool ascending, string? search, float? minPrice, float? maxPrice, Guid? categoryId)
         {
-            var query = Context.Products.AsQueryable();
+            var query = Context.Products
+                .Include(p => p.Category) 
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
                 query = query.Where(p => p.Name.Contains(search));
