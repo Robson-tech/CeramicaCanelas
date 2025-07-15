@@ -10,6 +10,10 @@ namespace CeramicaCanelas.Domain.Entities
         public Guid EmployeeId { get; set; }
         public Employee Employee { get; set; } = null!;
 
+        public Guid CategoryId { get; set; }
+        public Categories? CategoryProduct { get; set; }
+
+
         public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
 
