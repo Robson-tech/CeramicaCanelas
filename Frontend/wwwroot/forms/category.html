@@ -12,9 +12,10 @@
             </div>
             <div class="form-group">
                 <label for="categoryImage" class="file-upload">
-                    <img src="../images/sample-image.png" alt="">
+                    <img id="imagePreview" class="image-preview" src="../images/sample-image.png" alt="Pré-visualização da imagem">
                 </label>
                 <input type="file" name="categoryImage" id="categoryImage" accept="image/*" class="hidden"/>
+                <div id="fileName" class="file-name">Nenhum arquivo selecionado</div>
             </div>
             <button type="submit">Salvar Categoria</button>
         </form>
