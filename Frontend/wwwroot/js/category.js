@@ -1,99 +1,100 @@
-console.log('Script js/category.js (somente cadastro com auth) EXECUTANDO.');
+// LOG 1: Confirma que o arquivo de script foi carregado e está sendo executado.
+console.log('Script js/category.js (padrão similar ao de usuário) EXECUTANDO.');
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ DOM totalmente carregado');
-
-    const API_URL = 'http://localhost:5087/api/categories';
-    const categoryForm = document.querySelector('.category-form');
-    const btnSalvar = document.getElementById('btnSalvar');
-
-    if (!categoryForm) {
-        console.error('❌ Formulário .category-form não foi encontrado!');
+/**
+ * Função principal que inicializa o formulário de categoria.
+ */
+function initializeCategoryForm(form) {
+    if (!form) {
+        console.error('FALHA CRÍTICA: Elemento <form class="category-form"> não encontrado.');
         return;
     }
 
-    /**
-     * Função para salvar categoria com autenticação
-     */
-    const handleSaveCategory = async (event) => {
-        event.preventDefault(); // 🚫 impede recarregar a página
-        console.log('📌 handleSaveCategory chamado');
+    console.log('🚀 Inicializando formulário de categoria...');
 
-        // 1. Obter o token do localStorage
-        const accessToken = localStorage.getItem('accessToken');
-        console.log('🔑 Token carregado?', !!accessToken);
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Impede o recarregamento da página
+        console.log('Iniciando processamento dos dados da categoria...');
+        processCategoryData(form);
+    });
 
-        // 2. Verificar se o token existe
-        if (!accessToken) {
-            alert('Você não está autenticado. Por favor, faça o login novamente.');
-            console.error('❌ Access token não encontrado no localStorage.');
-            return; // Interrompe a execução se não houver token
-        }
+    console.log('✅ Event listener do formulário de categoria configurado com sucesso!');
+}
 
-        const nameInput = categoryForm.querySelector('[name="categoryName"]');
-        const descriptionInput = categoryForm.querySelector('[name="categoryDescription"]');
-        const imageInput = categoryForm.querySelector('[name="categoryImage"]');
+/**
+ * Prepara os dados do formulário para envio.
+ * Usa FormData por causa do campo de arquivo.
+ */
+async function processCategoryData(form) {
+    console.log('🔍 Preparando dados (FormData)...');
 
-        if (!nameInput.value.trim()) {
-            alert('Preencha o nome da categoria!');
+    // FormData é a maneira correta de capturar dados de um formulário que inclui arquivos.
+    const formData = new FormData(form);
+
+    // Renomeia os campos para corresponder ao que a API espera (ex: 'Name', 'Description', 'ImageFile')
+    formData.set('Name', formData.get('categoryName'));
+    formData.set('Description', formData.get('categoryDescription'));
+    formData.set('ImageFile', formData.get('categoryImage'));
+    
+    // Remove os nomes antigos que não serão usados
+    formData.delete('categoryName');
+    formData.delete('categoryDescription');
+    formData.delete('categoryImage');
+    
+    // Validação básica
+    if (!formData.get('Name')) {
+        alert('Por favor, preencha o nome da categoria.');
+        return;
+    }
+
+    console.log('✅ Dados prontos para envio.');
+    await sendCategoryData(formData, form);
+}
+
+/**
+ * Envia os dados da categoria para a API.
+ */
+async function sendCategoryData(formData, form) {
+    console.log('📡 Preparando dados da categoria para envio...');
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert('Você não está autenticado. Faça o login novamente.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('http://localhost:5087/api/categories', {
+            method: 'POST',
+            headers: {
+                // Ao usar FormData, o único header que definimos é o de autorização.
+                'Authorization': `Bearer ${accessToken}`
+                // NÃO defina 'Content-Type'. O navegador faz isso automaticamente com o boundary correto.
+            },
+            body: formData, // Enviamos o objeto FormData diretamente no corpo.
+        });
+
+        if (response.status === 401) {
+            alert('Sessão expirada. Faça login novamente.');
             return;
         }
 
-        const formData = new FormData();
-        formData.append('Name', nameInput.value);
-        formData.append('Description', descriptionInput.value);
-
-        if (imageInput.files[0]) {
-            formData.append('ImageFile', imageInput.files[0]);
+        if (response.ok) {
+            console.log('✅ Categoria salva com sucesso!');
+            alert('Categoria cadastrada com sucesso!');
+            form.reset();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            const errorMessage = errorData.message || 'Erro ao salvar a categoria. Verifique os dados.';
+            console.error('❌ Erro da API:', errorMessage);
+            alert(`Erro: ${errorMessage}`);
         }
-
-        console.log('📦 Dados prontos para envio:', {
-            Name: nameInput.value,
-            Description: descriptionInput.value,
-            Image: imageInput.files[0] ? imageInput.files[0].name : 'Nenhuma imagem'
-        });
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                    // ❗ NÃO adicionar Content-Type aqui, pois o fetch detecta automaticamente quando é FormData
-                },
-                body: formData,
-            });
-
-            console.log('📡 Status da resposta:', response.status);
-
-            if (response.status === 401) {
-                alert('Sua sessão expirou ou o token é inválido. Faça login novamente.');
-                console.warn('⚠️ Token expirado ou inválido.');
-                return;
-            }
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido ao salvar.' }));
-                throw new Error(errorData.message || 'Não foi possível salvar a categoria.');
-            }
-
-            alert('✅ Categoria salva com sucesso!');
-            categoryForm.reset();
-
-            // Opcional: atualizar a lista de categorias dinamicamente
-            // carregarCategorias();
-
-        } catch (error) {
-            console.error('❌ Falha ao salvar categoria:', error);
-            alert(`Erro: ${error.message}`);
-        }
-    };
-
-    // --- INICIALIZAÇÃO ---
-    // Impede comportamento padrão do form e chama a função manualmente
-    categoryForm.addEventListener('submit', handleSaveCategory);
-
-    // Também conecta o botão manualmente (para evitar qualquer submit automático)
-    if (btnSalvar) {
-        btnSalvar.addEventListener('click', handleSaveCategory);
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        alert('Falha na comunicação com o servidor. Verifique se a API está rodando.');
     }
-});
+}
+
+// --- EXECUÇÃO PRINCIPAL ---
+const formElement = document.querySelector('.category-form');
+initializeCategoryForm(formElement);

@@ -37,7 +37,17 @@ function loadForm(formName) {
         .then(html => {
             container.innerHTML = html;
             
+            // Aguarda o HTML ser renderizado no DOM
             setTimeout(() => {
+                // Verifica se o formulário foi inserido antes de carregar o script
+                const formCheck = container.querySelector('form');
+                if (!formCheck) {
+                    console.error('❌ ERRO: Formulário não foi inserido no DOM!');
+                    return;
+                }
+                
+                console.log('✅ HTML do formulário inserido. Carregando script...');
+                
                 const script = document.createElement('script');
                 script.id = 'dynamic-form-script';
                 script.src = `/js/${formName}.js`;
@@ -52,7 +62,7 @@ function loadForm(formName) {
                 };
                 
                 document.body.appendChild(script);
-            }, 100);
+            }, 200); // Aumentei para 200ms para garantir
         })
         .catch(error => {
             console.error('💥 Erro no processo de loadForm:', error);
