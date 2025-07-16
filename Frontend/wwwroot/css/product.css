@@ -200,3 +200,133 @@ button[type="submit"]:hover {
         }
         .btn-edit { background-color: #007bff; }
         .btn-delete { background-color: #dc3545; }
+
+        /* ... (Estilos gerais para .container, .form-container, etc.) ... */
+
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+.half-width { flex: 1; }
+.full-width { flex: 100%; }
+/* ... (Estilos para inputs, labels, botões) ... */
+
+/* Divisor entre o formulário e a tabela */
+.section-divider {
+    border: none;
+    border-top: 2px solid #e9ecef;
+    margin: 3rem 0;
+}
+
+/* ============================================== */
+/* ESTILOS PARA TABELA DE DADOS          */
+/* ============================================== */
+
+/* Contêiner da Tabela */
+/* Ajuda a controlar a tabela em telas menores, adicionando uma barra de rolagem horizontal se necessário. */
+.table-container {
+    overflow-x: auto;
+    margin-top: 2rem; /* Espaçamento acima da tabela */
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Tabela de Resultados */
+.results-table {
+    width: 100%;
+    border-collapse: collapse; /* Remove o espaço entre as bordas das células */
+    background-color: #fff;
+}
+
+/* Células do Cabeçalho (th) e do Corpo (td) */
+.results-table th, 
+.results-table td {
+    padding: 14px 16px; /* Espaçamento interno */
+    border-bottom: 1px solid #e9ecef; /* Linha divisória apenas na parte inferior */
+    text-align: left; /* Alinhamento do texto */
+    vertical-align: middle;
+    white-space: nowrap; /* Impede que o texto quebre em várias linhas */
+}
+
+/* Cabeçalho da Tabela */
+.results-table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    text-transform: uppercase; /* Deixa o texto do cabeçalho em maiúsculas */
+    letter-spacing: 0.5px;
+}
+
+/* Efeito de Hover nas Linhas */
+.results-table tbody tr:hover {
+    background-color: #f1f3f5; /* Cor de fundo suave ao passar o mouse */
+}
+
+/* Célula das Ações (botões) */
+.actions-cell {
+    display: flex;
+    gap: 8px; /* Espaço entre os botões */
+}
+
+/* Estilo Base para os Botões de Ação */
+.btn-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Efeito ao passar o mouse nos botões */
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Botão de Editar */
+.btn-edit { 
+    background-color: #007bff; /* Azul */
+}
+.btn-edit:hover { 
+    background-color: #0069d9; 
+}
+
+/* Botão de Excluir */
+.btn-delete { 
+    background-color: #dc3545; /* Vermelho */
+}
+.btn-delete:hover { 
+    background-color: #c82333; 
+}
+/* Estilo Base para os Botões de Ação na Tabela */
+.btn-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+/* Efeito ao passar o mouse sobre qualquer botão de ação */
+.btn-action:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo Específico para o Botão de Editar */
+.btn-edit { 
+    background-color: #007bff; /* Cor Azul */
+}
+
+.btn-edit:hover { 
+    background-color: #0069d9; 
+}

@@ -1,108 +1,138 @@
-// LOG 1: Confirma que o arquivo de script foi carregado e está sendo executado.
-console.log('Script js/product-entry.js EXECUTANDO.');
+console.log('Script js/product-entry.js DEFINIDO (versão GET Simples).');
 
-/**
- * Função principal que inicializa o formulário de entrada de produto.
- */
-function initializeProductEntryForm(form) {
-    if (!form) {
-        console.error('FALHA CRÍTICA: Elemento <form id="productForm"> não encontrado.');
-        return;
-    }
+const API_BASE_URL = 'http://localhost:5087/api';
 
-    console.log('🚀 Inicializando formulário de entrada de produto...');
+// Variáveis de estado (não utilizadas nesta versão, mas mantidas para estrutura)
+let currentPage = 1;
+let paginationData = {}; 
 
-    form.addEventListener('submit', (event) => {
-        event.preventDefault(); // Impede o recarregamento da página
-        console.log('Iniciando processamento dos dados de entrada...');
-        processProductEntryData(form);
+function initDynamicForm() {
+    console.log('▶️ initDynamicForm() de product-entry.js foi chamada.');
+    const formElement = document.querySelector('#productForm');
+    initializeFormListeners(formElement);
+}
+
+function initializeFormListeners(form) {
+    if (!form) return;
+    const modal = document.getElementById('productSearchModal');
+    const openModalBtn = document.getElementById('openProductModalBtn');
+    const closeModalBtn = modal.querySelector('.modal-close-btn');
+    
+    openModalBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+        fetchAndRenderProductsPage(); 
     });
-
-    console.log('✅ Event listener do formulário configurado com sucesso!');
+    closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) modal.style.display = 'none';
+    });
+    initializeMainFormSubmit(form);
+    initializeProductSelectionListener(modal);
 }
 
 /**
- * Prepara os dados do formulário para envio.
+ * Função central para buscar e renderizar uma página de produtos.
+ * VERSÃO DE TESTE: Fazendo uma chamada GET simples, sem nenhum parâmetro na URL.
  */
-async function processProductEntryData(form) {
-    console.log('🔍 Capturando e validando dados do formulário...');
-
-    const productId = parseInt(form.productId.value.trim(), 10);
-    const quantity = parseInt(form.quantity.value.trim(), 10);
-    // Corrigido para usar vírgula como separador decimal, comum em alguns inputs
-    const unitPrice = parseFloat(form.unitPrice.value.trim().replace(',', '.'));
-
-    // Validações básicas
-    if (isNaN(productId) || productId <= 0) {
-        alert('Por favor, informe um ID de Produto válido (número inteiro).');
-        return;
-    }
-
-    if (isNaN(quantity) || quantity <= 0) {
-        alert('Por favor, informe uma quantidade válida.');
-        return;
-    }
-
-    if (isNaN(unitPrice) || unitPrice < 0) {
-        alert('Por favor, informe um preço unitário válido.');
-        return;
-    }
-
-    // Monta o objeto JSON conforme a API espera
-    const payload = {
-        productId: productId,   // int32
-        quantity: quantity,     // int32
-        unitPrice: unitPrice    // float
-    };
-
-    console.log('✅ Dados prontos para envio:', payload);
-    await sendProductEntryData(payload, form);
-}
-
-/**
- * Envia os dados da entrada de produto para a API.
- */
-async function sendProductEntryData(payload, form) {
-    console.log('📡 Preparando dados da entrada para envio...');
-
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-        alert('Você não está autenticado. Faça o login novamente.');
-        return;
-    }
-
+async function fetchAndRenderProductsPage() {
+    const resultsContainer = document.getElementById('modalResultsContainer');
+    resultsContainer.innerHTML = '<p>Buscando...</p>';
     try {
-        const response = await fetch('http://localhost:5087/api/products-entry', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify(payload)
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) throw new Error("Token de acesso não encontrado.");
+
+        const url = `${API_BASE_URL}/products/paged`;
+        console.log("📡 [TESTE] Enviando requisição GET simples para:", url);
+
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
         });
 
-        if (response.status === 401) {
-            alert('Sessão expirada. Faça login novamente.');
-            return;
+        if (!response.ok) {
+            throw new Error(`Falha na requisição: ${response.status} ${response.statusText}`);
         }
+        
+        const data = await response.json();
+        
+        // Como não podemos controlar a paginação, vamos esconder os botões.
+        const paginationControls = document.getElementById('modalPaginationControls');
+        if (paginationControls) {
+            paginationControls.innerHTML = '';
+        }
+        
+        renderModalResults(data.items, resultsContainer);
 
-        if (response.ok) {
-            console.log('✅ Entrada de produto registrada com sucesso!');
-            alert('Entrada registrada com sucesso!');
-            form.reset();
-        } else {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.message || 'Erro ao registrar entrada. Verifique os dados.';
-            console.error('❌ Erro da API:', errorMessage);
-            alert(`Erro: ${errorMessage}`);
-        }
     } catch (error) {
-        console.error('❌ Erro na requisição:', error);
-        alert('Falha na comunicação com o servidor. Verifique se a API está rodando.');
+        resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        const paginationControls = document.getElementById('modalPaginationControls');
+        if (paginationControls) {
+            paginationControls.innerHTML = '';
+        }
+        console.error("❌ Erro em fetchAndRenderProductsPage:", error);
     }
 }
 
-// --- EXECUÇÃO PRINCIPAL ---
-// Esta linha agora encontrará o formulário com sucesso, pois o ID foi adicionado ao HTML.
-const formElement = document.querySelector('#productForm');
-initializeProductEntryForm(formElement);
+// O restante do código não precisa de alteração
+function renderModalResults(products, container) {
+    if (!products || products.length === 0) {
+        container.innerHTML = '<p>Nenhum produto encontrado.</p>';
+        return;
+    }
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    table.innerHTML = `
+        <thead><tr><th>Nome</th><th>Código</th><th>Ação</th></tr></thead>
+        <tbody>
+            ${products.map(product => `
+                <tr>
+                    <td>${product.name}</td>
+                    <td>${product.code || 'N/A'}</td>
+                    <td><button type="button" class="select-product-btn" data-id="${product.id}" data-name="${product.name}">Selecionar</button></td>
+                </tr>
+            `).join('')}
+        </tbody>`;
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+function initializeProductSelectionListener(modal) {
+    const resultsContainer = modal.querySelector('#modalResultsContainer');
+    resultsContainer.addEventListener('click', (event) => {
+        if (event.target.classList.contains('select-product-btn')) {
+            const productId = event.target.dataset.id;
+            const productName = event.target.dataset.name;
+            document.getElementById('selectedProductName').textContent = productName;
+            document.getElementById('productUuid').value = productId;
+            modal.style.display = 'none';
+        }
+    });
+}
+
+function initializeMainFormSubmit(form) {
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const productId = form.productUuid.value;
+        const quantity = parseInt(form.quantity.value, 10);
+        const unitPrice = parseFloat(form.unitPrice.value.replace(',', '.'), 10);
+        if (!productId) { alert('Por favor, busque e selecione um produto.'); return; }
+        const payload = { productId, quantity, unitPrice };
+        const accessToken = localStorage.getItem('accessToken');
+        try {
+            const response = await fetch(`${API_BASE_URL}/products-entry`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`},
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                alert('Entrada registrada com sucesso!');
+                form.reset();
+                document.getElementById('selectedProductName').textContent = 'Nenhum produto selecionado';
+            } else {
+                const errorData = await response.json();
+                alert(`Erro: ${errorData.message || 'Não foi possível registrar a entrada.'}`);
+            }
+        } catch (error) {
+            alert('Falha na comunicação com a API.');
+        }
+    });
+}
