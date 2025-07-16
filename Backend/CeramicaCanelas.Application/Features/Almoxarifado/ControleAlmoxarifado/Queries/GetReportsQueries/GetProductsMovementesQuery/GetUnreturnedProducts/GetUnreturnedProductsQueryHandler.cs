@@ -39,7 +39,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                     QuantityDevolvida = e.ReturnedQuantity,
                     QuantityPendente = e.Quantity - e.ReturnedQuantity,
                     DataRetirada = e.ExitDate,
-                    Category = e.Product.Category?.Name ?? "Sem categoria"
                 })
                 .ToList();
 
