@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Pages
 {
-    public class GetPagedProductsQueryHandler : IRequestHandler<PagedRequest, PagedResult>
+    public class GetPagedProductsQueryHandler : IRequestHandler<PagedRequest, PagedResult<GetAllProductsQueriesResult>>
     {
         private readonly IProductRepository _productRepository;
 
@@ -17,7 +17,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Page
             _productRepository = productRepository;
         }
 
-        public async Task<PagedResult> Handle(PagedRequest request, CancellationToken cancellationToken)
+        public async Task<PagedResult<GetAllProductsQueriesResult>> Handle(PagedRequest request, CancellationToken cancellationToken)
         {
             var items = await _productRepository.GetPagedAsync(
                 request.Page,
@@ -37,14 +37,14 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Page
                 request.CategoryId
             );
 
-            return new PagedResult
+            return new PagedResult<GetAllProductsQueriesResult>
             {
                 Page = request.Page,
                 PageSize = request.PageSize,
                 TotalItems = totalItems,
-                Items = items
+                Items = items.Select(p => new GetAllProductsQueriesResult(p)).ToList()
             };
         }
-
     }
+
 }

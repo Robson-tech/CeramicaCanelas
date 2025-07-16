@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Domain.Abstract;
+using System.Text.Json.Serialization;
 
 
 namespace CeramicaCanelas.Domain.Entities

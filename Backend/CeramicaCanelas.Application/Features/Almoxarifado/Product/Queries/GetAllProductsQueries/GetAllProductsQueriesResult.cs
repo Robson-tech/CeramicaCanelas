@@ -31,7 +31,7 @@ public class GetAllProductsQueriesResult
             : product.ImageUrl;
         IsReturnable = product.IsReturnable;
         Observation = product.Observation;
-        CategoryId = product.CategoryId;
+        CategoryId = product.CategoryId ?? Guid.Empty;
         CategoryName = product.Category?.Name ?? "Sem categoria";
     }
 }

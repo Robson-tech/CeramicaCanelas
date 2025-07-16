@@ -30,10 +30,13 @@ namespace CeramicaCanelas.WebApi.Middleware
 
                 await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(result));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
+
+                Console.WriteLine(ex);
+
 
                 var result = new
                 {
