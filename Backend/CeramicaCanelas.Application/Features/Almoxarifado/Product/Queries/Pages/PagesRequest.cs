@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Pages
 {
-    public class PagedRequest : IRequest<PagedResult>
+    public class PagedRequest : IRequest<PagedResult<GetAllProductsQueriesResult>>
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;

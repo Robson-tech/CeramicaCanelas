@@ -63,8 +63,8 @@ namespace CeramicaCanelas.WebApi.Controllers
         }
 
         [HttpGet("paged")]
-        [ProducesResponseType(typeof(PagedResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(PagedResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PagedResult<GetAllProductsQueriesResult>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<GetAllProductsQueriesResult>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetPagedProducts([FromQuery] PagedRequest request)
         {
             var result = await _mediator.Send(request);

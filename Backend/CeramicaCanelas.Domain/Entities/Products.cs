@@ -15,8 +15,8 @@ namespace CeramicaCanelas.Domain.Entities
         public string? ImageUrl { get; set; }
         public bool IsReturnable { get; set; }
         public string? Observation { get; set; } = string.Empty;
-        public Guid CategoryId { get; set; }
-        public Categories Category { get; set; } = null!;
+        public Guid? CategoryId { get; set; }
+        public Categories? Category { get; set; }
 
 
     }
