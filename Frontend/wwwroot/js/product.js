@@ -1,8 +1,46 @@
-console.log('Script js/product.js DEFINIDO.');
+console.log('Script js/product.js DEFINIDO (Paginação no Servidor).');
 
 const API_BASE_URL = 'http://localhost:5087/api';
 const originalRowHTML = {};
 let currentTablePage = 1;
+
+// =======================================================
+// INICIALIZAÇÃO DA PÁGINA
+// =======================================================
+function initDynamicForm() {
+    console.log('▶️ initDynamicForm() de product.js foi chamada.');
+    
+    // Configura o formulário de cadastro e seu select de categorias
+    initializeProductForm(document.querySelector('.product-form'));
+    loadProductCategories(document.querySelector('select[name="CategoryId"]'));
+
+    // Configura os filtros e a tabela
+    initializeTableFilters();
+    
+    // Carrega categorias no select de filtro e depois busca a primeira página de produtos
+    loadProductCategories(document.querySelector('#categoryFilter'), 'Todas as Categorias')
+        .then(() => {
+            fetchAndRenderProducts(1);
+        });
+}
+
+function initializeTableFilters() {
+    const filterBtn = document.getElementById('filterBtn');
+    const clearFilterBtn = document.getElementById('clearFilterBtn');
+    
+    filterBtn?.addEventListener('click', () => fetchAndRenderProducts(1));
+    
+    clearFilterBtn?.addEventListener('click', () => {
+        // Limpa todos os campos de filtro
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('minPriceInput').value = '';
+        document.getElementById('maxPriceInput').value = '';
+        document.getElementById('orderBySelect').value = 'Name';
+        document.getElementById('orderDirectionSelect').value = 'true';
+        fetchAndRenderProducts(1); // Busca novamente sem filtros
+    });
+}
 
 // =======================================================
 // LÓGICA DO FORMULÁRIO DE CADASTRO
@@ -62,33 +100,36 @@ async function processAndSendProductData(form) {
 
 
 // =======================================================
-// LÓGICA DA TABELA (COM FILTROS E PAGINAÇÃO CORRIGIDOS)
+// LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
 // =======================================================
 
 async function fetchAndRenderProducts(page = 1) {
     currentTablePage = page;
     const tableBody = document.querySelector('#product-list-body');
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Buscando...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Buscando...</td></tr>';
     
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const search = document.getElementById('searchInput')?.value;
-        const categoryId = document.getElementById('categoryFilter')?.value;
-        
+        // Coleta todos os valores dos filtros da tela
         const params = new URLSearchParams({
             Page: currentTablePage,
-            PageSize: 4
+            PageSize: 10,
+            OrderBy: document.getElementById('orderBySelect')?.value || 'Name',
+            Ascending: document.getElementById('orderDirectionSelect')?.value || 'true',
         });
 
-        if (search) {
-            params.append('Search', search);
-        }
-        if (categoryId) {
-            params.append('CategoryId', categoryId);
-        }
+        const search = document.getElementById('searchInput')?.value;
+        const categoryId = document.getElementById('categoryFilter')?.value;
+        const minPrice = document.getElementById('minPriceInput')?.value;
+        const maxPrice = document.getElementById('maxPriceInput')?.value;
+
+        if (search) params.append('Search', search);
+        if (categoryId) params.append('CategoryId', categoryId);
+        if (minPrice) params.append('MinPrice', minPrice);
+        if (maxPrice) params.append('MaxPrice', maxPrice);
         
         const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
         console.log("📡 Enviando requisição GET para:", url);
@@ -98,9 +139,7 @@ async function fetchAndRenderProducts(page = 1) {
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         
-        if (!response.ok) {
-            throw new Error(`Falha ao buscar produtos (Status: ${response.status})`);
-        }
+        if (!response.ok) throw new Error(`Falha ao buscar produtos (Status: ${response.status})`);
 
         const paginatedData = await response.json();
         renderProductTable(paginatedData.items);
@@ -108,9 +147,8 @@ async function fetchAndRenderProducts(page = 1) {
 
     } catch (error) {
         console.error("❌ Erro ao buscar produtos:", error);
-        tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">${error.message}</td></tr>`;
-        const paginationControls = document.getElementById('pagination-controls');
-        if(paginationControls) paginationControls.innerHTML = '';
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        document.getElementById('pagination-controls').innerHTML = '';
     }
 }
 
@@ -118,7 +156,7 @@ function renderProductTable(products) {
     const tableBody = document.querySelector('#product-list-body');
     tableBody.innerHTML = '';
     if (!products || products.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum produto encontrado.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhum produto encontrado.</td></tr>';
         return;
     }
     products.forEach(product => {
@@ -130,11 +168,10 @@ function renderProductTable(products) {
                 <td><img src="${imageUrl}" alt="${product.name}" class="product-table-img"></td>
                 <td data-field="code">${product.code || 'N/A'}</td>
                 <td data-field="name">${product.name}</td>
-                <td data-field="category" data-category-id="${product.categoryId}">${product.categoryName || 'N/A'}</td>
+                <td data-field="category">${product.categoryName || 'N/A'}</td>
                 <td data-field="stock">${product.stockCurrent || 0}</td>
-                <td data-field="minStock">${product.stockMinium || 0}</td>
                 <td data-field="value">${formattedValue}</td>
-                <td class="actions-cell" data-field="actions">
+                <td class="actions-cell">
                     <button class="btn-action btn-edit" onclick='editProduct(${productJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">Excluir</button>
                 </td>
@@ -190,8 +227,8 @@ window.editProduct = async (product) => {
     originalRowHTML[product.id] = row.innerHTML;
     row.querySelector('[data-field="code"]').innerHTML = `<input type="text" name="Code" class="edit-input" value="${product.code || ''}">`;
     row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${product.name}">`;
-    row.querySelector('[data-field="minStock"]').innerHTML = `<input type="number" name="StockMinium" class="edit-input" value="${product.stockMinium || 0}">`;
     row.querySelector('[data-field="value"]').innerHTML = `<input type="number" step="0.01" name="Value" class="edit-input" value="${product.value || 0}">`;
+    
     const categoryCell = row.querySelector('[data-field="category"]');
     const categorySelect = document.createElement('select');
     categorySelect.className = 'edit-input';
@@ -200,6 +237,7 @@ window.editProduct = async (product) => {
     categoryCell.appendChild(categorySelect);
     await loadProductCategories(categorySelect);
     categorySelect.value = product.categoryId;
+    
     row.querySelector('[data-field="actions"]').innerHTML = `
         <button class="btn-action btn-save" onclick="saveProductChanges('${product.id}')">Salvar</button>
         <button class="btn-action btn-cancel" onclick="cancelEdit('${product.id}')">Cancelar</button>
@@ -242,35 +280,3 @@ window.cancelEdit = (productId) => {
         delete originalRowHTML[productId];
     }
 };
-
-// =======================================================
-// INICIALIZAÇÃO DA PÁGINA
-// =======================================================
-
-function initDynamicForm() {
-    console.log('▶️ initDynamicForm() de product.js foi chamada.');
-    
-    const formElement = document.querySelector('.product-form');
-    initializeProductForm(formElement);
-    loadProductCategories(document.querySelector('select[name="CategoryId"]'));
-
-    const filterBtn = document.getElementById('filterBtn');
-    const clearFilterBtn = document.getElementById('clearFilterBtn');
-    
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderProducts(1));
-    if(clearFilterBtn) clearFilterBtn.addEventListener('click', () => {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('categoryFilter').value = '';
-        fetchAndRenderProducts(1);
-    });
-    
-    const categoryFilterSelect = document.querySelector('#categoryFilter');
-    if (categoryFilterSelect) {
-        loadProductCategories(categoryFilterSelect, 'Todas as Categorias')
-            .then(() => {
-                fetchAndRenderProducts(1);
-            });
-    } else {
-        fetchAndRenderProducts(1); 
-    }
-}
