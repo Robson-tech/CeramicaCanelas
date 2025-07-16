@@ -420,17 +420,6 @@ button[type="submit"]:hover {
     }
 }
 
-/* Animações */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 .form-container,
 .filter-bar,
@@ -456,12 +445,6 @@ button[type="submit"]:hover {
     border-radius: 50%;
     border-top-color: transparent;
     animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 /* Melhorias de Acessibilidade */

@@ -48,24 +48,42 @@
     <h2>Lista de Produtos Cadastrados</h2>
 
     <div class="filter-bar">
-        <div class="filter-group">
+        <div class="filter-group large">
             <label for="searchInput">Buscar por Nome/Código:</label>
             <input type="text" id="searchInput" class="form-input" placeholder="Digite para buscar...">
         </div>
         <div class="filter-group">
-            <label for="categoryFilter">Filtrar por Categoria:</label>
+            <label for="categoryFilter">Categoria:</label>
             <select id="categoryFilter" class="form-input">
                 <option value="">Todas</option>
             </select>
         </div>
+        <div class="filter-group small">
+            <label for="minPriceInput">Preço Mín:</label>
+            <input type="number" id="minPriceInput" class="form-input" placeholder="0.00">
+        </div>
+        <div class="filter-group small">
+            <label for="maxPriceInput">Preço Máx:</label>
+            <input type="number" id="maxPriceInput" class="form-input" placeholder="999.99">
+        </div>
         <div class="filter-group">
-            <label for="pageSizeSelect">Itens por Página:</label>
-            <select id="pageSizeSelect" class="form-input">
-                <option value="10" selected>10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="9999">Todos</option>
+            <label for="orderBySelect">Ordenar por:</label>
+            <select id="orderBySelect" class="form-input">
+                <option value="Name">Nome</option>
+                <option value="Value">Preço</option>
+                <option value="StockCurrent">Estoque</option>
             </select>
+        </div>
+        <div class="filter-group small">
+            <label for="orderDirectionSelect">Ordem:</label>
+            <select id="orderDirectionSelect" class="form-input">
+                <option value="true">Crescente</option>
+                <option value="false">Decrescente</option>
+            </select>
+        </div>
+        <div class="filter-group-buttons">
+            <button type="button" id="filterBtn" class="search-btn">Filtrar</button>
+            <button type="button" id="clearFilterBtn" class="btn-cancel">Limpar</button>
         </div>
     </div>
 
@@ -77,9 +95,8 @@
                     <th>Código</th>
                     <th>Nome</th>
                     <th>Categoria</th>
-                    <th>Estoque Atual</th>
-                    <th>Est. Mínimo</th>
-                    <th>Valor Unitário</th>
+                    <th>Estoque</th>
+                    <th>Valor</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -89,7 +106,4 @@
 
     <div id="pagination-controls" class="pagination-controls"></div>
 </div>
-
-<script src="/js/product.js"></script>
-
 <link rel="stylesheet" href="/css/product.css">
