@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetInventoryStatusQueries;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetFinancialQueries;
+using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetInventoryStatusQueries;
 using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetEmployeeMovementsQuery;
 using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetOutOfStockProducts;
 using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetProductsMost;
@@ -75,6 +76,17 @@ namespace CeramicaCanelas.WebApi.Controllers
             var result = await _mediator.Send(request);
             return Ok(result);
         }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet("financial/monthly-cost-category")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetMonthlyCostByCategory([FromQuery] GetMonthlyCostByCategoryQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
 
 
 
