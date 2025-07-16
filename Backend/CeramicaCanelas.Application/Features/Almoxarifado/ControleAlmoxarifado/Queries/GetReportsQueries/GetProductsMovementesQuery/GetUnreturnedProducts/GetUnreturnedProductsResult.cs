@@ -13,7 +13,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
         public int QuantityRetirada { get; set; }
         public int QuantityDevolvida { get; set; }
         public int QuantityPendente { get; set; }
-        public string Category { get; set; } = string.Empty;
         public DateTime DataRetirada { get; set; }
     }
 }
