@@ -1,4 +1,4 @@
-console.log('✅ SCRIPT: js/employee.js foi carregado e está executando.');
+console.log('✅ SCRIPT: js/employee.js foi DEFINIDO.');
 
 const API_URL = 'http://localhost:5087/api/employees';
 
@@ -65,7 +65,6 @@ window.deleteEmployee = async (employeeId) => {
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) { alert('Autenticação necessária.'); return; }
     try {
-        // Para DELETE, a API deve usar o ID na URL
         const response = await fetch(`${API_URL}/${employeeId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -82,16 +81,10 @@ window.deleteEmployee = async (employeeId) => {
     }
 };
 
-// --- Funções de Edição na Tabela (ATUALIZADAS) ---
-
-/**
- * ATUALIZADO: Adiciona um campo de upload de imagem durante a edição.
- */
 window.editEmployee = (employeeId) => {
     document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = true);
     const row = document.getElementById(`row-${employeeId}`);
     if (!row) return;
-
     originalRowHTML[employeeId] = row.innerHTML;
     
     const imageCell = row.querySelector('[data-field="image"]');
@@ -105,10 +98,8 @@ window.editEmployee = (employeeId) => {
     const currentPositionValue = row.getAttribute('data-position');
     const currentImageHTML = imageCell.innerHTML;
 
-    // Adiciona um campo para selecionar uma nova imagem
     imageCell.innerHTML = `${currentImageHTML}<br><label style="font-size: 12px; margin-top: 5px; display: block;">Trocar Imagem:<input type="file" class="edit-file" accept="image/*"></label>`;
     
-    // Transforma as outras células em campos editáveis
     nameCell.innerHTML = `<input type="text" class="edit-input" value="${currentName}">`;
     cpfCell.innerHTML = `<input type="text" class="edit-input" value="${currentCpf}">`;
     let positionOptions = '';
@@ -124,48 +115,35 @@ window.editEmployee = (employeeId) => {
     `;
 };
 
-/**
- * ATUALIZADO: Envia os dados como 'multipart/form-data' e o ID no corpo.
- */
 window.saveEmployeeChanges = async (employeeId) => {
     const row = document.getElementById(`row-${employeeId}`);
     if (!row) return;
-
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
         alert('Autenticação necessária.');
         return;
     }
 
-    // 1. Cria um objeto FormData para enviar os dados
     const formData = new FormData();
-
-    // 2. Pega os valores dos campos
     const nameValue = row.querySelector('[data-field="name"] input').value;
     const cpfValue = row.querySelector('[data-field="cpf"] input').value;
     const positionValue = row.querySelector('[data-field="position"] select').value;
     const imageFile = row.querySelector('.edit-file').files[0];
 
-    // 3. Adiciona todos os campos ao FormData, INCLUINDO O ID
     formData.append('Id', employeeId);
     formData.append('Name', nameValue);
     formData.append('CPF', cpfValue);
     formData.append('Positiions', positionValue);
     
-    // Apenas anexa a imagem se o usuário selecionou um novo arquivo
     if (imageFile) {
         formData.append('Imagem', imageFile);
     }
 
     try {
-        // 4. Faz a requisição PUT para a URL base, sem o ID
         const response = await fetch(API_URL, {
             method: 'PUT',
-            headers: {
-                // Ao usar FormData, NÃO definimos o 'Content-Type'. O navegador faz isso.
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: formData // O corpo da requisição é o objeto FormData
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            body: formData
         });
 
         if (response.ok) {
@@ -179,7 +157,7 @@ window.saveEmployeeChanges = async (employeeId) => {
         alert(error.message);
     } finally {
         delete originalRowHTML[employeeId];
-        loadEmployees(); // Recarrega a tabela para mostrar o estado atualizado
+        loadEmployees();
     }
 };
 
@@ -192,21 +170,23 @@ window.cancelEdit = (employeeId) => {
     document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = false);
 };
 
-
 // =================================================================
-// FUNÇÕES DO FORMULÁRIO DE CADASTRO (POST) - Sem alterações
+// FUNÇÕES DO FORMULÁRIO DE CADASTRO (POST)
 // =================================================================
 
 function waitForForm() {
-    const employeeForm = document.querySelector('.employee-form');
+    // Usamos um seletor mais específico para o formulário de cadastro
+    const employeeForm = document.querySelector('form.employee-form');
     if (!employeeForm) {
-        setTimeout(waitForForm, 100);
+        // Se o form de cadastro não estiver na tela, não há nada a fazer.
+        console.log('Formulário de cadastro de funcionário não encontrado nesta visão.');
         return;
     }
     initializeForm(employeeForm);
 }
 
 function initializeForm(employeeForm) {
+    console.log('🚀 Inicializando formulário de cadastro de funcionário...');
     const handleSaveEmployee = async (event) => {
         event.preventDefault();
         try {
@@ -220,12 +200,7 @@ function initializeForm(employeeForm) {
                 alert('Por favor, preencha Nome, CPF e Cargo.');
                 return;
             }
-            const positionValue = parseInt(formData.get('Position'), 10);
-            if (isNaN(positionValue)) {
-                alert('Por favor, selecione um cargo válido.');
-                return;
-            }
-
+            
             // Renomeia o campo 'Position' para 'Positiions' antes de enviar
             formData.append('Positiions', formData.get('Position'));
             formData.delete('Position');
@@ -239,7 +214,7 @@ function initializeForm(employeeForm) {
             if (response.ok) {
                 alert('Funcionário salvo com sucesso!');
                 employeeForm.reset();
-                loadEmployees();
+                loadEmployees(); // Atualiza a tabela
             } else {
                 const errorText = await response.text();
                 throw new Error(`Erro ao salvar (Status ${response.status}): ${errorText}`);
@@ -252,6 +227,12 @@ function initializeForm(employeeForm) {
     employeeForm.addEventListener('submit', handleSaveEmployee);
 }
 
-// --- EXECUÇÃO PRINCIPAL ---
-waitForForm();
-loadEmployees();
+// --- EXECUÇÃO PRINCIPAL (CORRIGIDA) ---
+// Esta função será chamada pela 'loadForm' depois que o script for carregado.
+function initDynamicForm() {
+    console.log('▶️ initDynamicForm() de employee.js foi chamada.');
+    // Tenta inicializar o formulário de cadastro, se ele existir na página.
+    waitForForm();
+    // Carrega a lista de funcionários na tabela, se ela existir na página.
+    loadEmployees();
+}
