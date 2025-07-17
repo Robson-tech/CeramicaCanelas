@@ -1,17 +1,25 @@
 console.log('Script js/product.js DEFINIDO (Paginação no Servidor).');
 
-const API_BASE_URL = 'http://localhost:5087/api';
-const originalRowHTML = {};
-let currentTablePage = 1;
+
+
 
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de product.js foi chamada.');
+    
+    // 1. Reinicia o estado da página
+    currentTablePage = 1;
+    
+    // 2. Configura o formulário de cadastro
     initializeProductForm(document.querySelector('.product-form'));
     loadProductCategories(document.querySelector('select[name="CategoryId"]'));
+
+    // 3. Configura os filtros da tabela
     initializeTableFilters();
+    
+    // 4. Carrega as categorias no filtro e depois busca a primeira página de produtos
     loadProductCategories(document.querySelector('#categoryFilter'), 'Todas as Categorias')
         .then(() => {
             fetchAndRenderProducts(1);
@@ -22,16 +30,22 @@ function initializeTableFilters() {
     const filterBtn = document.getElementById('filterBtn');
     const clearFilterBtn = document.getElementById('clearFilterBtn');
     
-    filterBtn?.addEventListener('click', () => fetchAndRenderProducts(1));
-    clearFilterBtn?.addEventListener('click', () => {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('categoryFilter').value = '';
-        document.getElementById('minPriceInput').value = '';
-        document.getElementById('maxPriceInput').value = '';
-        document.getElementById('orderBySelect').value = 'Name';
-        document.getElementById('orderDirectionSelect').value = 'true';
-        fetchAndRenderProducts(1);
-    });
+    // Usar .onclick garante que não haverá múltiplos eventos de clique
+    if(filterBtn) {
+        filterBtn.onclick = () => fetchAndRenderProducts(1);
+    }
+    
+    if(clearFilterBtn) {
+        clearFilterBtn.onclick = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('maxPriceInput').value = '';
+            document.getElementById('orderBySelect').value = 'Name';
+            document.getElementById('orderDirectionSelect').value = 'true';
+            fetchAndRenderProducts(1);
+        };
+    }
 }
 
 // =======================================================
@@ -58,10 +72,11 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
 
 function initializeProductForm(form) {
     if (!form) return;
-    form.addEventListener('submit', (event) => {
+    // Usar .onsubmit também evita múltiplos listeners
+    form.onsubmit = (event) => {
         event.preventDefault();
         processAndSendProductData(form);
-    });
+    };
 }
 
 async function processAndSendProductData(form) {
