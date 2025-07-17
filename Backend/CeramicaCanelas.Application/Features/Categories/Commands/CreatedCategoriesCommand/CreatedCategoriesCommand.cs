@@ -12,8 +12,6 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
 
         public string Description { get; set; } = string.Empty;
 
-        public IFormFile? Imagem { get; set; }
-
         public Domain.Entities.Categories AssignToCategories()
         {
             return new Domain.Entities.Categories
