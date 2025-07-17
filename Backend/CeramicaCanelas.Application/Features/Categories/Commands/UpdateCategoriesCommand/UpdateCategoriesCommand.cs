@@ -15,8 +15,6 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategor
 
         public string Description { get; set; } = string.Empty;
 
-        public IFormFile Imagem { get; set; } = null!;
-
 
     }
 }

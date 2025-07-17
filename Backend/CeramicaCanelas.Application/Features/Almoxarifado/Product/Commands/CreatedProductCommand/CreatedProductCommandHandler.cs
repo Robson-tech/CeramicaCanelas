@@ -29,7 +29,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
             if (!Directory.Exists(pasta))
                 Directory.CreateDirectory(pasta);
 
-            const string UrlBase = "https://localhost:7014/products/images/";
+            const string UrlBase = "https://ceramicacanelas.shop/products/images/";
             string? url = null;
 
             if (request.Imagem != null)
