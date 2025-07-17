@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.CreateMovEntradasProductsCommand;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Entradas.Queries.Pages;
+using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.CreateMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.DeleteMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command.UpdateMovEntradasProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries.GetAllProductsEntryQueries;
@@ -61,8 +62,15 @@ namespace CeramicaCanelas.WebApi.Controllers
 
         }
 
-
-
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet("paged")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagedProductsEntry([FromQuery] PagedRequestProductsEntry request)
+        {
+            var response = await _mediator.Send(request);
+            return Ok(response);
+        }
     }
 }
 

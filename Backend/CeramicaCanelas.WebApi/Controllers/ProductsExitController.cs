@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Saidas.Queries.Pages;
+using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.CreateMovExitProductsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.DeleteMovExitProdructsCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.ReturnProductExitCommand;
 using CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.UpdateMovExitProdructsCommand;
@@ -70,6 +71,17 @@ namespace CeramicaCanelas.WebApi.Controllers
         {
             await _mediator.Send(request);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet("paged")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagedProductsExit([FromQuery] PagedRequestProductsExit request)
+        {
+            var response = await _mediator.Send(request);
+            return Ok(response);
+
         }
     }
 }
