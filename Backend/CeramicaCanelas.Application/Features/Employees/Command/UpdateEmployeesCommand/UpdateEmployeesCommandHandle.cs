@@ -32,7 +32,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
             if (!Directory.Exists(pasta))
                 Directory.CreateDirectory(pasta);
 
-            const string UrlBase = "https://localhost:7014/employees/images/";
+            const string UrlBase = "https://ceramicacanelas.shop/employees/images/";
             string? url = null;
 
             if (request.Imagem != null)
