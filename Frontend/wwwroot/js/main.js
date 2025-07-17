@@ -6,7 +6,7 @@ const API_BASE_URL = 'http://localhost:5087/api';
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
 const originalRowHTML_Employee = {};
-
+const originalEntryRowHTML = {}; 
 // Variável para controlar a paginação da tabela atual
 let currentTablePage = 1;
 

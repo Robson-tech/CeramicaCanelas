@@ -1,43 +1,57 @@
-
-    <div class="container">
-        <h2 class="form-title">Entrada no Estoque</h2>
-        <div class="form-container">
-            <form id="productForm" class="product-entry-form">
+<div class="container">
+    <h2 class="form-title">Registrar Entrada no Estoque</h2>
+    <div class="form-container">
+        <form id="productEntryForm" class="product-entry-form">
+            <div class="form-group">
+                <label class="form-label">Produto</label>
+                <div class="product-selection-box">
+                    <span id="selectedProductName">Nenhum produto selecionado</span>
+                    <button type="button" id="openProductModalBtn" class="search-btn">Buscar Produto...</button>
+                </div>
+                <input type="hidden" id="productUuid" name="ProductId">
+            </div>
+            <hr class="form-divider">
+            <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Produto</label>
-                    <div class="product-selection-box">
-                        <span id="selectedProductName">Nenhum produto selecionado</span>
-                        <button type="button" id="openProductModalBtn" class="search-btn">Buscar Produto...</button>
-                    </div>
-                    <input type="hidden" id="productUuid" name="productUuid">
+                    <label class="form-label" for="quantity">Quantidade</label>
+                    <input type="number" id="quantity" name="Quantity" class="form-input" placeholder="ex: 10" min="1" step="1" required />
                 </div>
-                <hr class="form-divider">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="quantity">Quantidade</label>
-                        <input type="number" id="quantity" name="quantity" class="form-input" placeholder="ex: 10" min="1" step="1" required />
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="unitPrice">Preço Unitário de Custo</label>
-                        <input type="number" id="unitPrice" name="unitPrice" class="form-input" placeholder="ex: 29.99" min="0" step="0.01" required />
-                    </div>
+                <div class="form-group">
+                    <label class="form-label" for="unitPrice">Preço Unitário de Custo</label>
+                    <input type="number" id="unitPrice" name="UnitPrice" class="form-input" placeholder="ex: 29.99" min="0" step="0.01" required />
                 </div>
-                <button type="submit" class="submit-btn">Registrar Entrada</button>
-            </form>
-        </div>
+            </div>
+            <button type="submit" class="submit-btn">Registrar Entrada</button>
+        </form>
     </div>
 
-  <div id="productSearchModal" class="modal">
+    <hr class="section-divider">
+    <h2 class="form-title">Entradas Registradas</h2>
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Custo Unitário</th>
+                    <th>Data da Entrada</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="entry-list-body">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="productSearchModal" class="modal">
     <div class="modal-content">
         <span class="modal-close-btn">&times;</span>
         <h3>Selecione um Produto</h3>
-        
         <div id="modalResultsContainer" class="table-container">
             </div>
         <div id="modalPaginationControls" class="pagination-controls">
             </div>
     </div>
 </div>
-
-
-</body>
+<link rel="stylesheet" href="/css/entrada.css">

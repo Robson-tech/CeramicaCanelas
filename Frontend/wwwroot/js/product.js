@@ -2,24 +2,19 @@ console.log('Script js/product.js DEFINIDO (Paginação no Servidor).');
 
 
 
-
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de product.js foi chamada.');
     
-    // 1. Reinicia o estado da página
     currentTablePage = 1;
     
-    // 2. Configura o formulário de cadastro
     initializeProductForm(document.querySelector('.product-form'));
     loadProductCategories(document.querySelector('select[name="CategoryId"]'));
 
-    // 3. Configura os filtros da tabela
     initializeTableFilters();
     
-    // 4. Carrega as categorias no filtro e depois busca a primeira página de produtos
     loadProductCategories(document.querySelector('#categoryFilter'), 'Todas as Categorias')
         .then(() => {
             fetchAndRenderProducts(1);
@@ -30,7 +25,6 @@ function initializeTableFilters() {
     const filterBtn = document.getElementById('filterBtn');
     const clearFilterBtn = document.getElementById('clearFilterBtn');
     
-    // Usar .onclick garante que não haverá múltiplos eventos de clique
     if(filterBtn) {
         filterBtn.onclick = () => fetchAndRenderProducts(1);
     }
@@ -72,7 +66,6 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
 
 function initializeProductForm(form) {
     if (!form) return;
-    // Usar .onsubmit também evita múltiplos listeners
     form.onsubmit = (event) => {
         event.preventDefault();
         processAndSendProductData(form);
@@ -159,6 +152,8 @@ function renderProductTable(products) {
         const imageUrl = product.imageUrl || 'https://via.placeholder.com/60';
         const formattedValue = (product.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const productJsonString = JSON.stringify(product).replace(/'/g, "&apos;");
+        const isReturnableText = product.isReturnable ? 'Sim' : 'Não';
+
         const rowHTML = `
             <tr id="row-${product.id}">
                 <td><img src="${imageUrl}" alt="${product.name}" class="product-table-img"></td>
@@ -168,6 +163,7 @@ function renderProductTable(products) {
                 <td data-field="stock">${product.stockCurrent || 0}</td>
                 <td data-field="minStock">${product.stockMinium || 0}</td>
                 <td data-field="value">${formattedValue}</td>
+                <td data-field="returnable">${isReturnableText}</td>
                 <td class="actions-cell" data-field="actions">
                     <button class="btn-action btn-edit" onclick='editProduct(${productJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">Excluir</button>
@@ -221,12 +217,17 @@ window.deleteProduct = async (productId) => {
 window.editProduct = async (product) => {
     const row = document.getElementById(`row-${product.id}`);
     if (!row) return;
-    originalRowHTML[product.id] = row.innerHTML;
+    originalRowHTML_Product[product.id] = row.innerHTML;
     try {
         row.querySelector('[data-field="code"]').innerHTML = `<input type="text" name="Code" class="edit-input" value="${product.code || ''}">`;
         row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${product.name}">`;
         row.querySelector('[data-field="minStock"]').innerHTML = `<input type="number" name="StockMinium" class="edit-input" value="${product.stockMinium || 0}">`;
         row.querySelector('[data-field="value"]').innerHTML = `<input type="number" step="0.01" name="Value" class="edit-input" value="${product.value || 0}">`;
+        
+        // A lógica para editar o campo 'Devolvível' foi REMOVIDA, conforme solicitado.
+        // O campo de estoque atual permanece como não editável.
+        row.querySelector('[data-field="stock"]').innerHTML = `<input type="number" name="StockCurrent" class="edit-input" value="${product.stockCurrent || 0}" title="Estoque Atual (não editável)" readonly>`;
+        
         const categoryCell = row.querySelector('[data-field="category"]');
         const categorySelect = document.createElement('select');
         categorySelect.className = 'edit-input';
@@ -235,14 +236,15 @@ window.editProduct = async (product) => {
         categoryCell.appendChild(categorySelect);
         await loadProductCategories(categorySelect);
         categorySelect.value = product.categoryId;
+        
         row.querySelector('[data-field="actions"]').innerHTML = `
             <button class="btn-action btn-save" onclick="saveProductChanges('${product.id}')">Salvar</button>
-            <button class="btn-action btn-cancel" onclick="cancelEdit('${product.id}')">Cancelar</button>
+            <button class="btn-action btn-cancel" onclick="cancelEditProduct('${product.id}')">Cancelar</button>
         `;
     } catch (error) {
         console.error("❌ Erro ao entrar no modo de edição:", error);
         alert("Não foi possível carregar os dados para edição. Verifique o console.");
-        cancelEdit(product.id);
+        cancelEditProduct(product.id);
     }
 };
 
@@ -271,14 +273,14 @@ window.saveProductChanges = async (productId) => {
         }
     } catch (error) {
         alert(error.message);
-        cancelEdit(productId);
+        cancelEditProduct(productId);
     }
 };
 
-window.cancelEdit = (productId) => {
+window.cancelEditProduct = (productId) => {
     const row = document.getElementById(`row-${productId}`);
-    if (row && originalRowHTML[productId]) {
-        row.innerHTML = originalRowHTML[productId];
-        delete originalRowHTML[productId];
+    if (row && originalRowHTML_Product[productId]) {
+        row.innerHTML = originalRowHTML_Product[productId];
+        delete originalRowHTML_Product[productId];
     }
 };
