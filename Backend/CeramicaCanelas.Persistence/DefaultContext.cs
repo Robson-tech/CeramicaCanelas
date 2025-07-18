@@ -4,7 +4,8 @@ using CeramicaCanelas.Domain.Entities;
 
 namespace CeramicaCanelas.Persistence;
 
-public class DefaultContext : IdentityDbContext<User> {
+public class DefaultContext : IdentityDbContext<User>
+{
 
     public DefaultContext() { }
 
@@ -19,6 +20,8 @@ public class DefaultContext : IdentityDbContext<User> {
     public DbSet<ProductExit> ProductExits { get; set; } = null!;
 
     public DbSet<ProductEntry> ProductEntries { get; set; } = null!;
+    public DbSet<Supplier> Suppliers { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -72,6 +75,11 @@ public class DefaultContext : IdentityDbContext<User> {
                   .WithMany() // ou .WithMany(u => u.ProductEntries)
                   .HasForeignKey(e => e.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Supplier)
+                  .WithMany(s => s.ProductEntries)
+                  .HasForeignKey(e => e.SupplierId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configure ProductExit relationships
@@ -96,6 +104,13 @@ public class DefaultContext : IdentityDbContext<User> {
                     .OnDelete(DeleteBehavior.Cascade);
 
 
+        });
+
+        builder.Entity<Supplier>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
         });
 
         base.OnModelCreating(builder);
