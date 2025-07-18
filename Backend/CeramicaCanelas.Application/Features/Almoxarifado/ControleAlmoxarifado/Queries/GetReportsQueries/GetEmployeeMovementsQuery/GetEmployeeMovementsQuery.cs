@@ -9,8 +9,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 {
     public class GetEmployeeMovementsQuery : IRequest<List<GetEmployeeMovementsResult>>
     {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
         public string? SearchEmployee { get; set; } // busca por nome
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

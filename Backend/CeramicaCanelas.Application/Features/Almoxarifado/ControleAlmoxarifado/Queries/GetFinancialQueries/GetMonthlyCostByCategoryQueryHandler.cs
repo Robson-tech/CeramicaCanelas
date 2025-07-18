@@ -10,8 +10,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 {
     public class GetMonthlyCostByCategoryQuery : IRequest<List<GetMonthlyCostByCategoryResult>>
     {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
         public Guid? CategoryId { get; set; }
         public int? Year { get; set; }
     }
