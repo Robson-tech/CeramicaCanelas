@@ -1,7 +1,7 @@
 // =======================================================
 // VARIÁVEIS E CONSTANTES GLOBAIS DA APLICAÇÃO
 // =======================================================
-const API_BASE_URL = 'http://localhost:5087/api';
+const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
 
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
@@ -24,10 +24,6 @@ const positionMap = {
 // Função utilitária global
 const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
 
-
-// Armazenará a lista completa de funcionários para evitar múltiplas chamadas à API
-let allEmployees = [];
-let currentHistoryPage = 1;
 
 // =======================================================
 // FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS

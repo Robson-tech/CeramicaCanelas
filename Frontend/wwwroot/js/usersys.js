@@ -67,7 +67,7 @@ async function sendUserData(formData, form) {
 
     try {
         // A URL agora usa a variável API_BASE_URL e não contém os dados
-        const url = `${API_BASE_URL}/api/user`;
+        const url = `${API_BASE_URL}/user`;
         
         const response = await fetch(url, {
             method: 'POST',
