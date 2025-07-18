@@ -7,8 +7,11 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
     public class CreateMovEntradasProductCommand : IRequest<Unit>
     {
         public Guid ProductId { get; set; }
+        public Guid SupplierId { get; set; } = Guid.Empty;
+
         public int Quantity { get; set; }
         public float UnitPrice { get; set; }
+
 
         public Domain.Entities.ProductEntry AssignToProductsEntry()
         {
@@ -18,6 +21,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
                 EntryDate = DateTime.UtcNow,
                 Quantity = Quantity,
                 UnitPrice = UnitPrice,
+                SupplierId = SupplierId,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow
 

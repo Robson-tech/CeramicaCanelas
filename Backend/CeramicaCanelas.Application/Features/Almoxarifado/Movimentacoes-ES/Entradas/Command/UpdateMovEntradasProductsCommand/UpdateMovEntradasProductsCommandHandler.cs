@@ -52,6 +52,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
 
             //Atualizando com os novos valores
             movimentacaoES.ProductId = movimentacaoES.ProductId;
+            movimentacaoES.SupplierId = command.SupplierId;
             movimentacaoES.Quantity = command.Quantity;
             movimentacaoES.UnitPrice = command.UnitPrice;
             movimentacaoES.ModifiedOn = DateTime.UtcNow;
