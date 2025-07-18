@@ -1,6 +1,8 @@
 // LOG 1: Confirma que o arquivo de script foi carregado e está sendo executado.
 console.log('Script usersys.js (somente cadastro) EXECUTANDO.');
 
+
+
 // Função principal que inicializa o formulário
 function initializeUserForm(userForm) {
     if (!userForm) {
@@ -40,46 +42,49 @@ async function processUserData(form) {
         return;
     }
     
-    const userData = {
-        UserName: formData.get('userName'),
-        Name: formData.get('name'),
-        Email: formData.get('email'),
-        Password: password,
-        PasswordConfirmation: passwordConfirmation,
-        Role: parseInt(formData.get('role'))
-    };
-    
-    if (!userData.UserName || !userData.Name || !userData.Email || isNaN(userData.Role)) {
-        console.warn('⚠️ Campos obrigatórios não preenchidos');
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
+    // Usamos diretamente o formData que é mais prático para application/x-www-form-urlencoded
+    const requiredFields = ['userName', 'name', 'email', 'password', 'role'];
+    for (const field of requiredFields) {
+        if (!formData.get(field)) {
+            console.warn(`⚠️ Campo obrigatório não preenchido: ${field}`);
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
     }
     
     console.log('✅ Dados validados com sucesso');
-    await sendUserData(userData, form);
+    await sendUserData(formData, form);
 }
 
 // Função para enviar os dados para a API
-async function sendUserData(userData, form) {
+async function sendUserData(formData, form) {
     console.log('📡 Preparando dados para envio...');
-    console.log('Enviando para a API:', { ...userData, Password: '[OCULTO]', PasswordConfirmation: '[OCULTO]' });
+    // Clonamos para poder logar sem a senha, o original vai no body
+    const logData = new FormData(form);
+    logData.set('password', '[OCULTO]');
+    logData.set('passwordConfirmation', '[OCULTO]');
+    console.log('Enviando para a API:', Object.fromEntries(logData));
 
     try {
-        const params = new URLSearchParams(userData);
+        // A URL agora usa a variável API_BASE_URL e não contém os dados
+        const url = `${API_BASE_URL}/api/user`;
         
-        const response = await fetch(`http://localhost:5087/api/user?${params.toString()}`, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
+                // O Content-Type correto para FormData via fetch é omitido, 
+                // o navegador define com o boundary correto.
+                // Mas para x-www-form-urlencoded, usamos URLSearchParams.
                 'Accept': 'application/json'
-            }
+            },
+            // Os dados são enviados no CORPO da requisição, não na URL.
+            body: new URLSearchParams(formData)
         });
 
         if (response.ok) {
             console.log('✅ Usuário salvo com sucesso!');
             alert('Usuário cadastrado com sucesso!');
             form.reset(); // Limpa o formulário
-            // A linha para recarregar a tabela foi removida daqui.
         } else {
             let errorMessage = 'Erro ao salvar usuário';
             try {
@@ -98,7 +103,5 @@ async function sendUserData(userData, form) {
 }
 
 // --- EXECUÇÃO PRINCIPAL ---
-// Como este script é carregado DEPOIS do HTML, podemos buscar os elementos diretamente.
 const formElement = document.querySelector('.user-form');
 initializeUserForm(formElement);
-// A chamada para loadUsers() foi removida do final do arquivo.
