@@ -3,6 +3,8 @@ using CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployeesCom
 using CeramicaCanelas.Application.Features.Employees.Command.DeleteEmployeesCommand;
 using CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployeesCommand;
 using CeramicaCanelas.Application.Features.Employees.Queries.GetAllEmployeesQueries;
+using CeramicaCanelas.Application.Features.Employees.Queries.Pages;
+using CeramicaCanelas.Application.Services.TokenJwt;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -60,5 +62,16 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(response);
 
         }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpGet("pages")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetEmployeesPages([FromQuery] PagedRequestEmployees request)
+        {
+            var response = await _mediator.Send(request);
+            return Ok(response);
+        }
+
     }
 }
