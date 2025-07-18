@@ -1,20 +1,16 @@
 console.log('Script js/product.js DEFINIDO (Paginação no Servidor).');
 
 
-
-// =======================================================
-// INICIALIZAÇÃO DA PÁGINA
-// =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de product.js foi chamada.');
-    
+
     currentTablePage = 1;
-    
+
     initializeProductForm(document.querySelector('.product-form'));
     loadProductCategories(document.querySelector('select[name="CategoryId"]'));
 
     initializeTableFilters();
-    
+
     loadProductCategories(document.querySelector('#categoryFilter'), 'Todas as Categorias')
         .then(() => {
             fetchAndRenderProducts(1);
@@ -24,19 +20,19 @@ function initDynamicForm() {
 function initializeTableFilters() {
     const filterBtn = document.getElementById('filterBtn');
     const clearFilterBtn = document.getElementById('clearFilterBtn');
-    
-    if(filterBtn) {
+
+    if (filterBtn) {
         filterBtn.onclick = () => fetchAndRenderProducts(1);
     }
-    
-    if(clearFilterBtn) {
+
+    if (clearFilterBtn) {
         clearFilterBtn.onclick = () => {
             document.getElementById('searchInput').value = '';
             document.getElementById('categoryFilter').value = '';
             document.getElementById('minPriceInput').value = '';
             document.getElementById('maxPriceInput').value = '';
-            // ✨ ALTERAÇÃO AQUI: O valor padrão agora é 'name'
-            document.getElementById('orderBySelect').value = 'name'; 
+            // Define o valor padrão da ordenação para 'name' (minúsculo)
+            document.getElementById('orderBySelect').value = 'name';
             document.getElementById('orderDirectionSelect').value = 'true';
             fetchAndRenderProducts(1);
         };
@@ -50,7 +46,9 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
     if (!selectElement) return;
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await fetch(`${API_BASE_URL}/categories`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
         if (!response.ok) throw new Error('Falha ao carregar categorias.');
         const categories = await response.json();
         selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`;
@@ -103,9 +101,6 @@ async function processAndSendProductData(form) {
 // =======================================================
 // LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
 // =======================================================
-// =======================================================
-// LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
-// =======================================================
 async function fetchAndRenderProducts(page = 1) {
     currentTablePage = page;
     const tableBody = document.querySelector('#product-list-body');
@@ -115,28 +110,32 @@ async function fetchAndRenderProducts(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        // ✨ ALTERAÇÃO AQUI: Garante que o valor de OrderBy seja minúsculo (ex: 'name', 'price')
+        // Pega dinamicamente o valor do select ('name' ou 'price') e converte para minúsculo por segurança
         const orderByValue = (document.getElementById('orderBySelect')?.value || 'name').toLowerCase();
 
         const params = new URLSearchParams({
             Page: currentTablePage,
             PageSize: 10,
-            OrderBy: orderByValue, // ✨ Usa o valor ajustado
+            OrderBy: orderByValue, // Usa o valor minúsculo para ordenação
             Ascending: document.getElementById('orderDirectionSelect')?.value || 'true',
         });
+        
         const search = document.getElementById('searchInput')?.value;
         const categoryId = document.getElementById('categoryFilter')?.value;
         const minPrice = document.getElementById('minPriceInput')?.value;
         const maxPrice = document.getElementById('maxPriceInput')?.value;
 
-        // ✨ ALTERAÇÕES AQUI: Nomes dos parâmetros de filtro atualizados
-        if (search) params.append('name', search);             // 'Search' foi alterado para 'name'
-        if (categoryId) params.append('CategoryId', categoryId); // Este permaneceu, caso seu back-end o espere assim
-        if (minPrice) params.append('minPrice', minPrice);     // 'MinPrice' foi alterado para 'minPrice'
-        if (maxPrice) params.append('maxPrice', maxPrice);     // 'MaxPrice' foi alterado para 'maxPrice'
-        
+        // Mantém os nomes dos parâmetros de FILTRO como a API espera (PascalCase)
+        if (search) params.append('Search', search); // 'Search' para a busca funcionar
+        if (categoryId) params.append('CategoryId', categoryId);
+        if (minPrice) params.append('MinPrice', minPrice);
+        if (maxPrice) params.append('MaxPrice', maxPrice);
+
         const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
-        const response = await fetch(url, { method: 'GET', headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
         if (!response.ok) throw new Error(`Falha ao buscar produtos (Status: ${response.status})`);
 
         const paginatedData = await response.json();
@@ -210,7 +209,10 @@ window.deleteProduct = async (productId) => {
     if (!confirm('Tem certeza que deseja excluir este produto?')) return;
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_BASE_URL}/products/${productId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
         if (response.ok) {
             alert('Produto excluído com sucesso!');
             fetchAndRenderProducts(currentTablePage);
@@ -231,11 +233,9 @@ window.editProduct = async (product) => {
         row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${product.name}">`;
         row.querySelector('[data-field="minStock"]').innerHTML = `<input type="number" name="StockMinium" class="edit-input" value="${product.stockMinium || 0}">`;
         row.querySelector('[data-field="value"]').innerHTML = `<input type="number" step="0.01" name="Value" class="edit-input" value="${product.value || 0}">`;
-        
-        // A lógica para editar o campo 'Devolvível' foi REMOVIDA, conforme solicitado.
-        // O campo de estoque atual permanece como não editável.
+
         row.querySelector('[data-field="stock"]').innerHTML = `<input type="number" name="StockCurrent" class="edit-input" value="${product.stockCurrent || 0}" title="Estoque Atual (não editável)" readonly>`;
-        
+
         const categoryCell = row.querySelector('[data-field="category"]');
         const categorySelect = document.createElement('select');
         categorySelect.className = 'edit-input';
@@ -244,7 +244,7 @@ window.editProduct = async (product) => {
         categoryCell.appendChild(categorySelect);
         await loadProductCategories(categorySelect);
         categorySelect.value = product.categoryId;
-        
+
         row.querySelector('[data-field="actions"]').innerHTML = `
             <button class="btn-action btn-save" onclick="saveProductChanges('${product.id}')">Salvar</button>
             <button class="btn-action btn-cancel" onclick="cancelEditProduct('${product.id}')">Cancelar</button>
@@ -271,7 +271,11 @@ window.saveProductChanges = async (productId) => {
     });
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_BASE_URL}/products`, { method: 'PUT', headers: { 'Authorization': `Bearer ${accessToken}` }, body: formData });
+        const response = await fetch(`${API_BASE_URL}/products`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            body: formData
+        });
         if (response.ok) {
             alert('Produto atualizado com sucesso!');
             fetchAndRenderProducts(currentTablePage);
