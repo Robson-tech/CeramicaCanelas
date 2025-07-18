@@ -1,5 +1,7 @@
 // Defina a URL base da sua API aqui.
 
+// ===== VARIÁVEIS GLOBAIS =====
+
 
 /**
  * =======================================================
