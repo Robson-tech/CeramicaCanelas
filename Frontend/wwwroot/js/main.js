@@ -1,7 +1,7 @@
 // =======================================================
 // VARIÁVEIS E CONSTANTES GLOBAIS DA APLICAÇÃO
 // =======================================================
-const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
+const API_BASE_URL = 'http://localhost:5087/api';
 
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
