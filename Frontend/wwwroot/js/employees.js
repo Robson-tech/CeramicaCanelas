@@ -1,238 +1,155 @@
-console.log('✅ SCRIPT: js/employee.js foi DEFINIDO.');
+console.log('Script js/employee.js DEFINIDO.');
 
-const API_URL = 'http://localhost:5087/api/employees';
-
-// Mapa para converter o número da posição para o nome do cargo
-const positionMap = {
-    0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',
-    4: 'Operador de Pá Carregadeira', 5: 'Motorista', 6: 'Queimador',
-    7: 'Conferente', 8: 'Caixa', 9: 'Auxiliar Administrativo',
-    10: 'Auxiliar de Limpeza', 11: 'Dono', 12: 'Gerente', 13: 'Auxiliar de Estoque'
-};
-
-const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
-
-// Objeto para armazenar o estado original da linha antes da edição
-const originalRowHTML = {};
+// Nomes únicos para variáveis globais para evitar conflitos
 
 
-// =================================================================
-// FUNÇÕES DA TABELA (GET, RENDER, EDIT, DELETE)
-// =================================================================
+// Mapa de cargos
 
-async function loadEmployees() {
-    console.log('Buscando lista de funcionários para a tabela...');
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-        console.warn('Token de acesso não encontrado. A tabela não será carregada.');
+
+function initializeEmployeeForm(form) {
+    if (!form) return;
+    form.onsubmit = (event) => {
+        event.preventDefault();
+        handleSaveEmployee(form);
+    };
+}
+
+async function handleSaveEmployee(form) {
+    const formData = new FormData(form);
+    if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Position')) {
+        alert('Preencha Nome, CPF e Cargo.');
         return;
     }
     try {
-        const response = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        if (!response.ok) throw new Error('Falha ao buscar funcionários.');
-        const employees = await response.json();
-        renderEmployeeTable(employees);
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/employees`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            body: formData,
+        });
+        if (response.ok) {
+            alert('Funcionário salvo com sucesso!');
+            form.reset();
+            loadEmployees();
+        } else {
+            const errorData = await response.json();
+            alert(`Erro: ${errorData.message || 'Falha ao salvar.'}`);
+        }
     } catch (error) {
-        console.error('Erro ao carregar funcionários para a tabela:', error);
+        alert('Erro de comunicação com o servidor.');
     }
 }
 
-function renderEmployeeTable(employees) {
-    const tableBody = document.getElementById('employee-table-body');
+async function loadEmployees() {
+    const tableBody = document.querySelector('#employee-table-body');
     if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando...</td></tr>';
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/employees`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const employees = await response.json();
+        renderEmployeeTable(employees, tableBody);
+    } catch (error) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar.</td></tr>';
+    }
+}
+
+function renderEmployeeTable(employees, tableBody) {
     tableBody.innerHTML = '';
+    if (!employees || employees.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum funcionário cadastrado.</td></tr>';
+        return;
+    }
     employees.forEach(employee => {
-        const positionValue = employee.positiions;
         const imageUrl = employee.imageUrl || 'https://via.placeholder.com/60';
-        const row = `
-            <tr id="row-${employee.id}" data-position="${positionValue}">
-                <td data-field="image"><img src="${imageUrl}" alt="${employee.name}" class="employee-photo"></td>
+        const employeeJsonString = JSON.stringify(employee).replace(/'/g, "&apos;");
+        const rowHTML = `
+            <tr id="row-employee-${employee.id}">
+                <td data-field="image"><img src="${imageUrl}" alt="${employee.name}" class="product-table-img"></td>
                 <td data-field="name">${employee.name}</td>
                 <td data-field="cpf">${employee.cpf}</td>
-                <td data-field="position">${getPositionName(positionValue)}</td>
-                <td data-field="actions">
-                    <button class="btn-edit" onclick="editEmployee('${employee.id}')">Editar</button>
-                    <button class="btn-delete" onclick="deleteEmployee('${employee.id}')">Excluir</button>
+                <td data-field="position">${getPositionName(employee.positiions)}</td>
+                <td class="actions-cell" data-field="actions">
+                    <button class="btn-action btn-edit" onclick='editEmployee(${employeeJsonString})'>Editar</button>
+                    <button class="btn-action btn-delete" onclick="deleteEmployee('${employee.id}')">Excluir</button>
                 </td>
-            </tr>
-        `;
-        tableBody.insertAdjacentHTML('beforeend', row);
+            </tr>`;
+        tableBody.insertAdjacentHTML('beforeend', rowHTML);
     });
 }
 
 window.deleteEmployee = async (employeeId) => {
     if (!confirm('Tem certeza que deseja excluir este funcionário?')) return;
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) { alert('Autenticação necessária.'); return; }
     try {
-        const response = await fetch(`${API_URL}/${employeeId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/employees/${employeeId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (response.ok) {
-            alert('Funcionário excluído com sucesso!');
+            alert('Funcionário excluído!');
             loadEmployees();
         } else {
-            throw new Error('Falha ao excluir funcionário.');
+            throw new Error('Falha ao excluir.');
         }
     } catch (error) {
-        console.error('Erro ao excluir:', error);
         alert(error.message);
     }
 };
 
-window.editEmployee = (employeeId) => {
-    document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = true);
-    const row = document.getElementById(`row-${employeeId}`);
+window.editEmployee = (employee) => {
+    const row = document.getElementById(`row-employee-${employee.id}`);
     if (!row) return;
-    originalRowHTML[employeeId] = row.innerHTML;
-    
-    const imageCell = row.querySelector('[data-field="image"]');
-    const nameCell = row.querySelector('[data-field="name"]');
-    const cpfCell = row.querySelector('[data-field="cpf"]');
+    originalRowHTML_Employee[employee.id] = row.innerHTML;
+    row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${employee.name}">`;
+    row.querySelector('[data-field="cpf"]').innerHTML = `<input type="text" name="CPF" class="edit-input" value="${employee.cpf}">`;
     const positionCell = row.querySelector('[data-field="position"]');
-    const actionsCell = row.querySelector('[data-field="actions"]');
-    
-    const currentName = nameCell.innerText;
-    const currentCpf = cpfCell.innerText;
-    const currentPositionValue = row.getAttribute('data-position');
-    const currentImageHTML = imageCell.innerHTML;
-
-    imageCell.innerHTML = `${currentImageHTML}<br><label style="font-size: 12px; margin-top: 5px; display: block;">Trocar Imagem:<input type="file" class="edit-file" accept="image/*"></label>`;
-    
-    nameCell.innerHTML = `<input type="text" class="edit-input" value="${currentName}">`;
-    cpfCell.innerHTML = `<input type="text" class="edit-input" value="${currentCpf}">`;
-    let positionOptions = '';
+    let options = '';
     for (const [key, value] of Object.entries(positionMap)) {
-        const isSelected = key === currentPositionValue ? 'selected' : '';
-        positionOptions += `<option value="${key}" ${isSelected}>${value}</option>`;
+        const selected = key == employee.positiions ? 'selected' : '';
+        options += `<option value="${key}" ${selected}>${value}</option>`;
     }
-    positionCell.innerHTML = `<select class="edit-select">${positionOptions}</select>`;
-    
-    actionsCell.innerHTML = `
-        <button class="btn-save" onclick="saveEmployeeChanges('${employeeId}')">Salvar</button>
-        <button class="btn-cancel" onclick="cancelEdit('${employeeId}')">Cancelar</button>
-    `;
+    positionCell.innerHTML = `<select name="Positiions" class="edit-input">${options}</select>`;
+    row.querySelector('[data-field="actions"]').innerHTML = `
+        <button class="btn-action btn-save" onclick="saveEmployeeChanges('${employee.id}')">Salvar</button>
+        <button class="btn-action btn-cancel" onclick="cancelEditEmployee('${employee.id}')">Cancelar</button>`;
 };
 
 window.saveEmployeeChanges = async (employeeId) => {
-    const row = document.getElementById(`row-${employeeId}`);
+    const row = document.getElementById(`row-employee-${employeeId}`);
     if (!row) return;
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-        alert('Autenticação necessária.');
-        return;
-    }
-
     const formData = new FormData();
-    const nameValue = row.querySelector('[data-field="name"] input').value;
-    const cpfValue = row.querySelector('[data-field="cpf"] input').value;
-    const positionValue = row.querySelector('[data-field="position"] select').value;
-    const imageFile = row.querySelector('.edit-file').files[0];
-
     formData.append('Id', employeeId);
-    formData.append('Name', nameValue);
-    formData.append('CPF', cpfValue);
-    formData.append('Positiions', positionValue);
-    
-    if (imageFile) {
-        formData.append('Imagem', imageFile);
-    }
-
+    formData.append('Name', row.querySelector('[name="Name"]').value);
+    formData.append('CPF', row.querySelector('[name="CPF"]').value);
+    formData.append('Positiions', row.querySelector('[name="Positiions"]').value);
     try {
-        const response = await fetch(API_URL, {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/employees`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData
         });
-
         if (response.ok) {
             alert('Funcionário atualizado com sucesso!');
+            loadEmployees();
         } else {
-            const errorText = await response.text();
-            throw new Error(`Falha ao atualizar: ${errorText}`);
+            throw new Error('Falha ao atualizar funcionário.');
         }
     } catch (error) {
-        console.error('Erro ao salvar alterações:', error);
         alert(error.message);
-    } finally {
-        delete originalRowHTML[employeeId];
-        loadEmployees();
+        cancelEditEmployee(employeeId);
     }
 };
 
-window.cancelEdit = (employeeId) => {
-    const row = document.getElementById(`row-${employeeId}`);
-    if (row && originalRowHTML[employeeId]) {
-        row.innerHTML = originalRowHTML[employeeId];
-        delete originalRowHTML[employeeId];
+window.cancelEditEmployee = (employeeId) => {
+    const row = document.getElementById(`row-employee-${employeeId}`);
+    if (row && originalRowHTML_Employee[employeeId]) {
+        row.innerHTML = originalRowHTML_Employee[employeeId];
+        delete originalRowHTML_Employee[employeeId];
     }
-    document.querySelectorAll('.btn-edit').forEach(btn => btn.disabled = false);
 };
 
-// =================================================================
-// FUNÇÕES DO FORMULÁRIO DE CADASTRO (POST)
-// =================================================================
-
-function waitForForm() {
-    // Usamos um seletor mais específico para o formulário de cadastro
-    const employeeForm = document.querySelector('form.employee-form');
-    if (!employeeForm) {
-        // Se o form de cadastro não estiver na tela, não há nada a fazer.
-        console.log('Formulário de cadastro de funcionário não encontrado nesta visão.');
-        return;
-    }
-    initializeForm(employeeForm);
-}
-
-function initializeForm(employeeForm) {
-    console.log('🚀 Inicializando formulário de cadastro de funcionário...');
-    const handleSaveEmployee = async (event) => {
-        event.preventDefault();
-        try {
-            const accessToken = localStorage.getItem('accessToken');
-            if (!accessToken) {
-                alert('Você não está autenticado.');
-                return;
-            }
-            const formData = new FormData(employeeForm);
-            if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Position')) {
-                alert('Por favor, preencha Nome, CPF e Cargo.');
-                return;
-            }
-            
-            // Renomeia o campo 'Position' para 'Positiions' antes de enviar
-            formData.append('Positiions', formData.get('Position'));
-            formData.delete('Position');
-
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${accessToken}` },
-                body: formData,
-            });
-            
-            if (response.ok) {
-                alert('Funcionário salvo com sucesso!');
-                employeeForm.reset();
-                loadEmployees(); // Atualiza a tabela
-            } else {
-                const errorText = await response.text();
-                throw new Error(`Erro ao salvar (Status ${response.status}): ${errorText}`);
-            }
-        } catch (error) {
-            console.error('Erro no handleSaveEmployee:', error);
-            alert(error.message);
-        }
-    };
-    employeeForm.addEventListener('submit', handleSaveEmployee);
-}
-
-// --- EXECUÇÃO PRINCIPAL (CORRIGIDA) ---
-// Esta função será chamada pela 'loadForm' depois que o script for carregado.
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de employee.js foi chamada.');
-    // Tenta inicializar o formulário de cadastro, se ele existir na página.
-    waitForForm();
-    // Carrega a lista de funcionários na tabela, se ela existir na página.
+    const formElement = document.querySelector('.employee-form');
+    initializeEmployeeForm(formElement);
     loadEmployees();
 }

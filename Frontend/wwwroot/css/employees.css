@@ -1,341 +1,366 @@
-/* Reset e base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* CSS para Tela de Funcionários - Seguindo o padrão da Lista de Produtos */
+
+.container {
+    width: 95%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+/* Títulos e Cabeçalhos */
+h1, h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    position: relative;
 }
 
 h2 {
-  color: #d2691e;
-  font-size: 28px;
-  margin: 30px 0 20px;
-  text-align: center;
-  font-weight: bold;
+    font-size: 1.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 3px solid #e67e22;
+    display: inline-block;
 }
 
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 30%;
+    height: 3px;
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    border-radius: 2px;
+}
+
+/* Formulário de Cadastro */
 .form-container {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  margin: 0 auto;
-  
-}
-
-/* Formulário */
-.employee-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 3rem;
 }
 
 .form-row {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap; /* para permitir quebra em telas menores */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 1.5rem;
 }
 
-label {
-  font-weight: bold;
-  color: #555;
-  font-size: 14px;
-  display: block;
-  margin-bottom: 5px;
+.form-row label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 500;
+    color: #555;
+    position: relative;
 }
 
-/* Classes para controlar largura dos campos */
-.half-width {
-  flex: 1;
-  min-width: 250px;
+.form-row label span {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Inputs */
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select,
-textarea {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  margin-top: 5px;
-  transition: border-color 0.3s ease;
+.form-input, 
+.form-row input,
+.form-row select {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #d2691e;
-  box-shadow: 0 0 0 2px rgba(210, 105, 30, 0.2);
+.form-input:focus, 
+.form-row input:focus,
+.form-row select:focus {
+    outline: none;
+    border-color: #e67e22;
+    box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
+    transform: translateY(-2px);
 }
 
-/* Select options */
-select option {
-  padding: 10px;
+/* Estilo específico para input de arquivo */
+.form-row input[type="file"] {
+    padding: 0.8rem;
+    border: 2px dashed #e1e8ed;
+    background: rgba(248, 249, 250, 0.9);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* Botão */
+.form-row input[type="file"]:hover {
+    border-color: #e67e22;
+    background: rgba(230, 126, 34, 0.05);
+}
+
+.form-row input[type="file"]:focus {
+    border-style: solid;
+    border-color: #e67e22;
+    box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
+}
+
+/* Botão de Submit */
 button[type="submit"] {
-  background: linear-gradient(135deg, #d2691e 0%, #e67e22 100%);
-  color: white;
-  padding: 14px 35px;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  align-self: flex-start;
-  margin-top: 10px;
-  transition: all 0.3s ease;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
 }
 
 button[type="submit"]:hover {
-  background: linear-gradient(135deg, #b8601a 0%, #d35400 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(210, 105, 30, 0.3);
+    background: linear-gradient(45deg, #d68910, #e67e22);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+}
+
+/* Tabela - Seguindo o padrão da Lista de Produtos */
+.table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    position: relative;
+    margin-top: 2rem;
+}
+
+.employee-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.employee-table th {
+    background: linear-gradient(135deg, #e67e22, #f39c12);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.employee-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+    vertical-align: middle;
+}
+
+.employee-table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.employee-table tbody tr:hover {
+    background: rgba(230, 126, 34, 0.1);
+}
+
+/* Imagem na tabela - mesmo estilo da Lista de Produtos */
+.employee-table img,
+.product-table-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.employee-table img:hover,
+.product-table-img:hover {
+    transform: scale(1.1);
+}
+
+/* Botões de Ação - seguindo o padrão da Lista de Produtos */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action, .btn-edit, .btn-delete {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.btn-edit {
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-edit:hover {
+    background: linear-gradient(45deg, #2980b9, #1f618d);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+}
+
+.btn-delete {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(45deg, #c0392b, #a93226);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
+}
+
+/* Título da tabela dentro do container */
+.table-container h2 {
+    margin: 0;
+    padding: 2rem 2rem 1rem 2rem;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.table-container h2::after {
+    display: none;
+}
+
+/* Edição na Tabela */
+.edit-input {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #e67e22;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.edit-input:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
-
-  .half-width {
-    width: 100%;
-  }
-
-  button[type="submit"] {
-    width: 100%;
-  }
-}
-  .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .half-width {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #495057;
-        }
-        input[type="text"], select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-        input[type="text"]:focus, select:focus {
-            outline: none;
-            border-color: #80bdff;
-        }
-        button[type="submit"] {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-        .table-container {
-            margin-top: 3rem;
-        }
-        .employee-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .employee-table th, .employee-table td {
-            border: 1px solid #dee2e6;
-            padding: 0.75rem;
-            text-align: left;
-            vertical-align: middle;
-        }
-        .employee-table th {
-            background-color: #e9ecef;
-            font-weight: 600;
-        }
-        .btn-edit, .btn-delete {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-        .btn-edit { background-color: #17a2b8; }
-        .btn-delete { background-color: #dc3545; }
-        .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .status::before {
-            content: '';
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        .status.ativo::before { background-color: #28a745; }
-        .status.inativo::before { background-color: #6c757d; }
-
-
-        
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .half-width {
-            flex: 1;
-            min-width: 300px;
-        }
-        .full-width {
-            flex: 1;
-            width: 100%;
-        }
-        label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #495057;
-            display: block;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #80bdff;
-        }
-        button[type="submit"] {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 4px;
-            background-color: #28a745;
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 1rem;
-        }
-        button[type="submit"]:hover {
-            background-color: #218838;
-        }
-        .table-container {
-            margin-top: 3rem;
-        }
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .product-table th, .product-table td {
-            border: 1px solid #dee2e6;
-            padding: 0.75rem;
-            text-align: left;
-            vertical-align: middle;
-        }
-        .product-table th {
-            background-color: #e9ecef;
-            font-weight: 600;
-        }
-        .btn-edit, .btn-delete {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-        .btn-edit { background-color: #007bff; }
-        .btn-delete { background-color: #dc3545; }
-
-        /* ========================================= */
-/* ESTILOS PARA OS BOTÕES DE AÇÃO DA TABELA  */
-/* ========================================= */
-
-/* Estilo base para TODOS os botões de ação na tabela */
-.employee-table button {
-    padding: 8px 12px;
-    margin: 0 4px; /* Adiciona um pequeno espaço entre os botões */
-    border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .employee-table {
+        font-size: 0.8rem;
+    }
+    
+    .employee-table th,
+    .employee-table td {
+        padding: 0.5rem;
+    }
+    
+    .actions-cell {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .employee-table img {
+        width: 40px;
+        height: 40px;
+    }
 }
 
-.employee-table button:hover {
-    transform: translateY(-2px); /* Efeito de levantar ao passar o mouse */
+/* Animações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* --- Botões de Edição e Exclusão (Estado Padrão) --- */
-
-.employee-table .btn-edit {
-    background-color: #007bff; /* Azul */
-}
-.employee-table .btn-edit:hover {
-    background-color: #0056b3;
+.form-container,
+.table-container {
+    animation: fadeIn 0.6s ease-out;
 }
 
-.employee-table .btn-delete {
-    background-color: #dc3545; /* Vermelho */
-}
-.employee-table .btn-delete:hover {
-    background-color: #c82333;
-}
-
-
-/* --- Botões de Salvar e Cancelar (Durante a Edição) --- */
-
-/* Botão SALVAR que aparece na edição */
-.employee-table .btn-save {
-    background-color: #28a745; /* Verde */
-}
-.employee-table .btn-save:hover {
-    background-color: #218838;
+/* Melhorias de Acessibilidade */
+button:focus,
+input:focus,
+select:focus {
+    outline: 3px solid rgba(230, 126, 34, 0.3);
+    outline-offset: 2px;
 }
 
-/* Botão CANCELAR que aparece na edição */
-.employee-table .btn-cancel {
-    background-color: #6c757d; /* Cinza */
+/* Scrollbar personalizada */
+.table-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
 }
-.employee-table .btn-cancel:hover {
-    background-color: #5a6268;
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    margin: 2px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #d68910, #e67e22);
+}
+
+/* Scrollbar geral */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #d68910, #e67e22);
 }

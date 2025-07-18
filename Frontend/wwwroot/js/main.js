@@ -1,11 +1,38 @@
+// =======================================================
+// VARIÁVEIS E CONSTANTES GLOBAIS DA APLICAÇÃO
+// =======================================================
+const API_BASE_URL = 'http://localhost:5087/api';
+
+// Objetos para guardar o estado original da linha durante a edição
+const originalRowHTML_Product = {};
+const originalRowHTML_Employee = {};
+const originalEntryRowHTML = {}; 
+// Variável para controlar a paginação da tabela atual
+let currentTablePage = 1;
+// Este script utiliza as variáveis globais definidas em main.js
+
+let currentEntryPage = 1; // Página atual da tabela de ENTRADAS
+let currentModalPage = 1; // Página atual da MODAL de busca de produtos
+// Mapa de cargos para ser usado na tela de funcionários
+const positionMap = {
+    0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',
+    4: 'Operador de Pá Carregadeira', 5: 'Motorista', 6: 'Queimador',
+    7: 'Conferente', 8: 'Caixa', 9: 'Auxiliar Administrativo',
+    10: 'Auxiliar de Limpeza', 11: 'Dono', 12: 'Gerente', 13: 'Auxiliar de Estoque'
+};
+
+// Função utilitária global
+const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
+
+
+// =======================================================
+// FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS
+// =======================================================
+
 /**
  * Carrega dinamicamente um formulário e seu script correspondente.
- * VERSÃO FINAL CORRIGIDA E ROBUSTA
  */
 function loadForm(formName) {
-    // A verificação problemática do 'event' foi removida.
-    // A função agora confia que será chamada corretamente pelo 'onclick' no HTML.
-    
     console.log(`▶️ Iniciando carregamento do formulário: ${formName}`);
     
     const container = document.getElementById('form-container');
@@ -19,14 +46,12 @@ function loadForm(formName) {
         welcomeMessage.style.display = 'none';
     }
 
-    // Limpa o conteúdo e o script antigo
     container.innerHTML = '<h2>Carregando Formulário...</h2>';
     const oldScript = document.getElementById('dynamic-form-script');
     if (oldScript) {
         oldScript.remove();
     }
 
-    // Busca o arquivo HTML do formulário
     fetch(`/forms/${formName}.html`)
         .then(response => {
             if (!response.ok) throw new Error(`Formulário ${formName}.html não encontrado.`);
@@ -35,24 +60,15 @@ function loadForm(formName) {
         .then(html => {
             container.innerHTML = html;
             
-            // Após inserir o HTML, cria e carrega o script associado
             const script = document.createElement('script');
             script.id = 'dynamic-form-script';
             script.src = `/js/${formName}.js`;
             
             script.onload = () => {
                 console.log(`✅ Script ${formName}.js carregado com sucesso.`);
-                
-                // A "ponte" que chama a função de inicialização do script recém-carregado
                 if (typeof window.initDynamicForm === 'function') {
                     console.log(`🚀 Executando initDynamicForm() de ${formName}.js`);
                     window.initDynamicForm();
-
-                    // --- MELHORIA ADICIONADA ---
-                    // Limpa a função global depois de usá-la para evitar conflitos futuros.
-                    delete window.initDynamicForm;
-                    console.log('🧹 Função initDynamicForm() limpa do escopo global.');
-                    
                 } else {
                     console.warn(`⚠️ AVISO: O script ${formName}.js não possui a função initDynamicForm().`);
                 }
