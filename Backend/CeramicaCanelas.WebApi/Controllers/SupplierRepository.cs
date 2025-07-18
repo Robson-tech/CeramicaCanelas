@@ -1,4 +1,6 @@
 ﻿using CeramicaCanelas.Application.Features.Suppliers.Commands.CreatedSuppliersCommand;
+using CeramicaCanelas.Application.Features.Suppliers.Commands.DeleteSuppliersCommand;
+using CeramicaCanelas.Application.Features.Suppliers.Commands.UpdateSuppliersCommand;
 using CeramicaCanelas.Application.Features.Suppliers.Queries.Pages;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +17,36 @@ namespace CeramicaCanelas.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateSupplier([FromForm] CreatedSuppliersCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateSupplier([FromForm] UpdateSuppliersCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Custoumer,Admin")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteSupplier([FromRoute] Guid id)
+        {
+            var request = new DeleteSuppliersCommand { Id = id };
+            await _mediator.Send(request);
+            return NoContent();
+        }
 
         [Authorize(Roles = "Custoumer,Admin")]
         [HttpGet("paged")]
@@ -26,14 +58,5 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateSupplier([FromForm] CreatedSuppliersCommand request)
-        {
-            await _mediator.Send(request);
-            return NoContent();
-        }
     }
 }

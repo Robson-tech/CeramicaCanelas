@@ -19,9 +19,4 @@
     <ProjectReference Include="..\CeramicaCanelas.Domain\CeramicaCanelas.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Suppliers\Commands\DeleteSuppliersCommand\" />
-    <Folder Include="Features\Suppliers\Commands\UpdateSuppliersCommand\" />
-  </ItemGroup>
-
 </Project>
