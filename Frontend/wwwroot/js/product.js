@@ -35,7 +35,8 @@ function initializeTableFilters() {
             document.getElementById('categoryFilter').value = '';
             document.getElementById('minPriceInput').value = '';
             document.getElementById('maxPriceInput').value = '';
-            document.getElementById('orderBySelect').value = 'Name';
+            // ✨ ALTERAÇÃO AQUI: O valor padrão agora é 'name'
+            document.getElementById('orderBySelect').value = 'name'; 
             document.getElementById('orderDirectionSelect').value = 'true';
             fetchAndRenderProducts(1);
         };
@@ -102,6 +103,9 @@ async function processAndSendProductData(form) {
 // =======================================================
 // LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
 // =======================================================
+// =======================================================
+// LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
+// =======================================================
 async function fetchAndRenderProducts(page = 1) {
     currentTablePage = page;
     const tableBody = document.querySelector('#product-list-body');
@@ -111,10 +115,13 @@ async function fetchAndRenderProducts(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
+        // ✨ ALTERAÇÃO AQUI: Garante que o valor de OrderBy seja minúsculo (ex: 'name', 'price')
+        const orderByValue = (document.getElementById('orderBySelect')?.value || 'name').toLowerCase();
+
         const params = new URLSearchParams({
             Page: currentTablePage,
             PageSize: 10,
-            OrderBy: document.getElementById('orderBySelect')?.value || 'Name',
+            OrderBy: orderByValue, // ✨ Usa o valor ajustado
             Ascending: document.getElementById('orderDirectionSelect')?.value || 'true',
         });
         const search = document.getElementById('searchInput')?.value;
@@ -122,10 +129,11 @@ async function fetchAndRenderProducts(page = 1) {
         const minPrice = document.getElementById('minPriceInput')?.value;
         const maxPrice = document.getElementById('maxPriceInput')?.value;
 
-        if (search) params.append('Search', search);
-        if (categoryId) params.append('CategoryId', categoryId);
-        if (minPrice) params.append('MinPrice', minPrice);
-        if (maxPrice) params.append('MaxPrice', maxPrice);
+        // ✨ ALTERAÇÕES AQUI: Nomes dos parâmetros de filtro atualizados
+        if (search) params.append('name', search);             // 'Search' foi alterado para 'name'
+        if (categoryId) params.append('CategoryId', categoryId); // Este permaneceu, caso seu back-end o espere assim
+        if (minPrice) params.append('minPrice', minPrice);     // 'MinPrice' foi alterado para 'minPrice'
+        if (maxPrice) params.append('maxPrice', maxPrice);     // 'MaxPrice' foi alterado para 'maxPrice'
         
         const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
         const response = await fetch(url, { method: 'GET', headers: { 'Authorization': `Bearer ${accessToken}` } });

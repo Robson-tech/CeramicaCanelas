@@ -9,7 +9,10 @@ const originalRowHTML_Employee = {};
 const originalEntryRowHTML = {}; 
 // Variável para controlar a paginação da tabela atual
 let currentTablePage = 1;
+// Este script utiliza as variáveis globais definidas em main.js
 
+let currentEntryPage = 1; // Página atual da tabela de ENTRADAS
+let currentModalPage = 1; // Página atual da MODAL de busca de produtos
 // Mapa de cargos para ser usado na tela de funcionários
 const positionMap = {
     0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',

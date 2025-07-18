@@ -1,24 +1,66 @@
 <div class="container">
-    <h2>Cadastro de Categoria</h2>
+    <h2 class="form-title">Registrar Entrada no Estoque</h2>
     <div class="form-container">
-        <form class="category-form">
+        <form id="productEntryForm" class="product-entry-form">
             <div class="form-group">
-                <label>Nome da Categoria:</label>
-                <input type="text" name="categoryName" required />
+                <label class="form-label">Produto</label>
+                <div class="product-selection-box">
+                    <span id="selectedProductName">Nenhum produto selecionado</span>
+                    <button type="button" id="openProductModalBtn" class="search-btn">Buscar Produto...</button>
+                </div>
+                <input type="hidden" id="productUuid" name="ProductId">
             </div>
-            <div class="form-group">
-                <label>Descrição:</label>
-                <textarea name="categoryDescription" rows="3"></textarea>
+            <hr class="form-divider">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="quantity">Quantidade</label>
+                    <input type="number" id="quantity" name="Quantity" class="form-input" placeholder="ex: 10" min="1" step="1" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="unitPrice">Preço Unitário de Custo</label>
+                    <input type="number" id="unitPrice" name="UnitPrice" class="form-input" placeholder="ex: 29.99" min="0" step="0.01" required />
+                </div>
             </div>
-            <div class="form-group">
-                <label for="categoryImage" class="file-upload">
-                    <img id="imagePreview" class="image-preview" src="../images/sample-image.png" alt="Pré-visualização da imagem">
-                </label>
-                <input type="file" name="categoryImage" id="categoryImage" accept="image/*" class="hidden"/>
-                <div id="fileName" class="file-name">Nenhum arquivo selecionado</div>
-            </div>
-            <button type="submit">Salvar Categoria</button>
+            <button type="submit" class="submit-btn">Registrar Entrada</button>
         </form>
     </div>
+
+    <hr class="section-divider">
+    <h2 class="form-title">Entradas Registradas</h2>
+
+    <div class="filter-bar">
+        <div class="filter-group large">
+            <label for="entrySearchInput">Buscar por Nome do Produto:</label>
+            <input type="text" id="entrySearchInput" class="form-input" placeholder="Digite para buscar...">
+        </div>
+        <div class="filter-group">
+            <label for="entryCategoryFilter">Filtrar por Categoria:</label>
+            <select id="entryCategoryFilter" class="form-input">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <div class="filter-group-buttons">
+            <button type="button" id="entryFilterBtn" class="search-btn">Filtrar</button>
+            <button type="button" id="entryClearFilterBtn" class="btn-cancel">Limpar</button>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Custo Unitário</th>
+                    <th>Data da Entrada</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="entry-list-body"></tbody>
+        </table>
+    </div>
+    <div id="entry-pagination-controls" class="pagination-controls"></div>
 </div>
-<link rel="stylesheet" href="/css/category.css" />
+
+<div id="productSearchModal" class="modal">
+    </div>

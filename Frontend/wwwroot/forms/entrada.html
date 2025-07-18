@@ -38,20 +38,43 @@
                     <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="entry-list-body">
-                </tbody>
+            <tbody id="entry-list-body"></tbody>
         </table>
     </div>
+    <div id="entry-pagination-controls" class="pagination-controls"></div>
 </div>
 
 <div id="productSearchModal" class="modal">
     <div class="modal-content">
         <span class="modal-close-btn">&times;</span>
         <h3>Selecione um Produto</h3>
-        <div id="modalResultsContainer" class="table-container">
+        <div class="filter-bar modal-filter-bar">
+            <div class="filter-group large">
+                <label for="modalSearchInput">Buscar por Nome:</label>
+                <input type="text" id="modalSearchInput" class="form-input">
             </div>
-        <div id="modalPaginationControls" class="pagination-controls">
+            <div class="filter-group">
+                <label for="modalCategoryFilter">Categoria:</label>
+                <select id="modalCategoryFilter" class="form-input">
+                    <option value="">Todas</option>
+                </select>
             </div>
+            <div class="filter-group">
+                <label for="modalOrderBySelect">Ordenar por:</label>
+                <select id="modalOrderBySelect" class="form-input">
+                    <option value="name">Nome</option>
+                    <option value="price">Preço</option>
+                </select>
+            </div>
+            <div class="filter-group-buttons">
+                <button type="button" id="modalFilterBtn" class="search-btn">Filtrar</button>
+                <button type="button" id="modalClearFilterBtn" class="btn-secondary">Limpar</button> </div>
+
+            </div>
+        </div>
+        <div id="modalResultsContainer" class="table-container"></div>
+        <div id="modalPaginationControls" class="pagination-controls"></div>
     </div>
 </div>
+
 <link rel="stylesheet" href="/css/entrada.css">
