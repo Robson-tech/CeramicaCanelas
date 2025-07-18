@@ -10,8 +10,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 {
     public class GetInventoryStatusQuery : IRequest<List<GetInventoryStatusResult>>
     {
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
 
         public string? Search { get; set; }           // Busca pelo nome do produto
         public Guid? CategoryId { get; set; }         // Filtro por categoria
