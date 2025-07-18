@@ -25,6 +25,10 @@ const positionMap = {
 const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
 
 
+// Armazenará a lista completa de funcionários para evitar múltiplas chamadas à API
+let allEmployees = [];
+let currentHistoryPage = 1;
+
 // =======================================================
 // FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS
 // =======================================================
