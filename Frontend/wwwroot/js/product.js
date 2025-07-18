@@ -1,17 +1,20 @@
 console.log('Script js/product.js DEFINIDO (Paginação no Servidor).');
 
-const API_BASE_URL = 'http://localhost:5087/api';
-const originalRowHTML = {};
-let currentTablePage = 1;
+
 
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de product.js foi chamada.');
+    
+    currentTablePage = 1;
+    
     initializeProductForm(document.querySelector('.product-form'));
     loadProductCategories(document.querySelector('select[name="CategoryId"]'));
+
     initializeTableFilters();
+    
     loadProductCategories(document.querySelector('#categoryFilter'), 'Todas as Categorias')
         .then(() => {
             fetchAndRenderProducts(1);
@@ -22,16 +25,22 @@ function initializeTableFilters() {
     const filterBtn = document.getElementById('filterBtn');
     const clearFilterBtn = document.getElementById('clearFilterBtn');
     
-    filterBtn?.addEventListener('click', () => fetchAndRenderProducts(1));
-    clearFilterBtn?.addEventListener('click', () => {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('categoryFilter').value = '';
-        document.getElementById('minPriceInput').value = '';
-        document.getElementById('maxPriceInput').value = '';
-        document.getElementById('orderBySelect').value = 'Name';
-        document.getElementById('orderDirectionSelect').value = 'true';
-        fetchAndRenderProducts(1);
-    });
+    if(filterBtn) {
+        filterBtn.onclick = () => fetchAndRenderProducts(1);
+    }
+    
+    if(clearFilterBtn) {
+        clearFilterBtn.onclick = () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('minPriceInput').value = '';
+            document.getElementById('maxPriceInput').value = '';
+            // ✨ ALTERAÇÃO AQUI: O valor padrão agora é 'name'
+            document.getElementById('orderBySelect').value = 'name'; 
+            document.getElementById('orderDirectionSelect').value = 'true';
+            fetchAndRenderProducts(1);
+        };
+    }
 }
 
 // =======================================================
@@ -58,10 +67,10 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
 
 function initializeProductForm(form) {
     if (!form) return;
-    form.addEventListener('submit', (event) => {
+    form.onsubmit = (event) => {
         event.preventDefault();
         processAndSendProductData(form);
-    });
+    };
 }
 
 async function processAndSendProductData(form) {
@@ -94,6 +103,9 @@ async function processAndSendProductData(form) {
 // =======================================================
 // LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
 // =======================================================
+// =======================================================
+// LÓGICA DA TABELA (PAGINAÇÃO E FILTROS NO SERVIDOR)
+// =======================================================
 async function fetchAndRenderProducts(page = 1) {
     currentTablePage = page;
     const tableBody = document.querySelector('#product-list-body');
@@ -103,10 +115,13 @@ async function fetchAndRenderProducts(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
+        // ✨ ALTERAÇÃO AQUI: Garante que o valor de OrderBy seja minúsculo (ex: 'name', 'price')
+        const orderByValue = (document.getElementById('orderBySelect')?.value || 'name').toLowerCase();
+
         const params = new URLSearchParams({
             Page: currentTablePage,
             PageSize: 10,
-            OrderBy: document.getElementById('orderBySelect')?.value || 'Name',
+            OrderBy: orderByValue, // ✨ Usa o valor ajustado
             Ascending: document.getElementById('orderDirectionSelect')?.value || 'true',
         });
         const search = document.getElementById('searchInput')?.value;
@@ -114,10 +129,11 @@ async function fetchAndRenderProducts(page = 1) {
         const minPrice = document.getElementById('minPriceInput')?.value;
         const maxPrice = document.getElementById('maxPriceInput')?.value;
 
-        if (search) params.append('Search', search);
-        if (categoryId) params.append('CategoryId', categoryId);
-        if (minPrice) params.append('MinPrice', minPrice);
-        if (maxPrice) params.append('MaxPrice', maxPrice);
+        // ✨ ALTERAÇÕES AQUI: Nomes dos parâmetros de filtro atualizados
+        if (search) params.append('name', search);             // 'Search' foi alterado para 'name'
+        if (categoryId) params.append('CategoryId', categoryId); // Este permaneceu, caso seu back-end o espere assim
+        if (minPrice) params.append('minPrice', minPrice);     // 'MinPrice' foi alterado para 'minPrice'
+        if (maxPrice) params.append('maxPrice', maxPrice);     // 'MaxPrice' foi alterado para 'maxPrice'
         
         const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
         const response = await fetch(url, { method: 'GET', headers: { 'Authorization': `Bearer ${accessToken}` } });
@@ -144,6 +160,8 @@ function renderProductTable(products) {
         const imageUrl = product.imageUrl || 'https://via.placeholder.com/60';
         const formattedValue = (product.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const productJsonString = JSON.stringify(product).replace(/'/g, "&apos;");
+        const isReturnableText = product.isReturnable ? 'Sim' : 'Não';
+
         const rowHTML = `
             <tr id="row-${product.id}">
                 <td><img src="${imageUrl}" alt="${product.name}" class="product-table-img"></td>
@@ -153,6 +171,7 @@ function renderProductTable(products) {
                 <td data-field="stock">${product.stockCurrent || 0}</td>
                 <td data-field="minStock">${product.stockMinium || 0}</td>
                 <td data-field="value">${formattedValue}</td>
+                <td data-field="returnable">${isReturnableText}</td>
                 <td class="actions-cell" data-field="actions">
                     <button class="btn-action btn-edit" onclick='editProduct(${productJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">Excluir</button>
@@ -206,12 +225,17 @@ window.deleteProduct = async (productId) => {
 window.editProduct = async (product) => {
     const row = document.getElementById(`row-${product.id}`);
     if (!row) return;
-    originalRowHTML[product.id] = row.innerHTML;
+    originalRowHTML_Product[product.id] = row.innerHTML;
     try {
         row.querySelector('[data-field="code"]').innerHTML = `<input type="text" name="Code" class="edit-input" value="${product.code || ''}">`;
         row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${product.name}">`;
         row.querySelector('[data-field="minStock"]').innerHTML = `<input type="number" name="StockMinium" class="edit-input" value="${product.stockMinium || 0}">`;
         row.querySelector('[data-field="value"]').innerHTML = `<input type="number" step="0.01" name="Value" class="edit-input" value="${product.value || 0}">`;
+        
+        // A lógica para editar o campo 'Devolvível' foi REMOVIDA, conforme solicitado.
+        // O campo de estoque atual permanece como não editável.
+        row.querySelector('[data-field="stock"]').innerHTML = `<input type="number" name="StockCurrent" class="edit-input" value="${product.stockCurrent || 0}" title="Estoque Atual (não editável)" readonly>`;
+        
         const categoryCell = row.querySelector('[data-field="category"]');
         const categorySelect = document.createElement('select');
         categorySelect.className = 'edit-input';
@@ -220,14 +244,15 @@ window.editProduct = async (product) => {
         categoryCell.appendChild(categorySelect);
         await loadProductCategories(categorySelect);
         categorySelect.value = product.categoryId;
+        
         row.querySelector('[data-field="actions"]').innerHTML = `
             <button class="btn-action btn-save" onclick="saveProductChanges('${product.id}')">Salvar</button>
-            <button class="btn-action btn-cancel" onclick="cancelEdit('${product.id}')">Cancelar</button>
+            <button class="btn-action btn-cancel" onclick="cancelEditProduct('${product.id}')">Cancelar</button>
         `;
     } catch (error) {
         console.error("❌ Erro ao entrar no modo de edição:", error);
         alert("Não foi possível carregar os dados para edição. Verifique o console.");
-        cancelEdit(product.id);
+        cancelEditProduct(product.id);
     }
 };
 
@@ -256,14 +281,14 @@ window.saveProductChanges = async (productId) => {
         }
     } catch (error) {
         alert(error.message);
-        cancelEdit(productId);
+        cancelEditProduct(productId);
     }
 };
 
-window.cancelEdit = (productId) => {
+window.cancelEditProduct = (productId) => {
     const row = document.getElementById(`row-${productId}`);
-    if (row && originalRowHTML[productId]) {
-        row.innerHTML = originalRowHTML[productId];
-        delete originalRowHTML[productId];
+    if (row && originalRowHTML_Product[productId]) {
+        row.innerHTML = originalRowHTML_Product[productId];
+        delete originalRowHTML_Product[productId];
     }
 };
