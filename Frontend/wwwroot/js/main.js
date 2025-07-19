@@ -2,7 +2,7 @@
 // VARIÁVEIS E CONSTANTES GLOBAIS DA APLICAÇÃO
 // =======================================================
 // const API_BASE_URL = 'http://localhost:5087/api';
-const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
+const API_BASE_URL = 'http://localhost:5087/api';
 
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
@@ -11,9 +11,7 @@ const originalEntryRowHTML = {};
 // Variável para controlar a paginação da tabela atual
 let currentTablePage = 1;
 // Este script utiliza as variáveis globais definidas em main.js
-
-let currentEntryPage = 1; // Página atual da tabela de ENTRADAS
-let currentModalPage = 1; // Página atual da MODAL de busca de produtos
+ // Página atual da MODAL de busca de produtos
 // Mapa de cargos para ser usado na tela de funcionários
 const positionMap = {
     0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',
@@ -27,7 +25,13 @@ const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido
 
 // Defina a URL base da sua API aqui.
 let currentSupplierPage = 1;
+
+let currentEntryPage = 1;
+let currentModalPage = 1;
+let currentSupplierModalPage = 1;
+
 let allEmployees = [];
+
 let currentHistoryPage = 1;
 let currentProductModalPage = 1;
 // =======================================================
