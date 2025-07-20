@@ -30,7 +30,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
                 Directory.CreateDirectory(pasta);
 
             // NOVA URL BASE
-            const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/products/images/";
+            const string UrlBase = "https://ceramicacanelas.shop/almoxarifado/products/images/";
             string? url = product.ImageUrl; // Mantém a imagem anterior se não for atualizada
 
             if (request.Imagem != null)
