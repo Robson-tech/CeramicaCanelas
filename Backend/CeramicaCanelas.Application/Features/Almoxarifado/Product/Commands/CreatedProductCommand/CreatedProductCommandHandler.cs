@@ -3,44 +3,44 @@ using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
-
 namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.CreatedProductCommand
 {
     public class CreatedProductCommandHandler : IRequestHandler<CreatedProductCommand, Unit>
     {
         private readonly IProductRepository _productRepository;
         private readonly ILogged _logged;
+
+        // Caminho absoluto na VPS
+        private const string PastaBaseVps = "/root/wwwroot/ceramicacanelas/almoxarifado/products/images";
+        private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/products/images/";
+
         public CreatedProductCommandHandler(IProductRepository productRepository, ILogged logged)
         {
             _productRepository = productRepository;
             _logged = logged;
         }
+
         public async Task<Unit> Handle(CreatedProductCommand request, CancellationToken cancellationToken)
         {
             var user = await _logged.UserLogged();
             if (user == null)
-            {
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
-            }
 
             await ValidateProduct(request, cancellationToken);
 
-            var pasta = Path.Combine("wwwroot", "products", "images");
-            if (!Directory.Exists(pasta))
-                Directory.CreateDirectory(pasta);
-
-            const string UrlBase = "https://ceramicacanelas.shop/products/images/";
             string? url = null;
 
             if (request.Imagem != null)
             {
-                var nomeArquivo = $"{Guid.NewGuid()}_{request.Imagem.FileName}";
-                var caminho = Path.Combine(pasta, nomeArquivo);
+                // Garante que a pasta exista
+                if (!Directory.Exists(PastaBaseVps))
+                    Directory.CreateDirectory(PastaBaseVps);
 
-                using (var stream = new FileStream(caminho, FileMode.Create))
-                {
-                    await request.Imagem.CopyToAsync(stream);
-                }
+                var nomeArquivo = $"{Guid.NewGuid()}_{request.Imagem.FileName}";
+                var caminho = Path.Combine(PastaBaseVps, nomeArquivo);
+
+                using var stream = new FileStream(caminho, FileMode.Create);
+                await request.Imagem.CopyToAsync(stream);
 
                 url = $"{UrlBase}{nomeArquivo}";
             }
@@ -57,9 +57,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
             var validator = new CreatedProductCommandValidator();
             var result = await validator.ValidateAsync(request, cancellationToken);
             if (!result.IsValid)
-            {
                 throw new BadRequestException(result);
-            }
         }
     }
 }
