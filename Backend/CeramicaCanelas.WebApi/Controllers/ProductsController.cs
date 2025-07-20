@@ -21,6 +21,7 @@ namespace CeramicaCanelas.WebApi.Controllers
 
         [Authorize(Roles = "Custoumer,Admin")]
         [HttpPost]
+        [RequestSizeLimit(20_000_000)] // Limita para 10MB por request (ajustável)
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreatedProduct([FromForm] CreatedProductCommand request)
@@ -31,6 +32,7 @@ namespace CeramicaCanelas.WebApi.Controllers
 
         [Authorize(Roles = "Custoumer,Admin")]
         [HttpPut]
+        [RequestSizeLimit(20_000_000)] // Limita para 10MB por request (ajustável)
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductCommand request)
