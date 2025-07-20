@@ -2,70 +2,69 @@
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
-using System.ComponentModel.DataAnnotations;
 
 namespace CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployeesCommand
 {
-    public class CreatedEmployeesHandlerCommand : IRequestHandler<CreatedEmployeesCommand, Unit>
+    // Nome da classe ajustado para consistência
+    public class CreatedEmployeeCommandHandler : IRequestHandler<CreatedEmployeesCommand, Unit>
     {
         private readonly IEmployeesRepository _employeeRepository;
         private readonly ILogged _logged;
-        public CreatedEmployeesHandlerCommand(
-            IEmployeesRepository employeeRepository,
-            ILogged logged)
+
+        // Caminho absoluto no servidor VPS onde as imagens dos funcionários serão salvas
+        private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
+
+        // Caminho público que será exposto no navegador
+        private const string UrlBase = "https://api.ceramicacanelas.shop/employees/images/";
+
+        public CreatedEmployeeCommandHandler(IEmployeesRepository employeeRepository, ILogged logged)
         {
             _employeeRepository = employeeRepository;
             _logged = logged;
         }
+
         public async Task<Unit> Handle(CreatedEmployeesCommand request, CancellationToken cancellationToken)
         {
+            // Valida se o usuário está autenticado
             var user = await _logged.UserLogged();
             if (user == null)
-            {
-                throw new UnauthorizedAccessException("Usuário não autenticado");
-            }
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
 
+            // Valida o conteúdo da requisição
             await ValidateEmployee(request, cancellationToken);
 
-            var pasta = Path.Combine("wwwroot", "employees", "images");
-            if (!Directory.Exists(pasta))
-                Directory.CreateDirectory(pasta);
-
-            const string UrlBase = "https://ceramicacanelas.shop/employees/images/";
-            string? url = null;
+            string? imageUrl = null;
 
             if (request.Imagem != null)
             {
+                // Garante que o diretório exista
+                Directory.CreateDirectory(PastaBaseVps);
+
                 var nomeArquivo = $"{Guid.NewGuid()}_{request.Imagem.FileName}";
-                var caminho = Path.Combine(pasta, nomeArquivo);
+                var caminhoAbsoluto = Path.Combine(PastaBaseVps, nomeArquivo);
 
-                using (var stream = new FileStream(caminho, FileMode.Create))
-                {
-                    await request.Imagem.CopyToAsync(stream);
-                }
+                // Salva o arquivo na VPS
+                using var stream = new FileStream(caminhoAbsoluto, FileMode.Create);
+                await request.Imagem.CopyToAsync(stream);
 
-                url = $"{UrlBase}{nomeArquivo}";
+                // Cria URL pública de acesso à imagem
+                imageUrl = $"{UrlBase}{nomeArquivo}";
             }
 
             var employee = request.AssignToEmployee();
-            employee.ImageUrl = url;
+            employee.ImageUrl = imageUrl;
 
             await _employeeRepository.CreateAsync(employee, cancellationToken);
 
             return Unit.Value;
         }
 
-        public async Task ValidateEmployee(CreatedEmployeesCommand request, CancellationToken cancellationToken)
+        private async Task ValidateEmployee(CreatedEmployeesCommand request, CancellationToken cancellationToken)
         {
             var validator = new CreatedEmployeesValidator();
-
-            var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
-            {
-                throw new BadRequestException(validationResult);
-            }
-
+            var result = await validator.ValidateAsync(request, cancellationToken);
+            if (!result.IsValid)
+                throw new BadRequestException(result);
         }
     }
 }

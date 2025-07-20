@@ -1,18 +1,22 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Entities; // Adicionado para usar a entidade Employee
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
 namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployeesCommand
 {
-    public class UpdateEmployeesCommandHandle : IRequestHandler<UpdateEmployeesCommand, Unit>
+    // Nome da classe ajustado para consistência
+    public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeesCommand, Unit>
     {
         private readonly IEmployeesRepository _employeeRepository;
         private readonly ILogged _logged;
 
-        public UpdateEmployeesCommandHandle(
-            IEmployeesRepository employeeRepository,
-            ILogged logged)
+        // Caminhos padronizados como constantes na classe
+        private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
+        private const string UrlBase = "https://api.ceramicacanelas.shop/employees/images/";
+
+        public UpdateEmployeeCommandHandler(IEmployeesRepository employeeRepository, ILogged logged)
         {
             _employeeRepository = employeeRepository;
             _logged = logged;
@@ -20,67 +24,68 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
 
         public async Task<Unit> Handle(UpdateEmployeesCommand request, CancellationToken cancellationToken)
         {
+            // 1. Validação de autenticação
             var user = await _logged.UserLogged();
             if (user == null)
-            {
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
-            }
 
-            var employee = await ValidateUpdateEmployee(request, cancellationToken);
+            // 2. Validação da requisição
+            await ValidateRequest(request, cancellationToken);
 
-            var pasta = Path.Combine("wwwroot", "employees", "images");
-            if (!Directory.Exists(pasta))
-                Directory.CreateDirectory(pasta);
+            // 3. Busca o funcionário existente no banco de dados
+            var employeeToUpdate = await _employeeRepository.GetByIdAsync(request.Id);
+            if (employeeToUpdate == null)
+                throw new BadRequestException($"Funcionário com o ID {request.Id} não foi encontrado.");
 
-            const string UrlBase = "https://ceramicacanelas.shop/employees/images/";
-            string? url = null;
+            string? newImageUrl = employeeToUpdate.ImageUrl; // Mantém a imagem atual por padrão
 
+            // 4. Lógica para lidar com a nova imagem (se enviada)
             if (request.Imagem != null)
             {
-                var nomeArquivo = $"{Guid.NewGuid()}_{request.Imagem.FileName}";
-                var caminho = Path.Combine(pasta, nomeArquivo);
-
-                using (var stream = new FileStream(caminho, FileMode.Create))
+                // Deleta a imagem antiga, se existir
+                if (!string.IsNullOrEmpty(employeeToUpdate.ImageUrl))
                 {
-                    await request.Imagem.CopyToAsync(stream);
+                    var nomeArquivoAntigo = Path.GetFileName(employeeToUpdate.ImageUrl);
+                    var caminhoAbsolutoAntigo = Path.Combine(PastaBaseVps, nomeArquivoAntigo);
+                    if (File.Exists(caminhoAbsolutoAntigo))
+                    {
+                        File.Delete(caminhoAbsolutoAntigo);
+                    }
                 }
 
-                url = $"{UrlBase}{nomeArquivo}";
+                // Garante que o diretório exista
+                Directory.CreateDirectory(PastaBaseVps);
+
+                // Salva a nova imagem
+                var nomeNovoArquivo = $"{Guid.NewGuid()}_{request.Imagem.FileName}";
+                var caminhoAbsolutoNovo = Path.Combine(PastaBaseVps, nomeNovoArquivo);
+
+                using var stream = new FileStream(caminhoAbsolutoNovo, FileMode.Create);
+                await request.Imagem.CopyToAsync(stream);
+
+                newImageUrl = $"{UrlBase}{nomeNovoArquivo}";
             }
 
-            employee.Name = request.Name;
-            employee.CPF = request.CPF;
-            employee.Positiions = request.Positiions;
-            employee.ImageUrl = url;
-            employee.ModifiedOn = DateTime.UtcNow;
+            // 5. Mapeia os dados da requisição para a entidade
+            // ATENÇÃO: Verifique se a propriedade "Positiions" não deveria ser "Positions" (sem o 'i' extra)
+            employeeToUpdate.Name = request.Name;
+            employeeToUpdate.CPF = request.CPF;
+            employeeToUpdate.Positiions = request.Positiions; // Possível erro de digitação aqui
+            employeeToUpdate.ImageUrl = newImageUrl;
+            employeeToUpdate.ModifiedOn = DateTime.UtcNow;
 
-            await _employeeRepository.Update(employee);
+            // 6. Persiste as alterações
+            await _employeeRepository.Update(employeeToUpdate);
 
             return Unit.Value;
-
         }
 
-        public async Task<Domain.Entities.Employee> ValidateUpdateEmployee(UpdateEmployeesCommand request, CancellationToken cancellationToken)
+        private async Task ValidateRequest(UpdateEmployeesCommand request, CancellationToken cancellationToken)
         {
-            var employee = await _employeeRepository.GetByIdAsync(request.Id);
-
-            if (employee == null)
-            {
-                throw new BadRequestException($"Funcionário não encontrado.");
-            }      
-
             var validator = new UpdateEmployeesCommandValidator();
-
-            var validationResult = await validator.ValidateAsync(request, cancellationToken);
-
-            if (!validationResult.IsValid)
-            {
-                throw new BadRequestException(validationResult);
-            }
-
-
-            return employee;
-
+            var result = await validator.ValidateAsync(request, cancellationToken);
+            if (!result.IsValid)
+                throw new BadRequestException(result);
         }
     }
 }
