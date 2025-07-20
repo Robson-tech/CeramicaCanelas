@@ -52,6 +52,12 @@ public class Program {
             });
         });
 
+        builder.WebHost.ConfigureKestrel(serverOptions =>
+        {
+            serverOptions.Limits.MaxRequestBodySize = 20971520; // 20 MB em bytes (20 * 1024 * 1024)
+        });
+
+
         // JWT Configuration
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
         var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
