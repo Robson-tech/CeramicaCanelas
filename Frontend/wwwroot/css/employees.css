@@ -1,5 +1,4 @@
-/* CSS para Tela de Funcionários - Seguindo o padrão da Lista de Produtos */
-
+/* Estilos base do sistema */
 .container {
     width: 95%;
     max-width: 1400px;
@@ -8,21 +7,21 @@
 }
 
 /* Títulos e Cabeçalhos */
-h1, h2 {
+h1, h2, .form-title {
     color: #2c3e50;
     margin-bottom: 2rem;
     font-weight: 600;
     position: relative;
 }
 
-h2 {
+h2, .form-title {
     font-size: 1.8rem;
     padding-bottom: 0.8rem;
     border-bottom: 3px solid #e67e22;
     display: inline-block;
 }
 
-h2::after {
+h2::after, .form-title::after {
     content: '';
     position: absolute;
     bottom: -3px;
@@ -44,6 +43,10 @@ h2::after {
     margin-bottom: 3rem;
 }
 
+.employee-form {
+    width: 100%;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -51,22 +54,23 @@ h2::after {
     margin-bottom: 1.5rem;
 }
 
+/* Labels do formulário */
 .form-row label {
     display: flex;
     flex-direction: column;
     font-weight: 500;
     color: #555;
-    position: relative;
-}
-
-.form-row label span {
-    margin-bottom: 0.5rem;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.form-input, 
+.half-width {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Inputs do formulário */
 .form-row input,
 .form-row select {
     width: 100%;
@@ -76,9 +80,10 @@ h2::after {
     font-size: 1rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+    margin-top: 0.5rem;
+    box-sizing: border-box;
 }
 
-.form-input:focus, 
 .form-row input:focus,
 .form-row select:focus {
     outline: none;
@@ -87,12 +92,11 @@ h2::after {
     transform: translateY(-2px);
 }
 
-/* Estilo específico para input de arquivo */
+/* Input de arquivo específico */
 .form-row input[type="file"] {
     padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.95);
     border: 2px dashed #e1e8ed;
-    background: rgba(248, 249, 250, 0.9);
-    cursor: pointer;
     transition: all 0.3s ease;
 }
 
@@ -103,8 +107,18 @@ h2::after {
 
 .form-row input[type="file"]:focus {
     border-style: solid;
-    border-color: #e67e22;
-    box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
+    transform: none;
+}
+
+/* Select customizado */
+.form-row select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+    padding-right: 3rem;
 }
 
 /* Botão de Submit */
@@ -122,6 +136,7 @@ button[type="submit"] {
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+    margin-top: 1rem;
 }
 
 button[type="submit"]:hover {
@@ -130,17 +145,24 @@ button[type="submit"]:hover {
     box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
 }
 
-/* Tabela - Seguindo o padrão da Lista de Produtos */
+/* Container da Tabela */
 .table-container {
     overflow-x: auto;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     position: relative;
-    margin-top: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
 }
 
+.table-container h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+/* Tabela de Funcionários */
 .employee-table {
     width: 100%;
     border-collapse: collapse;
@@ -174,30 +196,40 @@ button[type="submit"]:hover {
     background: rgba(230, 126, 34, 0.1);
 }
 
-/* Imagem na tabela - mesmo estilo da Lista de Produtos */
-.employee-table img,
-.product-table-img {
-    width: 60px;
-    height: 60px;
+/* Imagens na tabela */
+.employee-table td img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
+    border: 2px solid #e67e22;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.employee-table img:hover,
-.product-table-img:hover {
-    transform: scale(1.1);
+/* Placeholder para foto padrão */
+.employee-photo-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: 2px solid #95a5a6;
 }
 
-/* Botões de Ação - seguindo o padrão da Lista de Produtos */
+/* Botões de Ação na Tabela */
 .actions-cell {
     display: flex;
     gap: 8px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
-.btn-action, .btn-edit, .btn-delete {
+.btn-action, .btn-edit, .btn-delete, .btn-view {
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
@@ -208,6 +240,10 @@ button[type="submit"]:hover {
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-edit {
@@ -232,95 +268,24 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
 }
 
-/* Título da tabela dentro do container */
-.table-container h2 {
-    margin: 0;
-    padding: 2rem 2rem 1rem 2rem;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    color: #2c3e50;
+.btn-view {
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 
-.table-container h2::after {
-    display: none;
+.btn-view:hover {
+    background: linear-gradient(45deg, #27ae60, #229954);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.5);
 }
 
-/* Edição na Tabela */
-.edit-input {
-    width: 100%;
-    padding: 8px;
-    border: 2px solid #e67e22;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.edit-input:focus {
-    outline: none;
-    box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        width: 100%;
-        padding: 10px;
-    }
-    
-    .form-container {
-        padding: 1.5rem;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .employee-table {
-        font-size: 0.8rem;
-    }
-    
-    .employee-table th,
-    .employee-table td {
-        padding: 0.5rem;
-    }
-    
-    .actions-cell {
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .employee-table img {
-        width: 40px;
-        height: 40px;
-    }
-}
-
-/* Animações */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-container,
-.table-container {
-    animation: fadeIn 0.6s ease-out;
-}
-
-/* Melhorias de Acessibilidade */
-button:focus,
-input:focus,
-select:focus {
-    outline: 3px solid rgba(230, 126, 34, 0.3);
-    outline-offset: 2px;
+/* Estado de tabela vazia */
+.empty-table-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 3rem;
+    font-size: 1.1rem;
 }
 
 /* Scrollbar personalizada */
@@ -345,6 +310,10 @@ select:focus {
     background: linear-gradient(45deg, #d68910, #e67e22);
 }
 
+.table-container::-webkit-scrollbar-corner {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 /* Scrollbar geral */
 ::-webkit-scrollbar {
     width: 8px;
@@ -363,4 +332,122 @@ select:focus {
 
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(45deg, #d68910, #e67e22);
+}
+
+/* Estados de Loading */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #e67e22;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Melhorias de Acessibilidade */
+button:focus,
+input:focus,
+select:focus {
+    outline: 3px solid rgba(230, 126, 34, 0.3);
+    outline-offset: 2px;
+}
+
+/* Validação de formulário */
+input:invalid {
+    border-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+input:valid {
+    border-color: #2ecc71;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .form-container, .table-container {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .half-width {
+        min-width: auto;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .employee-table {
+        font-size: 0.8rem;
+    }
+    
+    .employee-table th,
+    .employee-table td {
+        padding: 0.5rem;
+    }
+    
+    .employee-table td img,
+    .employee-photo-placeholder {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .actions-cell {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-action, .btn-edit, .btn-delete, .btn-view {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container, .table-container {
+        padding: 1rem;
+    }
+    
+    .employee-table th,
+    .employee-table td {
+        padding: 0.3rem;
+    }
+    
+    .employee-table td img,
+    .employee-photo-placeholder {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    button[type="submit"] {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
 }

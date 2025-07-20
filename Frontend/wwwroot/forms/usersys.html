@@ -1,10 +1,12 @@
+<link rel="stylesheet" href="/css/usersys.css">
+
 <div class="container">
     <h2>Cadastro de Usuário do Sistema</h2>
     <div class="form-container">
         <form class="user-form">
             <div class="form-row">
                 <label class="half-width">Nome de Usuário:
-                    <input type="text" name="userName" required>
+                    <input type="text" name="userName" required autocomplete="username">
                 </label>
                 <label class="half-width">Nome Completo:
                     <input type="text" name="name" required>
@@ -25,14 +27,14 @@
             </div>
             <div class="form-row">
                 <label class="half-width">Senha:
-                    <input type="password" name="password" required minlength="6">
+                    <input type="password" name="password" required minlength="6" autocomplete="new-password">
                 </label>
                 <label class="half-width">Confirmar Senha:
-                    <input type="password" name="passwordConfirmation" required minlength="6">
+                    <input type="password" name="passwordConfirmation" required minlength="6" autocomplete="new-password">
                 </label>
             </div>
             <button type="submit">Salvar Usuário</button>
         </form>
     </div>
 </div>
-<link rel="stylesheet" href="/css/usersys.css">
+
