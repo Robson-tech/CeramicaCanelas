@@ -14,7 +14,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
         private const string PastaBaseVps = "/root/wwwroot/ceramicacanelas/almoxarifado/products/images";
 
         // Caminho público que será exposto no navegador
-        private const string UrlBase = "https://ceramicacanelas.shop/almoxarifado/products/images/";
+        private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/products/images/";
 
         public CreatedProductCommandHandler(IProductRepository productRepository, ILogged logged)
         {
