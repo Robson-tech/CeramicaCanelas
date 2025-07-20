@@ -25,7 +25,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
             var product = await ValidateUpdateProduct(request, cancellationToken);
 
             // NOVO CAMINHO NO SERVIDOR VPS
-            var pasta = Path.Combine("/root/wwwroot/ceramicacanelas/almoxarifado/products/images");
+            var pasta = Path.Combine("/var/www/ceramicacanelas/almoxarifado/products/images");
             if (!Directory.Exists(pasta))
                 Directory.CreateDirectory(pasta);
 
