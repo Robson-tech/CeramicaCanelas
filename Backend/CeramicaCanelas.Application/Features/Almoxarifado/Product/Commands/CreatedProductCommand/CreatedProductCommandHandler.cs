@@ -11,7 +11,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
         private readonly ILogged _logged;
 
         // Caminho absoluto no servidor VPS onde as imagens serão salvas
-        private const string PastaBaseVps = "/root/wwwroot/ceramicacanelas/almoxarifado/products/images";
+        private const string PastaBaseVps = "/var/www/ceramicacanelas/almoxarifado/products/images";
 
         // Caminho público que será exposto no navegador
         private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/products/images/";
