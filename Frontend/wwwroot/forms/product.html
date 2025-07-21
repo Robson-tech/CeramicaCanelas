@@ -4,43 +4,72 @@
     <div class="form-container">
         <form class="product-form">
             <div class="form-row">
-                <label class="half-width">Código do Produto (SKU): <input type="text" name="Code" required></label>
-                <label class="half-width">Nome: <input type="text" name="Name" required></label>
+                <div class="form-group">
+                    <label class="form-label" for="productCode">Código do Produto (SKU)</label>
+                    <input type="text" id="productCode" name="Code" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="productName">Nome</label>
+                    <input type="text" id="productName" name="Name" class="form-input" required>
+                </div>
             </div>
+
             <div class="form-row">
-                <label class="half-width">Unidade de Medida:
-                    <select name="UnitOfMeasure" required>
+                <div class="form-group">
+                    <label class="form-label" for="productUnit">Unidade de Medida</label>
+                    <select id="productUnit" name="UnitOfMeasure" class="form-input" required>
                         <option value="">Selecione...</option>
                         <option value="0">Unidade</option>
                         <option value="1">Kg</option>
                         <option value="2">Metro</option>
                         <option value="3">Litro</option>
                     </select>
-                </label>
-                <label class="half-width">Categoria:
-                    <select name="CategoryId" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="productCategory">Categoria</label>
+                    <select id="productCategory" name="CategoryId" class="form-input" required>
                         <option value="">Carregando categorias...</option>
                     </select>
-                </label>
+                </div>
             </div>
+
             <div class="form-row">
-                <label class="half-width">Estoque Mínimo: <input type="number" name="StockMinium" value="0" required></label>
-                <label class="half-width">Estoque Inicial: <input type="number" name="StockInitial" value="0" required></label>
+                <div class="form-group">
+                    <label class="form-label" for="productStockMin">Estoque Mínimo</label>
+                    <input type="number" id="productStockMin" name="StockMinium" class="form-input" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="productStockInitial">Estoque Inicial</label>
+                    <input type="number" id="productStockInitial" name="StockInitial" class="form-input" value="0" required>
+                </div>
             </div>
+
             <div class="form-row">
-                <label class="half-width">Valor Unitário (R$): <input type="number" step="0.01" name="Value" placeholder="0.00" required></label>
-                <label class="half-width">Imagem (Opcional): <input type="file" name="Imagem" accept="image/*"></label>
+                <div class="form-group">
+                    <label class="form-label" for="productValue">Valor Unitário (R$)</label>
+                    <input type="number" id="productValue" step="0.01" name="Value" class="form-input" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="productImage">Imagem (Opcional)</label>
+                    <input type="file" id="productImage" name="Imagem" class="form-input" accept="image/*">
+                </div>
             </div>
+
             <div class="form-row">
-                <label class="half-width">Item Devolvível?
-                    <select name="IsReturnable" required>
+                <div class="form-group">
+                    <label class="form-label" for="productReturnable">Item Devolvível?</label>
+                    <select id="productReturnable" name="IsReturnable" class="form-input" required>
                         <option value="true">Sim</option>
                         <option value="false" selected>Não</option>
                     </select>
-                </label>
-                 <label class="half-width">Observações: <textarea name="Observation" rows="1" required></textarea></label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="productObs">Observações</label>
+                    <textarea id="productObs" name="Observation" class="form-input" rows="1" required></textarea>
+                </div>
             </div>
-            <button type="submit">Salvar Produto</button>
+
+            <button type="submit" class="submit-btn">Salvar Produto</button>
         </form>
     </div>
 
@@ -94,7 +123,7 @@
             <th>Categoria</th>
             <th>Estoque Atual</th>
             <th>Est. Mínimo</th>
-            <th>Valor Unitário</th>
+            <th>Valor Total</th>
             <th>Devolvível?</th> <th>Ações</th>
         </tr>
     </thead>
