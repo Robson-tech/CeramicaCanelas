@@ -1,9 +1,6 @@
 console.log('Script js/employee.js DEFINIDO.');
 
-// Nomes únicos para variáveis globais para evitar conflitos
 
-
-// Mapa de cargos
 
 
 function initializeEmployeeForm(form) {
@@ -16,7 +13,7 @@ function initializeEmployeeForm(form) {
 
 async function handleSaveEmployee(form) {
     const formData = new FormData(form);
-    if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Position')) {
+    if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Positiions')) {
         alert('Preencha Nome, CPF e Cargo.');
         return;
     }
@@ -30,7 +27,7 @@ async function handleSaveEmployee(form) {
         if (response.ok) {
             alert('Funcionário salvo com sucesso!');
             form.reset();
-            loadEmployees();
+            loadEmployees(); // Recarrega a lista
         } else {
             const errorData = await response.json();
             alert(`Erro: ${errorData.message || 'Falha ao salvar.'}`);
@@ -44,20 +41,39 @@ async function loadEmployees() {
     const tableBody = document.querySelector('#employee-table-body');
     if (!tableBody) return;
     tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando...</td></tr>';
+
+    const params = new URLSearchParams();
+    const searchValue = document.getElementById('search-filter').value;
+    const positionValue = document.getElementById('position-filter').value;
+    const activeValue = document.getElementById('active-filter').value;
+
+    if (searchValue) params.append('Search', searchValue);
+    // Usa 'Positions' (com um 'i') para o filtro GET
+    if (positionValue) params.append('Positions', positionValue);
+    if (activeValue !== "") params.append('ActiveOnly', activeValue);
+    params.append('Page', '1');
+    params.append('PageSize', '100');
+
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_BASE_URL}/employees`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        const employees = await response.json();
-        renderEmployeeTable(employees, tableBody);
+        const response = await fetch(`${API_BASE_URL}/employees/pages?${params.toString()}`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.statusText}`);
+        
+        const data = await response.json();
+        renderEmployeeTable(data.items || [], tableBody);
     } catch (error) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar.</td></tr>';
+        console.error('Erro ao carregar funcionários:', error);
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar. Tente novamente.</td></tr>';
     }
 }
 
 function renderEmployeeTable(employees, tableBody) {
     tableBody.innerHTML = '';
     if (!employees || employees.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum funcionário cadastrado.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum funcionário encontrado.</td></tr>';
         return;
     }
     employees.forEach(employee => {
@@ -68,7 +84,7 @@ function renderEmployeeTable(employees, tableBody) {
                 <td data-field="image"><img src="${imageUrl}" alt="${employee.name}" class="product-table-img"></td>
                 <td data-field="name">${employee.name}</td>
                 <td data-field="cpf">${employee.cpf}</td>
-                <td data-field="position">${getPositionName(employee.positiions)}</td>
+                <td data-field="position">${getPositionName(employee.positions)}</td>
                 <td class="actions-cell" data-field="actions">
                     <button class="btn-action btn-edit" onclick='editEmployee(${employeeJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteEmployee('${employee.id}')">Excluir</button>
@@ -76,6 +92,34 @@ function renderEmployeeTable(employees, tableBody) {
             </tr>`;
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
     });
+}
+
+function populatePositionFilter() {
+    const select = document.getElementById('position-filter');
+    if (!select) return;
+    select.innerHTML = '<option value="">Todos os Cargos</option>';
+    for (const [key, value] of Object.entries(positionMap)) {
+        select.innerHTML += `<option value="${key}">${value}</option>`;
+    }
+}
+
+function initializeFilters() {
+    const filterForm = document.getElementById('filter-form');
+    const clearButton = document.getElementById('clear-filters-btn');
+
+    if (filterForm) {
+        filterForm.onsubmit = (event) => {
+            event.preventDefault();
+            loadEmployees();
+        };
+    }
+
+    if (clearButton) {
+        clearButton.onclick = () => {
+            filterForm.reset();
+            loadEmployees();
+        };
+    }
 }
 
 window.deleteEmployee = async (employeeId) => {
@@ -103,9 +147,10 @@ window.editEmployee = (employee) => {
     const positionCell = row.querySelector('[data-field="position"]');
     let options = '';
     for (const [key, value] of Object.entries(positionMap)) {
-        const selected = key == employee.positiions ? 'selected' : '';
+        const selected = key == employee.positions ? 'selected' : '';
         options += `<option value="${key}" ${selected}>${value}</option>`;
     }
+    // Usa 'Positiions' (com dois 'i's') para o POST/PUT
     positionCell.innerHTML = `<select name="Positiions" class="edit-input">${options}</select>`;
     row.querySelector('[data-field="actions"]').innerHTML = `
         <button class="btn-action btn-save" onclick="saveEmployeeChanges('${employee.id}')">Salvar</button>
@@ -119,6 +164,7 @@ window.saveEmployeeChanges = async (employeeId) => {
     formData.append('Id', employeeId);
     formData.append('Name', row.querySelector('[name="Name"]').value);
     formData.append('CPF', row.querySelector('[name="CPF"]').value);
+    // Usa 'Positiions' (com dois 'i's') para o POST/PUT
     formData.append('Positiions', row.querySelector('[name="Positiions"]').value);
     try {
         const accessToken = localStorage.getItem('accessToken');
@@ -147,9 +193,14 @@ window.cancelEditEmployee = (employeeId) => {
     }
 };
 
+// Função principal de inicialização
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de employee.js foi chamada.');
     const formElement = document.querySelector('.employee-form');
     initializeEmployeeForm(formElement);
-    loadEmployees();
+    
+    populatePositionFilter();
+    initializeFilters();
+    
+    loadEmployees(); // Carga inicial
 }
