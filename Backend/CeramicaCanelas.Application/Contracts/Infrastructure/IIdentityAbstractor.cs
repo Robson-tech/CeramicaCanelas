@@ -105,4 +105,6 @@ public interface IIdentityAbstractor {
     Task<string> GeneratePasswordResetTokenAsync(User user);
 
     public Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword);
+    Task<(IEnumerable<User>, int)> GetPagedUsersAsync(int page, int pageSize);
+
 }
