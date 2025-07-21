@@ -19,11 +19,22 @@ let currentTablePage = 1;
  // Página atual da MODAL de busca de produtos
 // Mapa de cargos para ser usado na tela de funcionários
 const positionMap = {
-    0: 'Enfornador', 1: 'Desenfornador', 2: 'Soldador', 3: 'Marombeiro',
-    4: 'Operador de Pá Carregadeira', 5: 'Motorista', 6: 'Queimador',
-    7: 'Conferente', 8: 'Caixa', 9: 'Auxiliar Administrativo',
-    10: 'Auxiliar de Limpeza', 11: 'Dono', 12: 'Gerente', 13: 'Auxiliar de Estoque'
+    0: 'Enfornador',
+    1: 'Desenfornador',
+    2: 'Soldador',
+    3: 'Marombeiro',
+    4: 'Operador de Pá Carregadeira',
+    5: 'Motorista',
+    6: 'Queimador',
+    7: 'Conferente',
+    8: 'Caixa',
+    9: 'Auxiliar Administrativo',
+    10: 'Auxiliar de Limpeza',
+    11: 'Dono',
+    12: 'Gerente',
+    13: 'Auxiliar de Estoque'
 };
+
 
 // Função utilitária global
 const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
