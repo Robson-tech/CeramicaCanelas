@@ -16,7 +16,7 @@ function initializeEmployeeForm(form) {
 
 async function handleSaveEmployee(form) {
     const formData = new FormData(form);
-    if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Position')) {
+    if (!formData.get('Name') || !formData.get('CPF') || !formData.get('Positiions')) {
         alert('Preencha Nome, CPF e Cargo.');
         return;
     }

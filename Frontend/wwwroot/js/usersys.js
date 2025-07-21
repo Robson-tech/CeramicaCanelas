@@ -1,7 +1,11 @@
 console.log('Script js/usersys.js DEFINIDO.');
 
-// Este script utiliza as variáveis e funções globais de main.js
-// como API_BASE_URL e showErrorModal.
+// NOVO: Mapa para traduzir os números das funções para texto
+const userRolesMap = {
+    0: 'Admin',
+    1: 'Customer',
+    2: 'Viewer'
+};
 
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
@@ -10,50 +14,28 @@ function initDynamicForm() {
     console.log('▶️ initDynamicForm() de usersys.js foi chamada.');
     const formElement = document.querySelector('.user-form');
     initializeUserForm(formElement);
+    fetchAndRenderUsers();
 }
 
 // =======================================================
 // LÓGICA DO FORMULÁRIO DE CADASTRO
 // =======================================================
-
-/**
- * Anexa o evento de submit ao formulário.
- */
 function initializeUserForm(userForm) {
-    if (!userForm) {
-        console.error('FALHA CRÍTICA: Elemento <form class="user-form"> não encontrado.');
-        return;
-    }
-    console.log('🚀 Inicializando formulário de usuário...');
-    
+    if (!userForm) return;
     userForm.onsubmit = (event) => {
-        event.preventDefault(); // Impede o recarregamento da página
+        event.preventDefault();
         processUserData(userForm);
     };
-    
-    console.log('✅ Event listener do formulário configurado com sucesso!');
 }
 
-/**
- * Processa e valida os dados do usuário antes do envio.
- */
 async function processUserData(form) {
-    console.log('🔍 Validando dados do usuário...');
-    
     const formData = new FormData(form);
     const password = formData.get('password');
     const passwordConfirmation = formData.get('passwordConfirmation');
-    
     if (password !== passwordConfirmation) {
-        showErrorModal({ title: "Validação Falhou", detail: "As senhas não coincidem. Verifique e tente novamente."});
+        showErrorModal({ title: "Validação Falhou", detail: "As senhas não coincidem."});
         return;
     }
-    
-    if (password.length < 6) {
-        showErrorModal({ title: "Validação Falhou", detail: "A senha deve ter pelo menos 6 caracteres."});
-        return;
-    }
-    
     const requiredFields = ['userName', 'name', 'email', 'password', 'role'];
     for (const field of requiredFields) {
         if (!formData.get(field)) {
@@ -61,47 +43,96 @@ async function processUserData(form) {
             return;
         }
     }
-    
-    console.log('✅ Dados validados com sucesso.');
     await sendUserData(formData, form);
 }
 
-/**
- * Envia os dados para a API para criar um novo usuário.
- */
 async function sendUserData(formData, form) {
-    console.log('📡 Preparando dados para envio...');
-    
-    // Remove o campo de confirmação, que não é necessário no backend
     formData.delete('passwordConfirmation');
-    
-    // O corpo da requisição será 'application/x-www-form-urlencoded'
-    const body = new URLSearchParams(formData);
-
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const url = `${API_BASE_URL}/user`; // Supondo que este é o endpoint de criação de usuário
-        
+        const url = `${API_BASE_URL}/user`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: body
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            body: formData
         });
-
         if (response.ok) {
             alert('Usuário cadastrado com sucesso!');
             form.reset();
-            // Futuramente, pode chamar uma função para recarregar uma tabela de usuários
-            // loadUsers(); 
+            fetchAndRenderUsers();
         } else {
-            const errorData = await response.json().catch(() => ({ title: `Erro ${response.status}`, detail: "Não foi possível processar a requisição." }));
+            const errorData = await response.json().catch(() => ({ title: `Erro ${response.status}` }));
             showErrorModal(errorData);
         }
     } catch (error) {
-        console.error('❌ Erro na requisição:', error);
         showErrorModal({ title: "Erro de Conexão", detail: "Falha na comunicação com o servidor." });
     }
 }
+
+// =======================================================
+// LÓGICA DA TABELA DE LISTAGEM E EXCLUSÃO
+// =======================================================
+async function fetchAndRenderUsers() {
+    const tableBody = document.querySelector('#user-list-body');
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando usuários...</td></tr>';
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/user`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error('Falha ao buscar a lista de usuários.');
+        const data = await response.json();
+        const users = data.items;
+        if (!Array.isArray(users)) {
+            throw new Error("A resposta da API não continha uma lista de 'items' válida.");
+        }
+        renderUserTable(users, tableBody);
+    } catch (error) {
+        showErrorModal({ title: "Erro ao Listar", detail: error.message });
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
+    }
+}
+
+function renderUserTable(users, tableBody) {
+    tableBody.innerHTML = '';
+    if (!users || users.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum usuário cadastrado.</td></tr>';
+        return;
+    }
+
+    // ATUALIZADO: A função agora usa o 'userRolesMap'
+    const getRoleName = (roleId) => userRolesMap[roleId] || 'Desconhecido';
+
+    users.forEach(user => {
+        const rowHTML = `
+            <tr id="row-user-${user.id}">
+                <td>${user.userName}</td>
+                <td>${user.name}</td>
+                <td>${user.email}</td>
+                <td>${getRoleName(user.role)}</td>
+                <td class="actions-cell">
+                    <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">Excluir</button>
+                </td>
+            </tr>`;
+        tableBody.insertAdjacentHTML('beforeend', rowHTML);
+    });
+}
+
+window.deleteUser = async (userId) => {
+    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (response.ok) {
+            alert('Usuário excluído com sucesso!');
+            fetchAndRenderUsers();
+        } else {
+            const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir" }));
+            showErrorModal(errorData);
+        }
+    } catch (error) {
+        showErrorModal({ title: "Erro de Conexão", detail: error.message });
+    }
+};
