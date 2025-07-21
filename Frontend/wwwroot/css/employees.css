@@ -154,6 +154,26 @@ h2::after, .form-title::after {
     }
 
 
+
+/* Edição na Tabela */
+.edit-input {
+    width: 100%;
+    padding: 8px;
+    border: 2px solid #e67e22;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+    .edit-input:focus {
+        outline: none;
+        box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
+    }
+
+
+
+
 /* Melhorias de Acessibilidade */
 button:focus,
 input:focus,
