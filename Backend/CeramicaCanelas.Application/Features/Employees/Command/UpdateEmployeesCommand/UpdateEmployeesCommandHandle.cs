@@ -14,7 +14,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
 
         // Caminhos padronizados como constantes na classe
         private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
-        private const string UrlBase = "https://api.ceramicacanelas.shop/employees/images/";
+        private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/employees/images/";
 
         public UpdateEmployeeCommandHandler(IEmployeesRepository employeeRepository, ILogged logged)
         {
