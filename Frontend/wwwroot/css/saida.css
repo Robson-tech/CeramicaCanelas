@@ -458,6 +458,22 @@ h2::after, .form-title::after {
     text-align: center;
 }
 
+.btn-select-employee,
+.btn-select-product{
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #2ecc71, #27ae60); /* Gradiente verde para 'selecionar' ou 'confirmar' */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
 /* Botões da Modal */
 .btn-select, .btn-modal-select {
     padding: 8px 16px;
