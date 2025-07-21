@@ -1,11 +1,5 @@
 console.log('Script js/usersys.js DEFINIDO.');
 
-// NOVO: Mapa para traduzir os números das funções para texto
-const userRolesMap = {
-    0: 'Admin',
-    1: 'Customer',
-    2: 'Viewer'
-};
 
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
