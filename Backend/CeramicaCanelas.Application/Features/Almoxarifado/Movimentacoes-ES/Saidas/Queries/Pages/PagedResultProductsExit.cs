@@ -27,8 +27,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Sai
 
         public ExitItemResult(ProductExit exit)
         {
-            ProductName = exit.Product?.Name ?? "Desconhecido";
-            EmployeeName = exit.Employee?.Name ?? "Desconhecido";
+            ProductName = exit.Product?.Name ?? "Produto não encontrado";
+            EmployeeName = exit.Employee?.Name ?? "Funcionário não encontrado";
             Quantity = exit.Quantity;
             ReturnedQuantity = exit.ReturnedQuantity;
             ExitDate = exit.ExitDate;
