@@ -6,36 +6,30 @@ namespace CeramicaCanelas.Persistence;
 
 public class DefaultContext : IdentityDbContext<User>
 {
-
     public DefaultContext() { }
 
     public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
 
     public DbSet<Products> Products { get; set; } = null!;
-
     public DbSet<Categories> Categories { get; set; } = null!;
-
     public DbSet<Employee> Employees { get; set; } = null!;
-
     public DbSet<ProductExit> ProductExits { get; set; } = null!;
-
     public DbSet<ProductEntry> ProductEntries { get; set; } = null!;
     public DbSet<Supplier> Suppliers { get; set; } = null!;
-
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.HasPostgresExtension("uuid-ossp");
         builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
 
-        // Configure the primary key for the User entity
+        // User
         builder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Id).HasDefaultValueSql("uuid_generate_v4()");
         });
 
-        // Configure the primary key and relationships for the Products entity
+        // Products
         builder.Entity<Products>(entity =>
         {
             entity.HasKey(p => p.Id);
@@ -43,38 +37,38 @@ public class DefaultContext : IdentityDbContext<User>
             entity.HasOne(p => p.Category)
                   .WithMany(c => c.Products)
                   .HasForeignKey(p => p.CategoryId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull); // mantém produtos mesmo sem categoria
         });
 
-        // Configure the primary key for the Categories entity
+        // Categories
         builder.Entity<Categories>(entity =>
         {
             entity.HasKey(c => c.Id);
             entity.Property(c => c.Id).HasDefaultValueSql("uuid_generate_v4()");
         });
 
-        // Configure the primary key for the Employees entity
+        // Employees
         builder.Entity<Employee>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
         });
 
-        // Configure ProductEntry relationships
+        // ProductEntry
         builder.Entity<ProductEntry>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
 
             entity.HasOne(e => e.Product)
-                  .WithMany() // ou .WithMany(p => p.Entries) se você tiver essa navegação
+                  .WithMany()
                   .HasForeignKey(e => e.ProductId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull); // mantém entrada mesmo se produto for deletado
 
             entity.HasOne(e => e.User)
-                  .WithMany() // ou .WithMany(u => u.ProductEntries)
+                  .WithMany()
                   .HasForeignKey(e => e.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull); // mantém entrada mesmo se user for deletado
 
             entity.HasOne(e => e.Supplier)
                   .WithMany(s => s.ProductEntries)
@@ -82,30 +76,29 @@ public class DefaultContext : IdentityDbContext<User>
                   .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // Configure ProductExit relationships
+        // ProductExit
         builder.Entity<ProductExit>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
 
             entity.HasOne(e => e.Product)
-                  .WithMany() // ou .WithMany(p => p.Exits)
+                  .WithMany()
                   .HasForeignKey(e => e.ProductId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull); // mantém saída mesmo sem produto
 
             entity.HasOne(e => e.Employee)
-                  .WithMany() // ou .WithMany(emp => emp.Exits)
+                  .WithMany()
                   .HasForeignKey(e => e.EmployeeId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .OnDelete(DeleteBehavior.SetNull); // mantém saída mesmo sem funcionário
 
             entity.HasOne(e => e.User)
-                    .WithMany() // ou .WithMany(u => u.ProductExits)
-                    .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
+        // Supplier
         builder.Entity<Supplier>(entity =>
         {
             entity.HasKey(s => s.Id);
@@ -115,5 +108,4 @@ public class DefaultContext : IdentityDbContext<User>
 
         base.OnModelCreating(builder);
     }
-
 }

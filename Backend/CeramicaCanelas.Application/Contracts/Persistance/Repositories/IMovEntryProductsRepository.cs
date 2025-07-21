@@ -18,6 +18,6 @@
         /// <returns>
         /// The <see cref="Domain.Entities.ProductEntry"/> entity with the specified ID, or null if not found
         /// </returns>
-        Task<Domain.Entities.ProductEntry?> GetByIdAsync(Guid id);
+        Task<Domain.Entities.ProductEntry?> GetByIdAsync(Guid? id);
     }
 }

@@ -18,7 +18,7 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Domain.Entities.Products> GetProductByIdAsync(Guid id)
+        public async Task<Domain.Entities.Products> GetProductByIdAsync(Guid? id)
         {
             return await Context.Products
                 .Include(p => p.Category)
@@ -26,7 +26,7 @@ namespace CeramicaCanelas.Persistence.Repositories
                 ?? throw new KeyNotFoundException("Produto não encontrado.");
         }
 
-        public async Task<IEnumerable<Domain.Entities.Products>> GetProductsByCategoryIdAsync(Guid categoryId)
+        public async Task<IEnumerable<Domain.Entities.Products>> GetProductsByCategoryIdAsync(Guid? categoryId)
         {
             return await Context.Products
                 .Where(p => p.CategoryId == categoryId)

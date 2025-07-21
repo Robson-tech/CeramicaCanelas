@@ -38,6 +38,12 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
                 throw new BadRequestException("Movimentação de entrada não encontrada.");
 
             // Atualiza o estoque do produto
+
+            if (movimentacaoES.ProductId == null)
+            {
+                throw new BadRequestException("Produto associado à movimentação está nulo.");
+            }
+
             var product = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId);
             if (product == null)
             {
