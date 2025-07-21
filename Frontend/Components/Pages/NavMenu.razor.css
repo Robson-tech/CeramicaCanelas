@@ -1,4 +1,13 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+        }
 
         .sidebar {
             width: 280px;
@@ -9,6 +18,9 @@
             top: 0;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Esconde o overflow do container principal */
         }
 
         .logo-container {
@@ -16,6 +28,7 @@
             text-align: center;
             background: rgba(255,255,255,0.1);
             border-bottom: 1px solid rgba(255,255,255,0.2);
+            flex-shrink: 0; /* Impede que o logo encolha */
         }
 
         .logo {
@@ -46,6 +59,35 @@
 
         .menu {
             padding: 20px 0;
+            flex: 1; /* Ocupa o espaço restante */
+            overflow-y: auto; /* Permite scroll vertical */
+            overflow-x: hidden; /* Esconde scroll horizontal */
+        }
+
+        /* Customização da scrollbar */
+        .menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .menu::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .menu::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            transition: background 0.3s ease;
+        }
+
+        .menu::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        /* Para Firefox */
+        .menu {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.3) rgba(255,255,255,0.1);
         }
 
         .menu-section {
@@ -128,6 +170,7 @@
             transition: all 0.3s ease;
             border-left: 4px solid transparent;
             margin-left: 10px;
+            cursor: pointer;
         }
 
         .menu-item:hover {
@@ -168,3 +211,34 @@
             color: white;
         }
 
+        /* Logout sempre no final */
+        .logout-section {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 20px;
+        }
+
+        /* Conteúdo principal para demonstração */
+        .main-content {
+            margin-left: 280px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #d35400;
+            margin-bottom: 20px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
