@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using CeramicaCanelas.Application.Contracts.Infrastructure;
+﻿using CeramicaCanelas.Application.Contracts.Infrastructure;
 using CeramicaCanelas.Domain.Entities;
 using CeramicaCanelas.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace CeramicaCanelas.Infrastructure.Abstractions;
 
@@ -77,5 +78,20 @@ public class IdentityAbstractor : IIdentityAbstractor {
     public async Task<string> GeneratePasswordResetTokenAsync(User user)
     {
         return await _userManager.GeneratePasswordResetTokenAsync(user);
+    }
+
+    public async Task<(IEnumerable<User>, int)> GetPagedUsersAsync(int page, int pageSize)
+    {
+        int skip = (page - 1) * pageSize;
+
+        var totalUsers = await _userManager.Users.CountAsync();
+
+        var users = await _userManager.Users
+            .OrderBy(u => u.Name) // ou u.UserName, se preferir
+            .Skip(skip)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (users, totalUsers);
     }
 }
