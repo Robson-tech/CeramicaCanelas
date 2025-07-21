@@ -1,6 +1,6 @@
 console.log('Script js/entrada.js DEFINIDO.');
 
-// Este script utiliza as variáveis globais definidas em main.js
+
 
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
@@ -16,7 +16,6 @@ function initDynamicForm() {
             fetchAndRenderEntries(1);
         });
 }
-
 
 // =======================================================
 // LÓGICA DO FORMULÁRIO PRINCIPAL E MODAIS
@@ -84,7 +83,7 @@ function initializeMainFormSubmit(form) {
                 form.reset();
                 document.getElementById('selectedProductName').textContent = 'Nenhum produto selecionado';
                 document.getElementById('selectedSupplierName').textContent = 'Nenhum fornecedor selecionado';
-                fetchAndRenderEntries();
+                fetchAndRenderEntries(1);
             } else {
                 const errorData = await response.json();
                 showErrorModal(errorData);
@@ -133,7 +132,6 @@ function initializeProductSelectionListener(modal) {
         }
     });
 }
-
 
 // =======================================================
 // LÓGICA DA MODAL DE BUSCA DE FORNECEDORES
@@ -244,7 +242,7 @@ async function fetchAndRenderEntries(page = 1) {
     currentEntryPage = page;
     const tableBody = document.querySelector('#entry-list-body');
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Buscando...</td></tr>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
@@ -261,19 +259,19 @@ async function fetchAndRenderEntries(page = 1) {
         renderEntryPagination(paginatedData);
     } catch (error) {
         showErrorModal({ title: "Erro ao Listar Entradas", detail: error.message });
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Falha ao carregar.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Falha ao carregar.</td></tr>`;
         document.getElementById('entry-pagination-controls').innerHTML = '';
     }
 }
 
 function renderEntryTable(entries, tableBody) {
     tableBody.innerHTML = '';
-    if (!entries || entries.length === 0) { tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma entrada encontrada.</td></tr>'; return; }
+    if (!entries || entries.length === 0) { tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhuma entrada encontrada.</td></tr>'; return; }
     entries.forEach(entry => {
         const entryJsonString = JSON.stringify(entry).replace(/'/g, "&apos;");
         const formattedPrice = (entry.unitPrice || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const formattedDate = new Date(entry.entryDate).toLocaleDateString('pt-BR');
-        const rowHTML = `<tr id="row-entry-${entry.id}"><td data-field="productName">${entry.productName}</td><td data-field="quantity">${entry.quantity}</td><td data-field="unitPrice">${formattedPrice}</td><td data-field="entryDate">${formattedDate}</td><td class="actions-cell" data-field="actions"><button class="btn-action btn-edit" onclick='editEntry(${entryJsonString})'>Editar</button><button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">Excluir</button></td></tr>`;
+        const rowHTML = `<tr id="row-entry-${entry.id}"><td data-field="productName">${entry.productName}</td><td data-field="quantity">${entry.quantity}</td><td data-field="unitPrice">${formattedPrice}</td><td data-field="entryDate">${formattedDate}</td><td data-field="insertedBy">${entry.insertedBy || 'N/A'}</td><td class="actions-cell" data-field="actions"><button class="btn-action btn-edit" onclick='editEntry(${entryJsonString})'>Editar</button><button class="btn-action btn-delete" onclick="deleteEntry('${entry.id}')">Excluir</button></td></tr>`;
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
     });
 }
@@ -361,6 +359,9 @@ window.cancelEntryEdit = (entryId) => {
     }
 };
 
+// =======================================================
+// FUNÇÕES UTILITÁRIAS
+// =======================================================
 async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
     if (!selectElement) return; 
     try { 

@@ -1,5 +1,8 @@
 console.log('Script js/saida.js DEFINIDO.');
 
+// Este script utiliza as variáveis globais de main.js
+// (API_BASE_URL, showErrorModal, positionMap, getPositionName, etc.)
+
 
 
 // =======================================================
@@ -12,10 +15,9 @@ function initDynamicForm() {
     initializeProductModal();
     initializeEmployeeModal();
     initializeHistoryFilters();
-    loadProductCategories(document.getElementById('historyCategoryFilter'), 'Todas as Categorias')
-        .then(() => {
-            fetchAndRenderHistory(1);
-        });
+    // A função loadProductCategories não é necessária para o filtro de histórico aqui,
+    // mas pode ser adicionada se o filtro de categoria for reintroduzido no HTML
+    fetchAndRenderHistory(1);
 }
 
 // =======================================================
@@ -29,7 +31,6 @@ function initializeExitForm() {
     exitForm.addEventListener('submit', handleFormSubmit);
     
     document.getElementById('exitItemsTbody')?.addEventListener('click', (event) => {
-        // Corrigido para a classe correta do botão de remover
         if (event.target.classList.contains('btn-delete')) {
             event.target.closest('tr').remove();
             checkPlaceholder();
@@ -155,7 +156,7 @@ function initializeProductModal() {
     if(closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
     window.addEventListener('click', (event) => { if (event.target === modal) modal.style.display = 'none'; });
     
-    modal.querySelector('#modalResultsContainer')?.addEventListener('click', (event) => {
+    modal.querySelector('#modalProductResultsContainer')?.addEventListener('click', (event) => {
         if (event.target.classList.contains('btn-select-product')) {
             const product = JSON.parse(event.target.dataset.product);
             addProductToExitTable(product);
@@ -198,7 +199,6 @@ function renderProductModalPagination(paginationData) {
     if (!controlsContainer) return;
     controlsContainer.innerHTML = '';
     
-    // Calcula totalPages caso não venha da API
     if(!paginationData.totalPages) {
         paginationData.totalPages = Math.ceil(paginationData.totalItems / paginationData.pageSize);
     }
@@ -244,10 +244,10 @@ function initializeEmployeeModal() {
         fetchPaginatedEmployees(1);
     });
     
-    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
     window.addEventListener('click', (event) => { if (event.target === modal) modal.style.display = 'none'; });
     
-    filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
 
     modal.querySelector('#modalEmployeeResultsContainer').addEventListener('click', (event) => {
         if (event.target.classList.contains('btn-select-employee')) {
@@ -261,9 +261,11 @@ function initializeEmployeeModal() {
 function populatePositionFilter(selectElement) {
     if (!selectElement) return;
     // positionMap é uma variável global do seu main.js
-    for (const [key, value] of Object.entries(positionMap)) {
-        const option = new Option(value, key);
-        selectElement.appendChild(option);
+    if(typeof positionMap !== 'undefined') {
+        for (const [key, value] of Object.entries(positionMap)) {
+            const option = new Option(value, key);
+            selectElement.appendChild(option);
+        }
     }
 }
 
@@ -280,7 +282,7 @@ async function fetchPaginatedEmployees(page = 1) {
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
         if (position) params.append('Positions', position);
-        const url = `${API_BASE_URL}/employees/paged?${params.toString()}`;
+        const url = `${API_BASE_URL}/employees/pages?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar funcionários (Status: ${response.status})`);
         
@@ -336,12 +338,12 @@ function renderEmployeeModalPagination(paginationData) {
 // LÓGICA DO HISTÓRICO DE SAÍDAS
 // =======================================================
 function initializeHistoryFilters() {
-    document.getElementById('historyFilterBtn')?.addEventListener('click', () => fetchAndRenderHistory(1));
-    document.getElementById('historyClearFilterBtn')?.addEventListener('click', () => {
+    const filterBtn = document.getElementById('historyFilterBtn');
+    const clearBtn = document.getElementById('historyClearFilterBtn');
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderHistory(1));
+    if(clearBtn) clearBtn.addEventListener('click', () => {
         document.getElementById('historySearchInput').value = '';
         document.getElementById('historyCategoryFilter').value = '';
-        document.getElementById('historyOrderBySelect').value = 'ExitDate';
-        document.getElementById('historyAscendingSelect').value = 'false';
         fetchAndRenderHistory(1);
     });
 }
@@ -350,18 +352,14 @@ async function fetchAndRenderHistory(page = 1) {
     currentHistoryPage = page;
     const tableBody = document.getElementById('historyTbody');
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando histórico...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Buscando histórico...</td></tr>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         const search = document.getElementById('historySearchInput')?.value;
         const categoryId = document.getElementById('historyCategoryFilter')?.value;
-        const orderBy = document.getElementById('historyOrderBySelect')?.value;
-        const ascending = document.getElementById('historyAscendingSelect')?.value;
-        const params = new URLSearchParams({ Page: currentHistoryPage, PageSize: 10 });
+        const params = new URLSearchParams({ Page: currentHistoryPage, PageSize: 10, OrderBy: 'ExitDate', Ascending: false });
         if (search) params.append('Search', search);
         if (categoryId) params.append('CategoryId', categoryId);
-        if (orderBy) params.append('OrderBy', orderBy);
-        if (ascending) params.append('Ascending', ascending);
         const url = `${API_BASE_URL}/products-exit/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar histórico (Status: ${response.status})`);
@@ -370,7 +368,8 @@ async function fetchAndRenderHistory(page = 1) {
         renderHistoryPagination(paginatedData);
     } catch (error) {
         showErrorModal({ title: "Erro ao Listar Histórico", detail: error.message });
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        document.getElementById('historyPaginationControls').innerHTML = '';
     }
 }
 
@@ -378,14 +377,21 @@ function renderHistoryTable(items) {
     const tableBody = document.getElementById('historyTbody');
     tableBody.innerHTML = '';
     if (!items || items.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum registro de saída.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro de saída encontrado.</td></tr>';
         return;
     }
     items.forEach(item => {
         const exitDate = new Date(item.exitDate).toLocaleDateString('pt-BR');
         const isReturnableText = item.isReturnable ? 'Sim' : 'Não';
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${item.productName || 'N/A'}</td><td>${item.employeeName || 'N/A'}</td><td>${item.quantity}</td><td>${exitDate}</td><td>${isReturnableText}</td>`;
+        row.innerHTML = `
+            <td>${item.productName || 'N/A'}</td>
+            <td>${item.employeeName || 'N/A'}</td>
+            <td>${item.quantity}</td>
+            <td>${exitDate}</td>
+            <td>${isReturnableText}</td>
+            <td>${item.insertedBy || 'N/A'}</td>
+        `;
         tableBody.appendChild(row);
     });
 }

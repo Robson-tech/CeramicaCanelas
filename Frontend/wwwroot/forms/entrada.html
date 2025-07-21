@@ -1,11 +1,10 @@
-<link rel="stylesheet" href="/css/entrada.css">
 <div class="container">
     <h2 class="form-title">Registrar Entrada no Estoque</h2>
     <div class="form-container">
         <form id="productEntryForm" class="product-entry-form">
             <div class="form-group">
                 <label class="form-label">Fornecedor</label>
-                <div class="product-selection-box">
+                <div class="selection-box">
                     <span id="selectedSupplierName">Nenhum fornecedor selecionado</span>
                     <button type="button" id="openSupplierModalBtn" class="search-btn">Buscar Fornecedor...</button>
                 </div>
@@ -14,7 +13,7 @@
 
             <div class="form-group">
                 <label class="form-label">Produto</label>
-                <div class="product-selection-box">
+                <div class="selection-box">
                     <span id="selectedProductName">Nenhum produto selecionado</span>
                     <button type="button" id="openProductModalBtn" class="search-btn">Buscar Produto...</button>
                 </div>
@@ -63,6 +62,7 @@
                     <th>Quantidade</th>
                     <th>Custo Unitário</th>
                     <th>Data da Entrada</th>
+                    <th>Operador</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -99,3 +99,5 @@
         <div id="modalSupplierPaginationControls" class="pagination-controls"></div>
     </div>
 </div>
+
+<link rel="stylesheet" href="/css/entrada.css">
