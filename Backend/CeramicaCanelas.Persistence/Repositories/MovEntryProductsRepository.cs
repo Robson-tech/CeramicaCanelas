@@ -16,7 +16,7 @@ namespace CeramicaCanelas.Persistence.Repositories
             return await Context.ProductEntries.Include(e => e.Product).ThenInclude(e => e.Category).Include(e => e.User).ToListAsync();
 
         }
-        public async Task<Domain.Entities.ProductEntry?> GetByIdAsync(Guid id)
+        public async Task<Domain.Entities.ProductEntry?> GetByIdAsync(Guid? id)
         {
             return await Context.ProductEntries.FindAsync(id);
 
