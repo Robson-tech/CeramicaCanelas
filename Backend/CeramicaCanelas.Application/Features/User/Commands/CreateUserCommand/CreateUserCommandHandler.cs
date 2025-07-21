@@ -20,6 +20,12 @@ public class CreateUserCommandHandler(IIdentityAbstractor identityAbstractor) : 
             throw new BadRequestException(validationResult);
         }
 
+        // Check if the user already exists
+        Domain.Entities.User? existingUser = await _identityAbstractor.FindUserByEmailAsync(request.Email);
+        if(existingUser != null) {
+            throw new BadRequestException($"User with email {request.Email} already exists.");
+        }
+
         Domain.Entities.User newUser = request.AssignTo();
         IdentityResult userCreationResult = await _identityAbstractor.CreateUserAsync(newUser, request.Password);
         if(!userCreationResult.Succeeded) {

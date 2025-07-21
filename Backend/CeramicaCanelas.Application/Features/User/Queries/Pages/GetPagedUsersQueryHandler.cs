@@ -15,16 +15,25 @@ namespace CeramicaCanelas.Application.Features.User.Queries.Pages
         {
             var (users, total) = await _identityAbstractor.GetPagedUsersAsync(request.Page, request.PageSize);
 
-            var result = users.Select(user => new GetPagedUsersResult
+            var result = new List<GetPagedUsersResult>();
+
+            foreach (var user in users)
             {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                UserName = user.UserName
-            }).ToList();
+                var roles = await _identityAbstractor.GetUserRolesAsync(user);
+
+                result.Add(new GetPagedUsersResult
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    Roles = roles.ToList()
+                });
+            }
 
             return new PagedUserResult<GetPagedUsersResult>(result, request.Page, request.PageSize, total);
         }
+
     }
 
 }
