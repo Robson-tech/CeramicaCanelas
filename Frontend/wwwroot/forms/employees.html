@@ -48,30 +48,31 @@
         </form>
     </div>
 
-    <div class="filter-container">
-        <h2>Filtros de Busca</h2>
-        <form id="filter-form" class="filter-form">
-            <div class="form-row">
-                <label class="third-width">Buscar por Nome ou CPF:
-                    <input type="text" id="search-filter" placeholder="Digite para buscar...">
-                </label>
-                <label class="third-width">Filtrar por Cargo:
-                    <select id="position-filter">
-                        </select>
-                </label>
-                <label class="third-width">Filtrar por Status:
-                    <select id="active-filter">
-                        <option value="">Todos</option>
-                        <option value="true">Apenas Ativos</option>
-                        <option value="false">Apenas Inativos</option>
-                    </select>
-                </label>
-            </div>
-            <div class="form-row" style="justify-content: flex-end;">
-                <button type="button" id="clear-filters-btn" class="btn-cancel">Limpar Filtros</button>
-                <button type="submit" id="apply-filters-btn">Aplicar Filtros</button>
-            </div>
-        </form>
+    <div class="filter-bar">
+        <div class="filter-group large">
+            <label for="search-filter">Buscar por Nome ou CPF</label>
+            <input type="text" id="search-filter" class="form-input" placeholder="Digite para buscar...">
+        </div>
+
+        <div class="filter-group">
+            <label for="position-filter">Filtrar por Cargo</label>
+            <select id="position-filter" class="form-input">
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="active-filter">Filtrar por Status</label>
+            <select id="active-filter" class="form-input">
+                <option value="">Todos</option>
+                <option value="true">Apenas Ativos</option>
+                <option value="false">Apenas Inativos</option>
+            </select>
+        </div>
+
+        <div class="filter-group-buttons">
+            <button type="submit" id="apply-filters-btn" class="search-btn">Filtrar</button>
+            <button type="button" id="clear-filters-btn" class="btn-cancel">Limpar</button>
+        </div>
     </div>
 
     <div class="table-container">
