@@ -13,7 +13,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
         private readonly ILogged _logged;
 
         // Caminhos padronizados como constantes na classe
-        private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
+        private const string PastaBaseVps = "/var/www/ceramicacanelas/almoxarifado/employees/images";
         private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/employees/images/";
 
         public UpdateEmployeeCommandHandler(IEmployeesRepository employeeRepository, ILogged logged)
