@@ -3,27 +3,33 @@
     <div class="form-container">
         <form class="supplier-form">
             <div class="form-row">
-                <label class="half-width">Nome/Razão Social:
-                    <input type="text" name="Name" required>
-                </label>
-                <label class="half-width">CNPJ:
-                    <input type="text" name="Cnpj" placeholder="00.000.000/0001-00" required>
-                </label>
+                <div class="form-group">
+                    <label class="form-label" for="supplierName">Nome/Razão Social</label>
+                    <input type="text" id="supplierName" name="Name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="supplierCnpj">CNPJ</label>
+                    <input type="text" id="supplierCnpj" name="Cnpj" class="form-input" placeholder="00.000.000/0001-00" required>
+                </div>
             </div>
+
             <div class="form-row">
-                <label class="half-width">Contato (Telefone):
-                    <input type="text" name="Phone" placeholder="(00) 00000-0000">
-                </label>
-                <label class="half-width">Email:
-                    <input type="email" name="Email" placeholder="contato@empresa.com">
-                </label>
+                <div class="form-group">
+                    <label class="form-label" for="supplierPhone">Contato (Telefone)</label>
+                    <input type="text" id="supplierPhone" name="Phone" class="form-input" placeholder="(00) 00000-0000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="supplierEmail">Email</label>
+                    <input type="email" id="supplierEmail" name="Email" class="form-input" placeholder="contato@empresa.com">
+                </div>
             </div>
-            <div class="form-row">
-                <label class="full-width">Endereço:
-                    <input type="text" name="Address" placeholder="Rua, Número, Bairro, Cidade - Estado">
-                </label>
+
+            <div class="form-group">
+                <label class="form-label" for="supplierAddress">Endereço</label>
+                <input type="text" id="supplierAddress" name="Address" class="form-input" placeholder="Rua, Número, Bairro, Cidade - Estado">
             </div>
-            <button type="submit">Salvar Fornecedor</button>
+
+            <button type="submit" class="submit-btn">Salvar Fornecedor</button>
         </form>
     </div>
 
