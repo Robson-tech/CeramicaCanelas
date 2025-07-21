@@ -2,26 +2,19 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow-y: auto;
         }
 
         .login-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-            width: 800px;
-            max-width: 90%;
-            position: relative;
-        }
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    width: 800px;
+    max-width: 90%;
+    margin: 40px auto;
+    position: relative;
+}
+
 
         .header {
             background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
@@ -223,7 +216,7 @@
             height: 4px;
             background: #e9ecef;
             border-radius: 2px;
-            overflow: hidden;
+            
             margin-top: 5px;
         }
 
