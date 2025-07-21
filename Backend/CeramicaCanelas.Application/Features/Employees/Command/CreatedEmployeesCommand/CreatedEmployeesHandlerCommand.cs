@@ -12,7 +12,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployee
         private readonly ILogged _logged;
 
         // Caminho absoluto no servidor VPS onde as imagens dos funcionários serão salvas
-        private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
+        private const string PastaBaseVps = "/var/www/ceramicacanelas/almoxarifado/employees/images";
 
         // Caminho público que será exposto no navegador
         private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/employees/images/";
