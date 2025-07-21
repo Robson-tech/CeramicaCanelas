@@ -1,3 +1,4 @@
+/* Estilos base do sistema - Produtos */
 .container {
     width: 95%;
     max-width: 1400px;
@@ -6,21 +7,21 @@
 }
 
 /* Títulos e Cabeçalhos */
-h1, h2 {
+h1, h2, .form-title {
     color: #2c3e50;
     margin-bottom: 2rem;
     font-weight: 600;
     position: relative;
 }
 
-h2 {
+h2, .form-title {
     font-size: 1.8rem;
     padding-bottom: 0.8rem;
     border-bottom: 3px solid #e67e22;
     display: inline-block;
 }
 
-h2::after {
+h2::after, .form-title::after {
     content: '';
     position: absolute;
     bottom: -3px;
@@ -28,6 +29,15 @@ h2::after {
     width: 30%;
     height: 3px;
     background: linear-gradient(45deg, #e67e22, #f39c12);
+    border-radius: 2px;
+}
+
+/* Divisor de Seção */
+.section-divider {
+    border: none;
+    height: 2px;
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    margin: 3rem 0;
     border-radius: 2px;
 }
 
@@ -42,6 +52,10 @@ h2::after {
     margin-bottom: 3rem;
 }
 
+.product-form {
+    width: 100%;
+}
+
 .form-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -49,23 +63,25 @@ h2::after {
     margin-bottom: 1.5rem;
 }
 
+/* Labels do formulário */
 .form-row label {
     display: flex;
     flex-direction: column;
     font-weight: 500;
     color: #555;
-    position: relative;
-}
-
-.form-row label span {
-    margin-bottom: 0.5rem;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.form-input, 
-.form-row select, 
+.half-width {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Inputs do formulário */
+.form-row input,
+.form-row select,
 .form-row textarea {
     width: 100%;
     padding: 1rem;
@@ -74,10 +90,13 @@ h2::after {
     font-size: 1rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+    margin-top: 0.5rem;
+    box-sizing: border-box;
+    resize: vertical;
 }
 
-.form-input:focus, 
-.form-row select:focus, 
+.form-row input:focus,
+.form-row select:focus,
 .form-row textarea:focus {
     outline: none;
     border-color: #e67e22;
@@ -85,9 +104,39 @@ h2::after {
     transform: translateY(-2px);
 }
 
+/* Textarea específico */
 .form-row textarea {
-    resize: vertical;
     min-height: 100px;
+    font-family: inherit;
+}
+
+/* Input de arquivo específico */
+.form-row input[type="file"] {
+    padding: 0.8rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px dashed #e1e8ed;
+    transition: all 0.3s ease;
+}
+
+.form-row input[type="file"]:hover {
+    border-color: #e67e22;
+    background: rgba(230, 126, 34, 0.05);
+}
+
+.form-row input[type="file"]:focus {
+    border-style: solid;
+    transform: none;
+}
+
+/* Select customizado */
+.form-row select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+    padding-right: 3rem;
 }
 
 /* Botão de Submit */
@@ -105,6 +154,7 @@ button[type="submit"] {
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+    margin-top: 1rem;
 }
 
 button[type="submit"]:hover {
@@ -113,26 +163,18 @@ button[type="submit"]:hover {
     box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
 }
 
-/* Divisor de Seção */
-.section-divider {
-    border: none;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #bdc3c7, transparent);
-    margin: 4rem 0;
-}
-
 /* Barra de Filtros */
 .filter-bar {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
     align-items: end;
 }
 
@@ -141,47 +183,117 @@ button[type="submit"]:hover {
     flex-direction: column;
 }
 
-.filter-group label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.filter-group.large {
+    grid-column: span 2;
 }
 
+.filter-group.small {
+    min-width: 120px;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.filter-group .form-input,
 .filter-group input,
 .filter-group select {
     padding: 0.8rem;
     border: 2px solid #e1e8ed;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+    box-sizing: border-box;
 }
 
+.filter-group .form-input:focus,
 .filter-group input:focus,
 .filter-group select:focus {
     outline: none;
     border-color: #e67e22;
     box-shadow: 0 0 15px rgba(230, 126, 34, 0.3);
+    transform: translateY(-1px);
+}
+
+.filter-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 0.8rem;
+    padding-right: 2.5rem;
 }
 
 .filter-group-buttons {
     display: flex;
-    gap: 12px;
+    gap: 0.8rem;
+    align-items: end;
 }
 
-/* Tabela - CORREÇÃO APLICADA */
+/* Botões de Filtro */
+.search-btn, .btn-cancel {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.search-btn {
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    color: white;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+}
+
+.search-btn:hover {
+    background: linear-gradient(45deg, #d68910, #e67e22);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+}
+
+.btn-cancel {
+    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+    color: white;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.4);
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.6);
+}
+
+/* Container da Tabela */
 .table-container {
     overflow-x: auto;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    position: relative; /* Adicionado para controlar o contexto de empilhamento */
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    margin-bottom: 2rem;
 }
 
+.table-container h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+/* Tabela de Produtos */
 .results-table {
     width: 100%;
     border-collapse: collapse;
@@ -207,57 +319,48 @@ button[type="submit"]:hover {
     vertical-align: middle;
 }
 
-/* CORREÇÃO: Removido o transform do hover que causava o bug */
 .results-table tbody tr {
     transition: background-color 0.3s ease;
 }
 
 .results-table tbody tr:hover {
     background: rgba(230, 126, 34, 0.1);
-    /* Removido: transform: scale(1.01); - Isso causava o bug na scrollbar */
 }
 
-.product-table-img {
-    width: 60px;
-    height: 60px;
+/* Imagens na tabela */
+.results-table td img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
     object-fit: cover;
+    border: 2px solid #e67e22;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Placeholder para imagem padrão */
+.product-image-placeholder {
+    width: 50px;
+    height: 50px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.product-table-img:hover {
-    transform: scale(1.1);
-}
-
-/* Botões */
-.search-btn {
-    padding: 0.8rem 1.5rem;
-    font-weight: 600;
+    background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    background: linear-gradient(45deg, #e67e22, #f39c12);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: 2px solid #95a5a6;
 }
 
-.search-btn:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
-}
-
+/* Botões de Ação na Tabela */
 .actions-cell {
     display: flex;
     gap: 8px;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
-.btn-action, .btn-save, .btn-cancel {
+.btn-action, .btn-edit, .btn-delete, .btn-view {
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
@@ -268,6 +371,10 @@ button[type="submit"]:hover {
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-edit {
@@ -292,145 +399,74 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
 }
 
-.btn-save {
+.btn-view {
     background: linear-gradient(45deg, #2ecc71, #27ae60);
     box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 
-.btn-save:hover {
+.btn-view:hover {
     background: linear-gradient(45deg, #27ae60, #229954);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(46, 204, 113, 0.5);
 }
 
-.btn-cancel {
-    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-    box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
-}
-
-.btn-cancel:hover {
-    background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
-}
-
-/* Edição na Tabela */
-.edit-input {
-    width: 100%;
-    padding: 8px;
-    border: 2px solid #e67e22;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
-}
-
-.edit-input:focus {
-    outline: none;
-    box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
-}
-
 /* Paginação */
 .pagination-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    gap: 1rem;
     margin-top: 2rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.9);
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.pagination-btn {
-    padding: 10px 20px;
-    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
-    color: white;
+.pagination-controls button {
+    padding: 0.8rem 1.5rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    background: linear-gradient(45deg, #e67e22, #f39c12);
+    color: white;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
 }
 
-.pagination-btn:not(:disabled):hover {
-    background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
+.pagination-controls button:hover:not(:disabled) {
+    background: linear-gradient(45deg, #d68910, #e67e22);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
 }
 
-.pagination-btn:disabled {
-    background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+.pagination-controls button:disabled {
+    background: #bdc3c7;
     cursor: not-allowed;
-    opacity: 0.6;
+    box-shadow: none;
     transform: none;
 }
 
-.pagination-info {
-    font-weight: 600;
+.pagination-controls .page-info {
+    font-weight: 500;
     color: #555;
-    font-size: 1rem;
+    padding: 0 1rem;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .container {
-        width: 100%;
-        padding: 10px;
-    }
-    
-    .form-container {
-        padding: 1.5rem;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .filter-bar {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .filter-group-buttons {
-        justify-content: center;
-    }
-    
-    .results-table {
-        font-size: 0.8rem;
-    }
-    
-    .results-table th,
-    .results-table td {
-        padding: 0.5rem;
-    }
-    
-    .pagination-controls {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .actions-cell {
-        flex-direction: column;
-        gap: 4px;
-    }
+/* Estado de tabela vazia */
+.empty-table-message {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 3rem;
+    font-size: 1.1rem;
 }
 
-
-/* Melhorias de Acessibilidade */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-    outline: 3px solid rgba(230, 126, 34, 0.3);
-    outline-offset: 2px;
-}
-
-/* Scrollbar personalizada - MELHORADA */
+/* Scrollbar personalizada */
 .table-container::-webkit-scrollbar {
     width: 12px;
     height: 12px;
@@ -456,7 +492,7 @@ textarea:focus {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Scrollbar geral - para outros elementos */
+/* Scrollbar geral */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -474,4 +510,154 @@ textarea:focus {
 
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(45deg, #d68910, #e67e22);
+}
+
+/* Estados de Loading */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #e67e22;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Melhorias de Acessibilidade */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 3px solid rgba(230, 126, 34, 0.3);
+    outline-offset: 2px;
+}
+
+/* Validação de formulário */
+input:invalid,
+select:invalid,
+textarea:invalid {
+    border-color: #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+input:valid,
+select:valid,
+textarea:valid {
+    border-color: #2ecc71;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .form-container, .table-container, .filter-bar {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .filter-bar {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .filter-group.large {
+        grid-column: span 1;
+    }
+    
+    .filter-group-buttons {
+        justify-content: stretch;
+    }
+    
+    .search-btn, .btn-cancel {
+        flex: 1;
+    }
+    
+    .half-width {
+        min-width: auto;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .results-table {
+        font-size: 0.8rem;
+    }
+    
+    .results-table th,
+    .results-table td {
+        padding: 0.5rem;
+    }
+    
+    .results-table td img,
+    .product-image-placeholder {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .actions-cell {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-action, .btn-edit, .btn-delete, .btn-view {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .pagination-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-container, .table-container, .filter-bar {
+        padding: 1rem;
+    }
+    
+    .results-table th,
+    .results-table td {
+        padding: 0.3rem;
+    }
+    
+    .results-table td img,
+    .product-image-placeholder {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    button[type="submit"] {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    .search-btn, .btn-cancel {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
 }

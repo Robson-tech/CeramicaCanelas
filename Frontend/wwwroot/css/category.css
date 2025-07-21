@@ -1,4 +1,8 @@
-/* Estilos base do sistema */
+/* ======================================= */
+/* === CSS ESPECÍFICO PARA PÁGINA DE CATEGORIAS === */
+/* ======================================= */
+
+/* Estilos de Layout e Base (reutilizáveis) */
 .container {
     width: 95%;
     max-width: 1400px;
@@ -6,22 +10,18 @@
     padding: 20px;
 }
 
-/* Títulos e Cabeçalhos */
-h1, h2, .form-title {
+h2 {
     color: #2c3e50;
     margin-bottom: 2rem;
     font-weight: 600;
     position: relative;
-}
-
-h2, .form-title {
     font-size: 1.8rem;
     padding-bottom: 0.8rem;
     border-bottom: 3px solid #e67e22;
     display: inline-block;
 }
 
-h2::after, .form-title::after {
+h2::after {
     content: '';
     position: absolute;
     bottom: -3px;
@@ -32,7 +32,8 @@ h2::after, .form-title::after {
     border-radius: 2px;
 }
 
-/* Formulário de Cadastro */
+/* --- Formulário de Categoria --- */
+
 .form-container {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -43,49 +44,27 @@ h2::after, .form-title::after {
     margin-bottom: 3rem;
 }
 
-/* Formulários genéricos - funcionários, usuários e categorias */
-.employee-form,
-.user-form,
+/* ANTES: .data-form | AGORA: .category-form */
 .category-form {
     width: 100%;
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-/* Grupo de formulário para categorias e outros layouts simples */
 .form-group {
-    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
+    margin-bottom: 1.5rem;
 }
 
-/* Labels do formulário */
-.form-row label,
 .form-group label {
-    display: flex;
-    flex-direction: column;
     font-weight: 500;
     color: #555;
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
 }
 
-.half-width {
-    flex: 1;
-    min-width: 250px;
-}
-
-/* Inputs do formulário */
-.form-row input,
-.form-row select,
 .form-group input,
-.form-group select,
 .form-group textarea {
     width: 100%;
     padding: 1rem;
@@ -94,14 +73,11 @@ h2::after, .form-title::after {
     font-size: 1rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
-    margin-top: 0.5rem;
     box-sizing: border-box;
+    font-family: inherit;
 }
 
-.form-row input:focus,
-.form-row select:focus,
 .form-group input:focus,
-.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #e67e22;
@@ -109,60 +85,11 @@ h2::after, .form-title::after {
     transform: translateY(-2px);
 }
 
-/* Textarea específico */
 .form-group textarea {
-    min-height: 120px;
-    max-height: 300px;
     resize: vertical;
-    font-family: inherit;
-    line-height: 1.5;
+    min-height: 80px;
 }
 
-.form-group textarea:focus {
-    transform: none; /* Remove o translateY para textarea */
-}
-
-/* Input de arquivo específico */
-.form-row input[type="file"] {
-    padding: 0.8rem;
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px dashed #e1e8ed;
-    transition: all 0.3s ease;
-}
-
-.form-row input[type="file"]:hover {
-    border-color: #e67e22;
-    background: rgba(230, 126, 34, 0.05);
-}
-
-.form-row input[type="file"]:focus {
-    border-style: solid;
-    transform: none;
-}
-
-/* Inputs de senha específicos */
-.form-row input[type="password"] {
-    font-family: monospace;
-    letter-spacing: 2px;
-}
-
-.form-row input[type="password"]:focus {
-    letter-spacing: 2px;
-}
-
-/* Select customizado */
-.form-row select,
-.form-group select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
-    padding-right: 3rem;
-}
-
-/* Botão de Submit */
 button[type="submit"] {
     width: 100%;
     padding: 1rem;
@@ -186,14 +113,9 @@ button[type="submit"]:hover {
     box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
 }
 
-button[type="submit"]:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.2);
-}
 
-/* Container da Tabela */
+/* --- Tabela de Categorias --- */
+
 .table-container {
     overflow-x: auto;
     border-radius: 16px;
@@ -205,19 +127,14 @@ button[type="submit"]:disabled {
     padding: 2rem;
 }
 
-.table-container h2 {
-    margin-top: 0;
-    margin-bottom: 2rem;
-}
-
-/* Tabela de Funcionários */
-.employee-table {
+/* ANTES: .data-table | AGORA: .category-table */
+.category-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
 }
 
-.employee-table th {
+.category-table th {
     background: linear-gradient(135deg, #e67e22, #f39c12);
     color: white;
     padding: 1rem;
@@ -230,54 +147,25 @@ button[type="submit"]:disabled {
     z-index: 10;
 }
 
-.employee-table td {
+.category-table td {
     padding: 1rem;
     border-bottom: 1px solid rgba(224, 224, 224, 0.3);
     vertical-align: middle;
 }
 
-.employee-table tbody tr {
-    transition: background-color 0.3s ease;
-}
-
-.employee-table tbody tr:hover {
+.category-table tbody tr:hover {
     background: rgba(230, 126, 34, 0.1);
 }
 
-/* Imagens na tabela */
-.employee-table td img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #e67e22;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Placeholder para foto padrão */
-.employee-photo-placeholder {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, #bdc3c7, #95a5a6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    font-size: 1.2rem;
-    border: 2px solid #95a5a6;
-}
-
-/* Botões de Ação na Tabela */
+/* Célula e Botões de Ação (mantidos genéricos pois descrevem a ação) */
 .actions-cell {
     display: flex;
     gap: 8px;
-    justify-content: center;
+    justify-content: flex-start;
     flex-wrap: wrap;
 }
 
-.btn-action, .btn-edit, .btn-delete, .btn-view {
+.btn-edit, .btn-delete, .btn-view {
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
@@ -294,300 +182,64 @@ button[type="submit"]:disabled {
     justify-content: center;
 }
 
-.btn-edit {
-    background: linear-gradient(45deg, #3498db, #2980b9);
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-}
+.btn-edit { background: linear-gradient(45deg, #3498db, #2980b9); box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3); }
+.btn-edit:hover { background: linear-gradient(45deg, #2980b9, #1f618d); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5); }
 
-.btn-edit:hover {
-    background: linear-gradient(45deg, #2980b9, #1f618d);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
-}
+.btn-delete { background: linear-gradient(45deg, #e74c3c, #c0392b); box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3); }
+.btn-delete:hover { background: linear-gradient(45deg, #c0392b, #a93226); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5); }
 
-.btn-delete {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
-    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
-}
 
-.btn-delete:hover {
-    background: linear-gradient(45deg, #c0392b, #a93226);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
-}
+/* --- Validação, Acessibilidade e Responsividade --- */
 
-.btn-view {
-    background: linear-gradient(45deg, #2ecc71, #27ae60);
-    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
-}
-
-.btn-view:hover {
-    background: linear-gradient(45deg, #27ae60, #229954);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.5);
-}
-
-/* Estado de tabela vazia */
-.empty-table-message {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    padding: 3rem;
-    font-size: 1.1rem;
-}
-
-/* === ESTILOS ESPECÍFICOS PARA FORMULÁRIO DE USUÁRIO === */
-
-/* Mensagens de validação */
-.validation-message {
-    color: #e74c3c;
-    font-size: 0.75rem;
-    margin-top: 0.3rem;
-    display: none;
-    font-weight: normal;
-    text-transform: none;
-    letter-spacing: normal;
-}
-
-.validation-message.show {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Mensagem de sucesso */
-.success-message {
-    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.05));
-    color: #27ae60;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    border: 1px solid rgba(46, 204, 113, 0.3);
-    margin-bottom: 1.5rem;
-    display: none;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.1);
-}
-
-.success-message.show {
-    display: block;
-    animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Estados de validação para inputs */
-.form-row input.valid,
-.form-group input.valid,
-.form-group textarea.valid {
-    border-color: #2ecc71;
-    box-shadow: 0 0 15px rgba(46, 204, 113, 0.2);
-}
-
-.form-row input.invalid,
-.form-row select.invalid,
-.form-group input.invalid,
-.form-group select.invalid,
-.form-group textarea.invalid {
-    border-color: #e74c3c;
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.2);
-}
-
-/* Scrollbar personalizada */
-.table-container::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-}
-
-.table-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 6px;
-    margin: 2px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #e67e22, #f39c12);
-    border-radius: 6px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.table-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-}
-
-.table-container::-webkit-scrollbar-corner {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-/* Scrollbar geral */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, #e67e22, #f39c12);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-}
-
-/* Estados de Loading */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-    position: relative;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #e67e22;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Melhorias de Acessibilidade */
-button:focus,
-input:focus,
-select:focus {
-    outline: 3px solid rgba(230, 126, 34, 0.3);
-    outline-offset: 2px;
-}
-
-/* Validação de formulário */
-input:invalid:not(:focus):not(:placeholder-shown),
-textarea:invalid:not(:focus):not(:placeholder-shown) {
+input:invalid,
+textarea:invalid {
     border-color: #e74c3c;
     box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
 }
 
-input:valid:not(:focus):not(:placeholder-shown),
-textarea:valid:not(:focus):not(:placeholder-shown) {
+input:valid,
+textarea:valid {
     border-color: #2ecc71;
 }
 
-/* Responsividade */
+button:focus,
+input:focus,
+textarea:focus,
+a:focus {
+    outline: 3px solid rgba(230, 126, 34, 0.3);
+    outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
     .container {
-        width: 100%;
         padding: 10px;
     }
-    
     .form-container, .table-container {
         padding: 1.5rem;
-        margin-bottom: 2rem;
     }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .half-width {
-        min-width: auto;
-    }
-    
-    h2, .form-title {
+    h2 {
         font-size: 1.5rem;
     }
-    
-    .employee-table {
+    .category-table {
         font-size: 0.8rem;
     }
-    
-    .employee-table th,
-    .employee-table td {
-        padding: 0.5rem;
+    .category-table th,
+    .category-table td {
+        padding: 0.8rem 0.5rem;
     }
-    
-    .employee-table td img,
-    .employee-photo-placeholder {
-        width: 40px;
-        height: 40px;
-    }
-    
     .actions-cell {
         flex-direction: column;
-        gap: 4px;
+        align-items: flex-start;
+        gap: 6px;
     }
-    
-    .btn-action, .btn-edit, .btn-delete, .btn-view {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-    }
-    
-    /* Ajustes específicos para formulário de usuário no mobile */
-    .validation-message {
-        font-size: 0.7rem;
-    }
-    
-    .success-message {
-        padding: 0.8rem 1rem;
-        font-size: 0.9rem;
+    .btn-edit, .btn-delete, .btn-view {
+        width: 100%;
+        justify-content: center;
     }
 }
 
 @media (max-width: 480px) {
     .form-container, .table-container {
         padding: 1rem;
-    }
-    
-    .employee-table th,
-    .employee-table td {
-        padding: 0.3rem;
-    }
-    
-    .employee-table td img,
-    .employee-photo-placeholder {
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-    }
-    
-    button[type="submit"] {
-        padding: 0.8rem;
-        font-size: 1rem;
-    }
-    
-    .form-row label {
-        font-size: 0.8rem;
-    }
-    
-    .form-row input,
-    .form-row select {
-        padding: 0.8rem;
-        font-size: 0.9rem;
-    }
-    
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 0.8rem;
-        font-size: 0.9rem;
     }
 }
