@@ -1,6 +1,7 @@
 console.log('Script js/category.js DEFINIDO.');
 
 
+
 // =======================================================
 // INICIALIZAÇÃO DA PÁGINA
 // =======================================================
@@ -24,7 +25,8 @@ function initializeCategoryForm(form) {
 async function processAndSendCategoryData(form) {
     const formData = new FormData(form);
     if (!formData.get('Name')?.trim()) {
-        showErrorModal({ title: "Validação Falhou", detail: "O campo 'Nome da Categoria' é obrigatório." });
+        // MODIFICADO: Trocado showErrorModal por alert
+        alert("O campo 'Nome da Categoria' é obrigatório.");
         return;
     }
 
@@ -35,16 +37,19 @@ async function processAndSendCategoryData(form) {
             headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData,
         });
+
         if (response.ok) {
             alert('Categoria cadastrada com sucesso!');
             form.reset();
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json();
-            showErrorModal(errorData);
+            // MODIFICADO: Trocado showErrorModal por alert
+            alert(`Erro: ${errorData.title || errorData.detail || 'Não foi possível salvar a categoria.'}`);
         }
     } catch (error) {
-        showErrorModal({ title: "Erro de Conexão", detail: "Não foi possível comunicar com o servidor." });
+        // MODIFICADO: Trocado showErrorModal por alert
+        alert("Erro de Conexão: Não foi possível comunicar com o servidor.");
     }
 }
 
@@ -59,17 +64,40 @@ async function fetchAndRenderCategories() {
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        if (!response.ok) throw new Error('Falha ao buscar a lista de categorias.');
-        const categories = await response.json();
-        renderCategoryTable(categories, tableBody);
+
+        // <<< INÍCIO DA NOVA LÓGICA >>>
+
+        // Se a resposta for bem-sucedida (status 2xx), processa normalmente.
+        if (response.ok) {
+            const categories = await response.json();
+            renderCategoryTable(categories, tableBody);
+            return; // Encerra a função aqui.
+        }
+
+        // Se a resposta NÃO for bem-sucedida (status 4xx, 5xx), lemos o corpo do erro.
+        const errorData = await response.json();
+
+        // Verificamos se a mensagem de erro é a que esperamos para uma lista vazia.
+        if (errorData && errorData.message === "Não há categórias cadastradas.") {
+            // Se for, tratamos como um caso normal de lista vazia, sem exibir alerta.
+            console.log("API informou que não há categorias. Renderizando tabela vazia.");
+            renderCategoryTable([], tableBody);
+        } else {
+            // Se for qualquer outro erro, aí sim lançamos o erro para ser pego pelo catch.
+            throw new Error(errorData.message || `Erro ${response.status}`);
+        }
+        // <<< FIM DA NOVA LÓGICA >>>
+
     } catch (error) {
-        showErrorModal({ title: "Erro ao Listar", detail: error.message });
+        // Este bloco agora só captura erros de conexão ou erros inesperados da API.
+        alert(`Erro ao Listar: ${error.message}`);
         tableBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red;">${error.message}</td></tr>`;
     }
 }
 
 function renderCategoryTable(categories, tableBody) {
     tableBody.innerHTML = '';
+    // Esta parte já estava correta, exibindo a mensagem para lista vazia.
     if (!categories || categories.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Nenhuma categoria cadastrada.</td></tr>';
         return;
@@ -90,22 +118,26 @@ function renderCategoryTable(categories, tableBody) {
 }
 
 window.deleteCategory = async (categoryId) => {
-    if (!confirm('Tem certeza que deseja excluir esta categoria?')) return;
+    if (!confirm('Tem certeza que deseja excluir esta categoria? Esta ação não pode ser desfeita.')) return;
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/categories/${categoryId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
+
         if (response.ok) {
             alert('Categoria excluída com sucesso!');
             fetchAndRenderCategories();
         } else {
-            const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir" }));
-            showErrorModal(errorData);
+            const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir", detail: "A categoria pode estar associada a produtos." }));
+            // MODIFICADO: Trocado showErrorModal por alert
+            alert(`Erro: ${errorData.title}\nDetalhe: ${errorData.detail}`);
         }
     } catch (error) {
-        showErrorModal({ title: "Erro de Conexão", detail: error.message });
+        // MODIFICADO: Trocado showErrorModal por alert
+        alert(`Erro de Conexão: ${error.message}`);
     }
 };
 
@@ -123,37 +155,25 @@ window.editCategory = (category) => {
     `;
 };
 
-/**
- * Salva as alterações de uma categoria.
- * ATUALIZADO: Envia os dados como multipart/form-data.
- */
 window.saveCategoryChanges = async (categoryId) => {
     const row = document.getElementById(`row-category-${categoryId}`);
     if (!row) return;
 
-    // 1. Cria um objeto FormData
     const formData = new FormData();
-
-    // 2. Adiciona os campos com os nomes que a API espera
     formData.append('Id', categoryId);
     formData.append('Name', row.querySelector('[name="Name"]').value);
     formData.append('Description', row.querySelector('[name="Description"]').value);
 
-    // Validação
-    if (!formData.get('Name') || formData.get('Name').trim() === '') {
+    if (!formData.get('Name')?.trim()) {
         alert('O nome da categoria não pode estar em branco.');
         return;
     }
 
     try {
         const accessToken = localStorage.getItem('accessToken');
-        
-        // 3. Faz a requisição PUT, mas sem o 'Content-Type' e com o body sendo o formData
         const response = await fetch(`${API_BASE_URL}/categories`, {
             method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            },
+            headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData
         });
 
@@ -162,10 +182,12 @@ window.saveCategoryChanges = async (categoryId) => {
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar" }));
-            showErrorModal(errorData);
+            // MODIFICADO: Trocado showErrorModal por alert
+            alert(`Erro: ${errorData.title || 'Não foi possível atualizar a categoria.'}`);
         }
     } catch (error) {
-        showErrorModal({ title: "Erro de Conexão", detail: error.message });
+        // MODIFICADO: Trocado showErrorModal por alert
+        alert(`Erro de Conexão: ${error.message}`);
         cancelEditCategory(categoryId);
     }
 };
