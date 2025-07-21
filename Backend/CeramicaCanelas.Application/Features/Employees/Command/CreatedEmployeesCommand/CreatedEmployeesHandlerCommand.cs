@@ -15,7 +15,7 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployee
         private const string PastaBaseVps = "/var/www/ceramicacanelas/employees/images";
 
         // Caminho público que será exposto no navegador
-        private const string UrlBase = "https://api.ceramicacanelas.shop/employees/images/";
+        private const string UrlBase = "https://api.ceramicacanelas.shop/almoxarifado/employees/images/";
 
         public CreatedEmployeeCommandHandler(IEmployeesRepository employeeRepository, ILogged logged)
         {
