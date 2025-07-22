@@ -1,9 +1,7 @@
 console.log('Script js/usersys.js DEFINIDO.');
 
 
-// =======================================================
-// INICIALIZAÇÃO DA PÁGINA
-// =======================================================
+
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de usersys.js foi chamada.');
     const formElement = document.querySelector('.user-form');
@@ -11,9 +9,6 @@ function initDynamicForm() {
     fetchAndRenderUsers();
 }
 
-// =======================================================
-// LÓGICA DO FORMULÁRIO DE CADASTRO
-// =======================================================
 function initializeUserForm(userForm) {
     if (!userForm) return;
     userForm.onsubmit = (event) => {
@@ -24,13 +19,13 @@ function initializeUserForm(userForm) {
 
 async function processUserData(form) {
     const formData = new FormData(form);
-    const password = formData.get('password');
-    const passwordConfirmation = formData.get('passwordConfirmation');
+    const password = formData.get('Password');
+    const passwordConfirmation = formData.get('PasswordConfirmation');
     if (password !== passwordConfirmation) {
         showErrorModal({ title: "Validação Falhou", detail: "As senhas não coincidem."});
         return;
     }
-    const requiredFields = ['userName', 'name', 'email', 'password', 'role'];
+    const requiredFields = ['UserName', 'Name', 'Email', 'Password', 'Role'];
     for (const field of requiredFields) {
         if (!formData.get(field)) {
             showErrorModal({ title: "Validação Falhou", detail: "Por favor, preencha todos os campos obrigatórios."});
@@ -40,32 +35,51 @@ async function processUserData(form) {
     await sendUserData(formData, form);
 }
 
+/**
+ * Envia os dados para a API para criar um novo usuário.
+ * VERSÃO COM DEBUG DETALHADO.
+ */
 async function sendUserData(formData, form) {
     formData.delete('passwordConfirmation');
+    
+    // --- DEBUG: INÍCIO DOS DADOS ENVIADOS ---
+    console.log('%c--- DEBUG: DADOS A SEREM ENVIADOS PARA O CADASTRO DE USUÁRIO ---', 'color: purple; font-weight: bold;');
+    for (const [key, value] of formData.entries()) {
+        // Oculta a senha do log por segurança
+        if (key.toLowerCase() === 'password') {
+            console.log(`➡️ ${key}: "[SENHA OCULTA]"`);
+        } else {
+            console.log(`➡️ ${key}: "${value}"`);
+        }
+    }
+    console.log('%c-------------------- FIM DO DEBUG --------------------', 'color: purple; font-weight: bold;');
+    // --- FIM DO DEBUG ---
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const url = `${API_BASE_URL}/user`;
+        
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
+            headers: { 
+                'Authorization': `Bearer ${accessToken}`
+            },
             body: formData
         });
+
         if (response.ok) {
             alert('Usuário cadastrado com sucesso!');
             form.reset();
-            fetchAndRenderUsers();
+            fetchAndRenderUsers(); 
         } else {
             const errorData = await response.json().catch(() => ({ title: `Erro ${response.status}` }));
             showErrorModal(errorData);
         }
     } catch (error) {
+        console.error('❌ Erro na requisição:', error);
         showErrorModal({ title: "Erro de Conexão", detail: "Falha na comunicação com o servidor." });
     }
 }
-
-// =======================================================
-// LÓGICA DA TABELA DE LISTAGEM E EXCLUSÃO
-// =======================================================
 async function fetchAndRenderUsers() {
     const tableBody = document.querySelector('#user-list-body');
     if (!tableBody) return;
@@ -93,17 +107,22 @@ function renderUserTable(users, tableBody) {
         return;
     }
 
-    // ATUALIZADO: A função agora usa o 'userRolesMap'
-    const getRoleName = (roleId) => userRolesMap[roleId] || 'Desconhecido';
+    // A função getRoleName e o mapa userRolesMap não são mais necessários
+    // se a API já retorna os nomes dos papéis.
 
     users.forEach(user => {
+        // Junta os papéis do array em uma string separada por vírgula.
+        // Se o array não existir ou estiver vazio, exibe "Nenhum papel".
+        const rolesText = Array.isArray(user.roles) && user.roles.length > 0
+            ? user.roles.join(', ')
+            : 'Nenhum papel';
+
         const rowHTML = `
             <tr id="row-user-${user.id}">
                 <td>${user.userName}</td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
-                <td>${getRoleName(user.role)}</td>
-                <td class="actions-cell">
+                <td>${rolesText}</td> <td class="actions-cell">
                     <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">Excluir</button>
                 </td>
             </tr>`;
