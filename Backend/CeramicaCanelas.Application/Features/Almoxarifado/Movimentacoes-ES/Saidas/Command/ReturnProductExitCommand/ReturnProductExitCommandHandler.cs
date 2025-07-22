@@ -24,34 +24,40 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.R
             await ValidateReturnProductExit(request, cancellationToken);
 
             if (!exit.IsReturnable)
-                throw new InvalidOperationException("Este produto não é retornável.");
+                throw new BadRequestException("Este produto não é retornável.");
 
             if (exit.ReturnedQuantity >= exit.Quantity)
-                throw new InvalidOperationException("Todos os produtos já foram devolvidos.");
+                throw new BadRequestException("Todos os produtos já foram devolvidos.");
 
             if (request.QuantityReturned <= 0 || request.QuantityReturned + exit.ReturnedQuantity > exit.Quantity)
                 throw new BadRequestException("Quantidade devolvida inválida.");
 
-            var product = await _productRepository.GetProductByIdAsync(exit.ProductId);
-            if (product == null)
-                throw new BadRequestException("Produto não encontrado.");
+            var product = exit.ProductId != null
+                ? await _productRepository.GetProductByIdAsync(exit.ProductId.Value)
+                : null;
 
             // Atualiza o número de itens devolvidos
             exit.ReturnedQuantity += request.QuantityReturned;
+
             if (exit.ReturnedQuantity >= exit.Quantity)
             {
                 exit.IsReturned = true;
                 exit.ReturnDate = DateTime.UtcNow;
             }
 
-            product.StockCurrent += request.QuantityReturned;
-            product.ModifiedOn = DateTime.UtcNow;
-
-            await _productRepository.Update(product);
             await _exitRepository.Update(exit);
+
+            // Se o produto ainda existe, atualiza o estoque
+            if (product != null)
+            {
+                product.StockCurrent += request.QuantityReturned;
+                product.ModifiedOn = DateTime.UtcNow;
+                await _productRepository.Update(product);
+            }
 
             return Unit.Value;
         }
+
 
         public async Task ValidateReturnProductExit(ReturnProductExitCommand command, CancellationToken cancellationToken)
         {
