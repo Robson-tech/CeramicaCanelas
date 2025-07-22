@@ -25,60 +25,58 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
         {
             var user = await _logged.UserLogged();
             if (user == null)
-            {
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
-            }
-
-            var product = await _productRepository.GetProductByIdAsync(command.ProductId);
-
-            if (product == null)
-            {
-                throw new BadRequestException("Produto não encontrado");
-            }
-
-            var employee = await _employeesRepository.GetByIdAsync(command.EmployeeId);
-            if (employee == null)
-            {
-                throw new BadRequestException("Funcionário não encontrado");
-            }
 
             var productExit = await ValidateUpdateProductExit(command, cancellationToken);
 
-            //Desatalizando a movimentação anterior
-            product.StockCurrent += productExit.Quantity;
-            product.ModifiedOn = DateTime.UtcNow;
-            
-            await _productRepository.Update(product);
-
-            if (product.StockCurrent < command.Quantity)
+            // Reverte estoque anterior se o produto existir
+            if (productExit.ProductId != null)
             {
-                throw new BadRequestException("Quantidade em estoque insuficiente.");
+                var previousProduct = await _productRepository.GetProductByIdAsync(productExit.ProductId.Value);
+                if (previousProduct != null)
+                {
+                    previousProduct.StockCurrent += productExit.Quantity;
+                    previousProduct.ModifiedOn = DateTime.UtcNow;
+                    await _productRepository.Update(previousProduct);
+                }
             }
 
-            //Atualizando com os novos valores
-            productExit.NameProduct = product.Name;
-            productExit.EmployeeName = employee.Name;
-            productExit.NameOperator = user.Name;
-            productExit.ProductId = command.ProductId;
-            productExit.EmployeeId = command.EmployeeId;
+            // Pega o produto vinculado atual para verificar estoque
+            var product = productExit.ProductId != null ? await _productRepository.GetProductByIdAsync(productExit.ProductId.Value) : null;
+
+            if (product == null)
+            {
+                // Produto não existe mais, só atualiza movimentação sem mexer em estoque
+                productExit.ProductId = null; // opcional, pode manter também
+            }
+            else
+            {
+                // Verifica estoque para nova quantidade
+                if (product.StockCurrent < command.Quantity)
+                    throw new BadRequestException("Quantidade em estoque insuficiente.");
+
+                // Atualiza estoque com a nova quantidade de saída
+                product.StockCurrent -= command.Quantity;
+                product.ModifiedOn = DateTime.UtcNow;
+                await _productRepository.Update(product);
+            }
+
+            // Atualiza apenas os campos permitidos
             productExit.Quantity = command.Quantity;
-            productExit.Observation = command.Observation;
             productExit.IsReturnable = command.IsReturnable;
-            productExit.ExitDate = DateTime.UtcNow;
+            productExit.Observation = command.Observation;
+
+            // Atualiza os metadados
             productExit.ModifiedOn = DateTime.UtcNow;
-            productExit.IsReturned = false;
+            productExit.NameOperator = user.Name;
             productExit.UserId = user.Id;
 
             await _movExitProductRepository.Update(productExit);
 
-            // Atualiza o estoque do produto com os novos valores
-            product.StockCurrent -= command.Quantity;
-            product.ModifiedOn = DateTime.UtcNow;
-            await _productRepository.Update(product);
-
             return Unit.Value;
-
         }
+
+
 
         public async Task<Domain.Entities.ProductExit> ValidateUpdateProductExit(UpdateMovExitProdructsCommand command, CancellationToken cancellationToken)
         {

@@ -35,35 +35,54 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
             var user = await _logged.UserLogged();
 
             if (user == null)
-            {
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
-            }
 
             var movimentacaoES = await ValidateUpdateMovimentacaoES(command, cancellationToken);
 
-            // Atualiza o estoque do produto
-            var product = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId);
-            if (product == null)
+            // Desfaz o estoque antigo, se o produto ainda existir
+            if (movimentacaoES.ProductId != null)
             {
-                throw new BadRequestException("Produto não encontrado.");
+                var oldProduct = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId.Value);
+                if (oldProduct != null)
+                {
+                    oldProduct.StockCurrent -= movimentacaoES.Quantity;
+                    oldProduct.ValueTotal -= movimentacaoES.UnitPrice * movimentacaoES.Quantity;
+                    oldProduct.ModifiedOn = DateTime.UtcNow;
+                    await _productRepository.Update(oldProduct);
+                }
             }
 
+            // Busca o produto vinculado à movimentação
+            var product = movimentacaoES.ProductId != null
+                ? await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId.Value)
+                : null;
+
+            // Busca o fornecedor
             var supplier = await _supplierRepository.GetByIdAsync(command.SupplierId);
             if (supplier == null)
-            {
                 throw new BadRequestException("Fornecedor não encontrado.");
+
+            if (product != null)
+            {
+                movimentacaoES.ProductId = product.Id;
+                movimentacaoES.NameProduct = product.Name;
+                movimentacaoES.NameCategory = product.Category!.Name;
+
+                // Atualiza estoque com os novos valores
+                product.StockCurrent += command.Quantity;
+                product.ValueTotal += command.UnitPrice * command.Quantity;
+                product.ModifiedOn = DateTime.UtcNow;
+                await _productRepository.Update(product);
+            }
+            // 👉 Se o produto não existir mais:
+            // - mantém NameProduct e NameCategory já existentes
+            // - apenas zera o ProductId (se quiser)
+            else
+            {
+                movimentacaoES.ProductId = null;
             }
 
-            //Desatalizando a movimentação anterior
-            product.StockCurrent -= movimentacaoES.Quantity;
-            product.ValueTotal -= movimentacaoES.UnitPrice * movimentacaoES.Quantity;
-            await _productRepository.Update(product);
-
-
-            //Atualizando com os novos valores
-            movimentacaoES.ProductId = movimentacaoES.ProductId;
-            movimentacaoES.NameCategory = product.Category!.Name;
-            movimentacaoES.NameProduct = product.Name;
+            // Atualiza a movimentação com os novos dados
             movimentacaoES.SupplierId = command.SupplierId;
             movimentacaoES.NameSupplier = supplier.Name;
             movimentacaoES.Quantity = command.Quantity;
@@ -71,41 +90,28 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
             movimentacaoES.ModifiedOn = DateTime.UtcNow;
             movimentacaoES.UserId = user.Id;
             movimentacaoES.NameOperator = user.Name;
-            await _movimentacaoESRepository.Update(movimentacaoES);
 
-            // Atualiza o estoque do produto com os novos valores
-            product.StockCurrent += command.Quantity;
-            product.ValueTotal += command.UnitPrice * command.Quantity;
-            product.ModifiedOn = DateTime.UtcNow;
-            await _productRepository.Update(product);
+            await _movimentacaoESRepository.Update(movimentacaoES);
 
             return Unit.Value;
         }
 
+
         private async Task<Domain.Entities.ProductEntry> ValidateUpdateMovimentacaoES(UpdateMovEntradasProductsCommand command, CancellationToken cancellationToken)
         {
-            var movimentacaoES = await _movimentacaoESRepository.GetByIdAsync(command.Id);
-            if (movimentacaoES == null)
-            {
-                throw new BadRequestException("Movimentação de entrada não encontrada.");
-            }
-
-            var product = await _productRepository.GetProductByIdAsync(movimentacaoES.ProductId);
-            if (product == null)
-            {
-                throw new BadRequestException("Produto não encontrado.");
-            }
-
             var validator = new UpdateMovEntradasProductsCommandValidator();
             var validationResult = await validator.ValidateAsync(command, cancellationToken);
 
             if (!validationResult.IsValid)
-            {
                 throw new BadRequestException(validationResult);
-            }
+
+            var movimentacaoES = await _movimentacaoESRepository.GetByIdAsync(command.Id);
+            if (movimentacaoES == null)
+                throw new BadRequestException("Movimentação de entrada não encontrada.");
 
             return movimentacaoES;
         }
+
 
     }
 }
