@@ -362,6 +362,11 @@ h2::after, .form-title::after {
     border: 1px solid rgba(224, 224, 224, 0.3);
     box-shadow: none;
     padding: 1rem;
+    /* Estilos específicos para alinhamento dos campos na modal de produtos */
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: end;
 }
 
 .filter-group {
@@ -392,6 +397,9 @@ h2::after, .form-title::after {
     font-size: 1rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+    /* Altura fixa para alinhamento */
+    height: 3rem;
+    box-sizing: border-box;
 }
 
 .filter-group input:focus,
@@ -405,6 +413,25 @@ h2::after, .form-title::after {
     display: flex;
     align-items: flex-end;
     gap: 0.5rem;
+}
+
+/* Estilos específicos para a modal de produtos para garantir alinhamento */
+#productSearchModal .modal-filter-bar .filter-group input,
+#productSearchModal .modal-filter-bar .filter-group select {
+    height: 3rem;
+    padding: 0.8rem;
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+#productSearchModal .modal-filter-bar .search-btn {
+    height: 3rem;
+    padding: 0 1.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Modal */
@@ -640,6 +667,11 @@ textarea:focus {
     
     .filter-bar {
         flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .filter-bar.modal-filter-bar {
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
     
