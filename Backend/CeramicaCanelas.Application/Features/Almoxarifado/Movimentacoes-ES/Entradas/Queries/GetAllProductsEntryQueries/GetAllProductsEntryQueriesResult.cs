@@ -20,8 +20,8 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries
 
         public GetAllProductsEntryQueriesResult(CeramicaCanelas.Domain.Entities.ProductEntry productEntry)
         {
-            NameProduct = productEntry.Product.Name;
-            DescriptionProduct = productEntry.Product.Observation ?? string.Empty;
+            NameProduct = productEntry.Product?.Name ?? "Produto não encontrado";
+            DescriptionProduct = productEntry.Product?.Observation ?? string.Empty;
             EntryDate = productEntry.EntryDate;
             NameOperator = productEntry.User.Name;
             Quantity = productEntry.Quantity;
