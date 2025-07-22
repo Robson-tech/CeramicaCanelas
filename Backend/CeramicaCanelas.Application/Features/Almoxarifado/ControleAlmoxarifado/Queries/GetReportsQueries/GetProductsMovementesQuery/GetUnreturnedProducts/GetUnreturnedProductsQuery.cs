@@ -11,7 +11,13 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+
         public string? Search { get; set; }
         public Guid? CategoryId { get; set; }
+
+        public string? EmployeeName { get; set; } // Filtro por nome do funcionário
+        public DateTime? StartDate { get; set; } // Filtro "De"
+        public DateTime? EndDate { get; set; } // Filtro "Até"
     }
+
 }
