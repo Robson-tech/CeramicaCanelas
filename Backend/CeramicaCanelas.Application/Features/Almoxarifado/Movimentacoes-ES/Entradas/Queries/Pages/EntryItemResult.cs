@@ -17,8 +17,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
 
         public EntryItemResult(Domain.Entities.ProductEntry entry)
         {
-            ProductName = entry.Product.Name;
-            CategoryName = entry.Product.Category.Name ?? "Produto não encontrado";
+            ProductName = entry.Product?.Name ?? "Produto não encontrado";
+            CategoryName = entry.Product?.Category?.Name ?? "Produto não encontrado";
             UnitPrice = entry.UnitPrice ;
             Quantity = entry.Quantity;
             EntryDate = entry.EntryDate;
