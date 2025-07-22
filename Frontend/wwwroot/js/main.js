@@ -1,8 +1,8 @@
 // =======================================================
 // VARIÁVEIS E CONSTANTES GLOBAIS DA APLICAÇÃO
 // =======================================================
- const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
-//const API_BASE_URL = 'http://localhost:5087/api';
+//  const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
+const API_BASE_URL = 'http://localhost:5087/api';
 
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
@@ -35,6 +35,12 @@ const positionMap = {
     13: 'Auxiliar de Estoque'
 };
 
+// NOVO: Mapa para traduzir os números das funções para texto
+const userRolesMap = {
+    0: 'Admin',
+    1: 'Customer',
+    2: 'Viewer'
+};
 
 // Função utilitária global
 const getPositionName = (positionId) => positionMap[positionId] || 'Desconhecido';
@@ -109,4 +115,25 @@ function loadForm(formName) {
             console.error('💥 Erro no processo de loadForm:', error);
             container.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
         });
+}
+function showErrorModal(errorData) {
+    const modal = document.getElementById('errorModal');
+    if (!modal) {
+        // Alternativa caso a modal não exista no HTML
+        alert((errorData.title || "Erro") + "\n\n" + (errorData.detail || "Ocorreu um erro."));
+        return;
+    }
+
+    const titleElement = document.getElementById('errorModalTitle');
+    const detailElement = document.getElementById('errorModalDetail');
+    const closeBtn = document.getElementById('errorModalCloseBtn');
+
+    titleElement.textContent = errorData.title || 'Erro Inesperado';
+    detailElement.textContent = errorData.detail || 'Não foram fornecidos mais detalhes pelo servidor.';
+    modal.style.display = 'block';
+
+    closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => {
+        if (event.target == modal) modal.style.display = 'none';
+    };
 }
