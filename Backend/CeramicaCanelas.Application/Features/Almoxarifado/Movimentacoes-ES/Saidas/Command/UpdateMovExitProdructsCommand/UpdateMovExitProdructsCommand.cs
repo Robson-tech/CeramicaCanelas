@@ -10,8 +10,6 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
     public class UpdateMovExitProdructsCommand : IRequest<Unit>
     {
         public Guid Id { get; set; }
-        public Guid ProductId { get; set; }
-        public Guid EmployeeId { get; set; }
         public int Quantity { get; set; }
         public bool IsReturnable { get; set; }
         public string? Observation { get; set; }
