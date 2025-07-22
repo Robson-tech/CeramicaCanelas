@@ -26,7 +26,10 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                     e.IsReturnable &&
                     e.Quantity > e.ReturnedQuantity &&
                     (string.IsNullOrEmpty(request.Search) || e.Product.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) &&
-                    (!request.CategoryId.HasValue || e.Product.CategoryId == request.CategoryId.Value)
+                    (!request.CategoryId.HasValue || e.Product.CategoryId == request.CategoryId.Value) &&
+                    (string.IsNullOrEmpty(request.EmployeeName) || e.EmployeeName.Contains(request.EmployeeName, StringComparison.OrdinalIgnoreCase)) &&
+                    (!request.StartDate.HasValue || e.ExitDate.Date >= request.StartDate.Value.Date) &&
+                    (!request.EndDate.HasValue || e.ExitDate.Date <= request.EndDate.Value.Date)
                 )
                 .OrderByDescending(e => e.ExitDate)
                 .Skip((request.Page - 1) * request.PageSize)
@@ -45,5 +48,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 
             return filtered;
         }
+
     }
 }
