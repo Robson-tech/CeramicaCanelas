@@ -33,8 +33,9 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                 .Take(request.PageSize)
                 .Select(e => new GetUnreturnedProductsResult
                 {
-                    ProductName = e.Product.Name,
-                    EmployeeName = e.Employee.Name,
+                    Id = e.Id,
+                    ProductName = e.NameProduct,
+                    EmployeeName = e.EmployeeName,
                     QuantityRetirada = e.Quantity,
                     QuantityDevolvida = e.ReturnedQuantity,
                     QuantityPendente = e.Quantity - e.ReturnedQuantity,
