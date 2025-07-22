@@ -29,22 +29,30 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.D
             {
                 throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
+
             var productExit = await _movExitProductRepository.GetByIdAsync(command.Id);
             if (productExit == null)
             {
                 throw new BadRequestException("Movimentação de saída não encontrada.");
             }
-            // Atualiza o estoque do produto
-            var product = await _productRepository.GetProductByIdAsync(productExit.ProductId);
-            if (product == null)
+
+            // Verifica se há produto vinculado
+            if (productExit.ProductId != null)
             {
-                throw new BadRequestException("Produto não encontrado.");
+                var product = await _productRepository.GetProductByIdAsync(productExit.ProductId.Value);
+                if (product != null)
+                {
+                    // Reverte a saída no estoque
+                    product.StockCurrent += productExit.Quantity;
+                    product.ModifiedOn = DateTime.UtcNow;
+                    await _productRepository.Update(product);
+                }
             }
-            product.StockCurrent += productExit.Quantity;
-            product.ModifiedOn = DateTime.UtcNow;
-            await _productRepository.Update(product);
+
+            // Exclui a movimentação de saída
             await _movExitProductRepository.Delete(productExit);
             return Unit.Value;
         }
+
     }
 }

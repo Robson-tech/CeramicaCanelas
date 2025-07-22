@@ -56,6 +56,9 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.U
             }
 
             //Atualizando com os novos valores
+            productExit.NameProduct = product.Name;
+            productExit.EmployeeName = employee.Name;
+            productExit.NameOperator = user.Name;
             productExit.ProductId = command.ProductId;
             productExit.EmployeeId = command.EmployeeId;
             productExit.Quantity = command.Quantity;

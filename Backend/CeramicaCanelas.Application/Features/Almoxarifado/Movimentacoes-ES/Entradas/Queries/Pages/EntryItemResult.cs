@@ -8,8 +8,10 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
 {
     public class EntryItemResult
     {
+        public Guid Id { get; set; } 
         public string ProductName { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
+        public string SupplierName { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public float UnitPrice { get; set; }
         public DateTime EntryDate { get; set; }
@@ -17,12 +19,14 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
 
         public EntryItemResult(Domain.Entities.ProductEntry entry)
         {
-            ProductName = entry.Product?.Name ?? "Produto não encontrado";
-            CategoryName = entry.Product?.Category?.Name ?? "Produto não encontrado";
+            Id = entry.Id;
+            ProductName = entry.NameProduct ?? "Produto não encontrado";
+            CategoryName = entry.NameCategory ?? "Produto desconhecido";
+            SupplierName = entry.NameSupplier ?? "Fornecedor não encontrado";
             UnitPrice = entry.UnitPrice ;
             Quantity = entry.Quantity;
             EntryDate = entry.EntryDate;
-            InsertedBy = entry.User?.UserName ?? "Desconhecido";
+            InsertedBy = entry.NameOperator ?? "Desconhecido";
         }
     }
 }
