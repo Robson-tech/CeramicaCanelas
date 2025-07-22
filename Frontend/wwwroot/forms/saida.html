@@ -12,7 +12,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Observação (Opcional)</label>
-                <textarea id="observation" name="Observation" class="form-input" rows="2"></textarea>
+                <textarea id="observation" name="Observation" class="form-input" rows="2" placeholder="Observação geral para todos os itens desta saída..."></textarea>
             </div>
             <hr class="form-divider">
             <div class="form-group">
@@ -65,7 +65,9 @@
                     <th>Quantidade</th>
                     <th>Data</th>
                     <th>Devolvível</th>
+                    <th>Observação</th>
                     <th>Operador</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody id="historyTbody"></tbody>
@@ -73,7 +75,6 @@
     </div>
     <div id="historyPaginationControls" class="pagination-controls"></div>
 </div>
-
 
 <div id="productSearchModal" class="modal">
     <div class="modal-content">
@@ -129,5 +130,4 @@
         <div id="modalEmployeePaginationControls" class="pagination-controls"></div>
     </div>
 </div>
-
 <link rel="stylesheet" href="/css/saida.css">
