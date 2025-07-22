@@ -79,7 +79,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                 return new GetProductReportResult
                 {
                     ProductName = product.Name,
-                    CategoryName = product.Category?.Name ?? "",
+                    CategoryName = product.Category?.Name ?? "Categoria não encontrada",
                     StockCurrent = product.StockCurrent,
                     StockMinimum = product.StockMinium,
                     TotalEntries = totalEntradas,

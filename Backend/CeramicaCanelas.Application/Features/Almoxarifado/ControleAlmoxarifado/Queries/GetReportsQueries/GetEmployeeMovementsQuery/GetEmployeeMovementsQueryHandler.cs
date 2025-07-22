@@ -32,8 +32,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                 .Take(request.PageSize)
                 .Select(x => new GetEmployeeMovementsResult
                 {
-                    EmployeeName = x.Employee.Name,
-                    ProductName = x.Product.Name,
+                    EmployeeName = x.EmployeeName,
+                    ProductName = x.NameProduct,
                     QuantityRetirada = x.Quantity,
                     QuantityDevolvida = x.ReturnedQuantity,
                     QuantityPendente = x.IsReturnable ? x.Quantity - x.ReturnedQuantity : 0,

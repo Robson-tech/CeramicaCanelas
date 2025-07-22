@@ -8,6 +8,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 {
     public class GetUnreturnedProductsResult
     {
+        public Guid Id { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public string EmployeeName { get; set; } = string.Empty;
         public int QuantityRetirada { get; set; }
