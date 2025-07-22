@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Funcionários</title>
-    <link rel="stylesheet" href="/css/employees.css" />
-</head>
-<body>
 
 <div class="container">
     <h2>Cadastro de Funcionário</h2>
@@ -48,7 +39,7 @@
         </form>
     </div>
 
-    <div class="filter-bar">
+    <form id="filter-form" class="filter-bar">
         <div class="filter-group large">
             <label for="search-filter">Buscar por Nome ou CPF</label>
             <input type="text" id="search-filter" class="form-input" placeholder="Digite para buscar...">
@@ -73,8 +64,7 @@
             <button type="submit" id="apply-filters-btn" class="search-btn">Filtrar</button>
             <button type="button" id="clear-filters-btn" class="btn-cancel">Limpar</button>
         </div>
-    </div>
-
+    </form>
     <div class="table-container">
         <h2>Funcionários Cadastrados</h2>
         <table class="employee-table">
@@ -88,9 +78,9 @@
                 </tr>
             </thead>
             <tbody id="employee-table-body">
-                </tbody>
+            </tbody>
         </table>
     </div>
 </div>
 
-<link rel="stylesheet" href="/css/employees.css" />
+<link rel="stylesheet" href="/css/employees.css">
