@@ -3,13 +3,14 @@
 // =======================================================
 const API_BASE_URL = 'https://api.ceramicacanelas.shop/api';
 //const API_BASE_URL = 'http://localhost:5087/api';
-
+let historyItemsCache = []; // Cache para os dados do histórico
 // Objetos para guardar o estado original da linha durante a edição
 const originalRowHTML_Product = {};
 const originalRowHTML_Employee = {};
 const originalRowHTML_Category = {};
 const originalRowHTML_Supplier = {};
 // Utiliza as variáveis globais de main.js
+const originalHistoryRowHTML = {}; // Objeto para a edição na tabela de histórico
 
 let currentEmployeePage = 1;
 const originalEntryRowHTML = {}; 

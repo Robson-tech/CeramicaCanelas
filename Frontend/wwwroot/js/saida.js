@@ -2,9 +2,6 @@ console.log('Script js/saida.js DEFINIDO.');
 
 
 
-// =======================================================
-// INICIALIZAÇÃO PRINCIPAL
-// =======================================================
 
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de saida.js foi chamada.');
@@ -12,8 +9,7 @@ function initDynamicForm() {
     initializeProductModal();
     initializeEmployeeModal();
     initializeHistoryFilters();
-
-    // Carrega as categorias no filtro do histórico e, em seguida, busca os registros.
+    initializeHistoryTableListeners();
     loadProductCategories(document.getElementById('historyCategoryFilter'), 'Todas as Categorias')
         .then(() => {
             fetchAndRenderHistory(1);
@@ -23,7 +19,6 @@ function initDynamicForm() {
 // =======================================================
 // LÓGICA DO FORMULÁRIO DE SAÍDA (CARRINHO)
 // =======================================================
-
 function initializeExitForm() {
     const exitForm = document.getElementById('productExitForm');
     if (!exitForm) return;
@@ -131,9 +126,11 @@ function checkPlaceholder() {
     if(!tbody) return;
     const placeholder = document.getElementById('placeholder-row');
     if (placeholder && tbody.querySelectorAll('tr:not(#placeholder-row)').length > 0) {
-        placeholder.remove();
+        placeholder.style.display = 'none';
     } else if (!placeholder && tbody.children.length === 0) {
         tbody.innerHTML = '<tr id="placeholder-row"><td colspan="4" style="text-align: center; color: #888;">Nenhum produto adicionado.</td></tr>';
+    } else if (placeholder) {
+        placeholder.style.display = 'table-row';
     }
 }
 
@@ -151,7 +148,6 @@ function initializeProductModal() {
     openBtn.addEventListener('click', () => { 
         currentProductModalPage = 1;
         modal.style.display = 'block'; 
-        // Carrega as categorias no filtro da modal e depois busca os produtos
         loadProductCategories(modal.querySelector('#modalProductCategoryFilter'), 'Todas as Categorias')
             .then(() => fetchPaginatedProducts(1));
     });
@@ -194,7 +190,7 @@ async function fetchPaginatedProducts(page) {
         
         const data = await response.json();
         const tableHTML = (data.items && data.items.length > 0) 
-            ? `<table class="results-table"><thead><tr><th>Nome</th><th>Estoque</th><th>Ação</th></tr></thead><tbody>${data.items.map(p => `<tr><td>${p.name}</td><td>${p.stockCurrent || 0}</td><td><button type="button" class="btn-select-product" data-product='${JSON.stringify(p)}'>Selecionar</button></td></tr>`).join('')}</tbody></table>`
+            ? `<table class="results-table"><thead><tr><th>Nome</th><th>Estoque</th><th>Ação</th></tr></thead><tbody>${data.items.map(p => `<tr><td>${p.name}</td><td>${p.stockCurrent || 0}</td><td><button type="button" class="btn-action btn-select-product" data-product='${JSON.stringify(p)}'>Selecionar</button></td></tr>`).join('')}</tbody></table>`
             : `<p>Nenhum produto encontrado.</p>`;
         resultsContainer.innerHTML = tableHTML;
         
@@ -214,13 +210,16 @@ function renderProductModalPagination(paginationData) {
 
     const hasPreviousPage = paginationData.page > 1;
     const hasNextPage = paginationData.page < paginationData.totalPages;
+    
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = !hasPreviousPage;
     prevButton.addEventListener('click', () => fetchPaginatedProducts(paginationData.page - 1));
+    
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
+    
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
@@ -251,7 +250,7 @@ function initializeEmployeeModal() {
     });
     if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
     if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
-
+    
     modal.querySelector('#modalEmployeeResultsContainer').addEventListener('click', (event) => {
         if (event.target.classList.contains('btn-select-employee')) {
             document.getElementById('employeeId').value = event.target.dataset.id;
@@ -275,8 +274,12 @@ function populatePositionFilter(selectElement) {
 async function fetchPaginatedEmployees(page = 1) {
     currentEmployeeModalPage = page;
     const resultsContainer = document.getElementById('modalEmployeeResultsContainer');
+    const paginationContainer = document.getElementById('modalEmployeePaginationControls');
     if (!resultsContainer) return;
+    
     resultsContainer.innerHTML = '<p>Buscando...</p>';
+    paginationContainer.innerHTML = '';
+    
     try {
         const accessToken = localStorage.getItem('accessToken');
         const search = document.getElementById('modalEmployeeSearchInput')?.value;
@@ -284,62 +287,94 @@ async function fetchPaginatedEmployees(page = 1) {
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
         if (position) params.append('Positions', position);
-        const url = `${API_BASE_URL}/employees/paged?${params.toString()}`;
+        const url = `${API_BASE_URL}/employees/pages?${params.toString()}`;
+        
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar funcionários (Status: ${response.status})`);
+        
         const paginatedData = await response.json();
         renderEmployeeModalResults(paginatedData.items);
         renderEmployeeModalPagination(paginatedData);
     } catch (error) {
         resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
-        document.getElementById('modalEmployeePaginationControls').innerHTML = '';
     }
 }
 
 function renderEmployeeModalResults(employees) {
     const container = document.getElementById('modalEmployeeResultsContainer');
-    if (!employees || employees.length === 0) { container.innerHTML = '<p>Nenhum funcionário encontrado.</p>'; return; }
+    if (!employees || employees.length === 0) { 
+        container.innerHTML = '<p>Nenhum funcionário encontrado.</p>'; 
+        return; 
+    }
     const tableHTML = `<table class="results-table"><thead><tr><th>Nome</th><th>Cargo</th><th>Ação</th></tr></thead>
-        <tbody>${employees.map(e => `<tr><td>${e.name}</td><td>${getPositionName(e.positions)}</td><td><button type="button" class="btn-select-employee" data-id="${e.id}" data-name="${e.name}">Selecionar</button></td></tr>`).join('')}</tbody>
+        <tbody>${employees.map(e => `<tr><td>${e.name}</td><td>${getPositionName(e.positions)}</td><td><button type="button" class="btn-action btn-select-employee" data-id="${e.id}" data-name="${e.name}">Selecionar</button></td></tr>`).join('')}</tbody>
     </table>`;
     container.innerHTML = tableHTML;
 }
 
 function renderEmployeeModalPagination(paginationData) {
     const controlsContainer = document.getElementById('modalEmployeePaginationControls');
-    if (!controlsContainer) return;
-    controlsContainer.innerHTML = '';
-    if (paginationData.totalPages <= 1) return;
+    if (!controlsContainer || paginationData.totalPages <= 1) {
+        if(controlsContainer) controlsContainer.innerHTML = '';
+        return;
+    }
+    
     const page = paginationData.page;
     const totalPages = paginationData.totalPages;
+    
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = page <= 1;
     prevButton.addEventListener('click', () => fetchPaginatedEmployees(page - 1));
+    
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${page} de ${totalPages}`;
-    pageInfo.className = 'pagination-info';
+    
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = page >= totalPages;
     nextButton.addEventListener('click', () => fetchPaginatedEmployees(page + 1));
+    
+    controlsContainer.innerHTML = '';
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
     controlsContainer.appendChild(nextButton);
 }
 
-
 // =======================================================
-// LÓGICA DO HISTÓRICO DE SAÍDAS
+// LÓGICA DO HISTÓRICO DE SAÍDAS (COM CRUD)
 // =======================================================
 function initializeHistoryFilters() {
-    document.getElementById('historyFilterBtn')?.addEventListener('click', () => fetchAndRenderHistory(1));
-    document.getElementById('historyClearFilterBtn')?.addEventListener('click', () => {
+    const filterBtn = document.getElementById('historyFilterBtn');
+    const clearBtn = document.getElementById('historyClearFilterBtn');
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderHistory(1));
+    if(clearBtn) clearBtn.addEventListener('click', () => {
         document.getElementById('historySearchInput').value = '';
         document.getElementById('historyCategoryFilter').value = '';
         fetchAndRenderHistory(1);
+    });
+}
+
+function initializeHistoryTableListeners() {
+    const tableBody = document.getElementById('historyTbody');
+    if (!tableBody) return;
+    tableBody.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.classList.contains('btn-delete')) {
+            event.preventDefault();
+            const exitId = target.dataset.id;
+            deleteHistoryItem(exitId);
+        }
+        if (target.classList.contains('btn-edit')) {
+            event.preventDefault();
+            const exitId = target.dataset.id;
+            const item = historyItemsCache.find(i => i.id === exitId);
+            if (item) {
+                editHistoryItem(item);
+            }
+        }
     });
 }
 
@@ -347,7 +382,7 @@ async function fetchAndRenderHistory(page = 1) {
     currentHistoryPage = page;
     const tableBody = document.getElementById('historyTbody');
     if (!tableBody) return;
-    tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Buscando histórico...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Buscando histórico...</td></tr>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         const search = document.getElementById('historySearchInput')?.value;
@@ -356,14 +391,17 @@ async function fetchAndRenderHistory(page = 1) {
         if (search) params.append('Search', search);
         if (categoryId) params.append('CategoryId', categoryId);
         const url = `${API_BASE_URL}/products-exit/paged?${params.toString()}`;
+        
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar histórico (Status: ${response.status})`);
+        
         const paginatedData = await response.json();
+        historyItemsCache = paginatedData.items;
         renderHistoryTable(paginatedData.items);
         renderHistoryPagination(paginatedData);
     } catch (error) {
         showErrorModal({ title: "Erro ao Listar Histórico", detail: error.message });
-        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">${error.message}</td></tr>`;
         document.getElementById('historyPaginationControls').innerHTML = '';
     }
 }
@@ -372,20 +410,26 @@ function renderHistoryTable(items) {
     const tableBody = document.getElementById('historyTbody');
     tableBody.innerHTML = '';
     if (!items || items.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum registro de saída encontrado.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro de saída encontrado.</td></tr>';
         return;
     }
     items.forEach(item => {
         const exitDate = new Date(item.exitDate).toLocaleDateString('pt-BR');
         const isReturnableText = item.isReturnable ? 'Sim' : 'Não';
         const row = document.createElement('tr');
+        row.id = `row-history-${item.id}`;
         row.innerHTML = `
-            <td>${item.productName || 'N/A'}</td>
-            <td>${item.employeeName || 'N/A'}</td>
-            <td>${item.quantity}</td>
-            <td>${exitDate}</td>
-            <td>${isReturnableText}</td>
-            <td>${item.insertedBy || 'N/A'}</td>
+            <td data-field="productName">${item.productName || 'N/A'}</td>
+            <td data-field="employeeName">${item.employeeName || 'N/A'}</td>
+            <td data-field="quantity">${item.quantity}</td>
+            <td data-field="exitDate">${exitDate}</td>
+            <td data-field="isReturnable">${isReturnableText}</td>
+            <td data-field="observation" style="max-width: 200px; white-space: pre-wrap; word-break: break-word;">${item.observation || ''}</td>
+            <td data-field="insertedBy">${item.insertedBy || 'N/A'}</td>
+            <td class="actions-cell" data-field="actions">
+                <button class="btn-action btn-edit" data-id="${item.id}">Editar</button>
+                <button class="btn-action btn-delete" data-id="${item.id}">Excluir</button>
+            </td>
         `;
         tableBody.appendChild(row);
     });
@@ -393,28 +437,127 @@ function renderHistoryTable(items) {
 
 function renderHistoryPagination(paginationData) {
     const controlsContainer = document.getElementById('historyPaginationControls');
-    if (!controlsContainer) return;
-    controlsContainer.innerHTML = '';
-    if (!paginationData.totalPages || paginationData.totalPages <= 1) return;
+    if (!controlsContainer || !paginationData.totalPages || paginationData.totalPages <= 1) {
+        if(controlsContainer) controlsContainer.innerHTML = '';
+        return;
+    }
+
     const hasPreviousPage = paginationData.page > 1;
     const hasNextPage = paginationData.page < paginationData.totalPages;
+    
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
+    prevButton.className = 'pagination-btn';
     prevButton.disabled = !hasPreviousPage;
     prevButton.addEventListener('click', () => fetchAndRenderHistory(paginationData.page - 1));
+    
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
+    
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
+    nextButton.className = 'pagination-btn';
     nextButton.disabled = !hasNextPage;
     nextButton.addEventListener('click', () => fetchAndRenderHistory(paginationData.page + 1));
+    
+    controlsContainer.innerHTML = '';
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
     controlsContainer.appendChild(nextButton);
 }
 
+window.deleteHistoryItem = async (exitId) => {
+    if (!confirm('Tem certeza que deseja excluir este registro? A ação não pode ser desfeita.')) return;
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/products-exit/${exitId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (response.ok) {
+            alert('Registro excluído com sucesso!');
+            fetchAndRenderHistory(currentHistoryPage);
+        } else {
+            const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir", detail: "Não foi possível processar a exclusão." }));
+            showErrorModal(errorData);
+        }
+    } catch (error) {
+        showErrorModal({ title: "Erro de Conexão", detail: error.message });
+    }
+};
+
+window.editHistoryItem = (item) => {
+    const row = document.getElementById(`row-history-${item.id}`);
+    if (!row || originalHistoryRowHTML[item.id]) return;
+
+    originalHistoryRowHTML[item.id] = row.innerHTML;
+    
+    row.querySelector('[data-field="quantity"]').innerHTML = `<input type="number" name="Quantity" class="form-input edit-input" value="${item.quantity}" min="1">`;
+    row.querySelector('[data-field="isReturnable"]').innerHTML = `<input type="checkbox" name="IsReturnable" class="form-checkbox" ${item.isReturnable ? 'checked' : ''}>`;
+    row.querySelector('[data-field="observation"]').innerHTML = `<textarea name="Observation" class="form-input edit-input" rows="2">${item.observation || ''}</textarea>`;
+    
+    row.querySelector('[data-field="actions"]').innerHTML = `
+        <button class="btn-action btn-save" onclick="saveHistoryChanges('${item.id}')">Salvar</button>
+        <button class="btn-action btn-cancel" onclick="cancelHistoryEdit('${item.id}')">Cancelar</button>
+    `;
+};
+
+window.saveHistoryChanges = async (exitId) => {
+    const row = document.getElementById(`row-history-${exitId}`);
+    if (!row) return;
+
+    // 1. Criar um objeto FormData, como exigido pela API
+    const formData = new FormData();
+
+    // 2. Adicionar os campos necessários, incluindo o ID
+    formData.append('Id', exitId);
+    formData.append('Quantity', row.querySelector('[name="Quantity"]').value);
+    formData.append('IsReturnable', row.querySelector('[name="IsReturnable"]').checked);
+    formData.append('Observation', row.querySelector('[name="Observation"]').value);
+
+    // Validação da quantidade
+    const quantity = parseInt(formData.get('Quantity'), 10);
+    if (isNaN(quantity) || quantity <= 0) {
+        alert("A quantidade deve ser um número maior que zero.");
+        return;
+    }
+
+    try {
+        // Pega o token de acesso do localStorage. "rtoken" é provavelmente o nome que você usa para ele.
+        const accessToken = localStorage.getItem('accessToken'); 
+        const url = `${API_BASE_URL}/products-exit`; // URL base, sem ID no final
+
+        // 3. Fazer a requisição
+        const response = await fetch(url, {
+            method: 'PUT', // Usar PUT, conforme a imagem do Swagger
+            headers: {
+                // O 'Content-Type' não é definido ao usar FormData
+                // O cabeçalho de autorização é incluído aqui
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: formData // O corpo da requisição é o FormData
+        });
+
+        if (response.ok) {
+            alert('Registro atualizado com sucesso!');
+            delete originalHistoryRowHTML[exitId];
+            fetchAndRenderHistory(currentHistoryPage);
+        } else {
+            const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar", detail: `O servidor respondeu com status ${response.status}.` }));
+            showErrorModal(errorData);
+        }
+    } catch (error) {
+        showErrorModal({ title: "Erro de Conexão", detail: error.message });
+        cancelHistoryEdit(exitId);
+    }
+};
+window.cancelHistoryEdit = (exitId) => {
+    const row = document.getElementById(`row-history-${exitId}`);
+    if (row && originalHistoryRowHTML[exitId]) {
+        row.innerHTML = originalHistoryRowHTML[exitId];
+        delete originalHistoryRowHTML[exitId];
+    }
+};
+
 // =======================================================
-// FUNÇÕES UTILITÁRIAS
+// FUNÇÕES UTILITÁRIAS DE CARREGAMENTO DE DADOS
 // =======================================================
 async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
     if (!selectElement) return; 
@@ -430,7 +573,7 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
         }); 
     } catch (error) { 
         console.error('Erro ao carregar categorias:', error); 
-        selectElement.innerHTML = '<option value="">Erro ao carregar</option>'; 
-        throw error; 
+        selectElement.innerHTML = `<option value="">Erro ao carregar</option>`; 
+        // Não lançar o erro impede a renderização da tabela de histórico
     } 
 }
