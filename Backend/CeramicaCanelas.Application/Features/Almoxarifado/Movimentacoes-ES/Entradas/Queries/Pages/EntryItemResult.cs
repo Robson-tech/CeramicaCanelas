@@ -8,7 +8,8 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
 {
     public class EntryItemResult
     {
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
+        public Guid SupplierId { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
         public string SupplierName { get; set; } = string.Empty;
@@ -21,6 +22,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
         {
             Id = entry.Id;
             ProductName = entry.NameProduct ?? "Produto não encontrado";
+            SupplierId = entry.SupplierId ?? Guid.Empty;
             CategoryName = entry.NameCategory ?? "Produto desconhecido";
             SupplierName = entry.NameSupplier ?? "Fornecedor não encontrado";
             UnitPrice = entry.UnitPrice ;
