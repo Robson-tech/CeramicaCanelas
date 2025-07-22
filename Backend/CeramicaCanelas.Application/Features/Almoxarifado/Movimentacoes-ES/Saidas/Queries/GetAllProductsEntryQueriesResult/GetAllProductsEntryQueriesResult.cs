@@ -27,8 +27,8 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
             public GetAllProductsExitQueriesResult(Domain.Entities.ProductExit productExit)
             {
                 Id = productExit.Id;
-                NameProduct = productExit.Product?.Name ?? "Desconhecido";
-                NameEmployee = productExit.Employee?.Name ?? "Desconhecido";
+                NameProduct = productExit.NameProduct ?? "Desconhecido";
+                NameEmployee = productExit.EmployeeName ?? "Desconhecido";
                 ExitDate = productExit.ExitDate;
                 Quantity = productExit.Quantity;
                 IsReturnable = productExit.IsReturnable;

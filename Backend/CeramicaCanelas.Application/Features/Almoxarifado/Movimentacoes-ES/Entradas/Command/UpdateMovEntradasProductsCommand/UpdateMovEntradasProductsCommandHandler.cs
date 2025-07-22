@@ -1,6 +1,7 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Exception;
+using CeramicaCanelas.Persistence.Repositories;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -13,17 +14,20 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
     public class UpdateMovEntradasProductsCommandHandler : IRequestHandler<UpdateMovEntradasProductsCommand, Unit>
     {
         private readonly IMovEntryProductsRepository _movimentacaoESRepository;
+        private readonly ISupplierRepository _supplierRepository;
         private readonly IProductRepository _productRepository;
         private readonly ILogged _logged;
 
         public UpdateMovEntradasProductsCommandHandler(IMovEntryProductsRepository movimentacaoEntradasProductsRepository,
             IProductRepository productRepository,
-            ILogged logged)
+            ILogged logged,
+            ISupplierRepository supplierRepository)
 
         {
             _movimentacaoESRepository = movimentacaoEntradasProductsRepository;
             _productRepository = productRepository;
             _logged = logged;
+            _supplierRepository = supplierRepository;
         }
 
         public async Task<Unit> Handle(UpdateMovEntradasProductsCommand command, CancellationToken cancellationToken)
@@ -44,6 +48,12 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
                 throw new BadRequestException("Produto não encontrado.");
             }
 
+            var supplier = await _supplierRepository.GetByIdAsync(command.SupplierId);
+            if (supplier == null)
+            {
+                throw new BadRequestException("Fornecedor não encontrado.");
+            }
+
             //Desatalizando a movimentação anterior
             product.StockCurrent -= movimentacaoES.Quantity;
             product.ValueTotal -= movimentacaoES.UnitPrice * movimentacaoES.Quantity;
@@ -52,11 +62,15 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
 
             //Atualizando com os novos valores
             movimentacaoES.ProductId = movimentacaoES.ProductId;
+            movimentacaoES.NameCategory = product.Category!.Name;
+            movimentacaoES.NameProduct = product.Name;
             movimentacaoES.SupplierId = command.SupplierId;
+            movimentacaoES.NameSupplier = supplier.Name;
             movimentacaoES.Quantity = command.Quantity;
             movimentacaoES.UnitPrice = command.UnitPrice;
             movimentacaoES.ModifiedOn = DateTime.UtcNow;
             movimentacaoES.UserId = user.Id;
+            movimentacaoES.NameOperator = user.Name;
             await _movimentacaoESRepository.Update(movimentacaoES);
 
             // Atualiza o estoque do produto com os novos valores

@@ -1,9 +1,5 @@
 ﻿using CeramicaCanelas.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Saidas.Queries.Pages
 {
@@ -17,23 +13,27 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Sai
 
     public class ExitItemResult
     {
+        public Guid Id { get; set; }
         public string ProductName { get; set; } = string.Empty;
         public string EmployeeName { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public int ReturnedQuantity { get; set; }
         public DateTime ExitDate { get; set; }
         public bool IsReturnable { get; set; }
+        public string? Observation { get; set; }
         public string InsertedBy { get; set; } = string.Empty;
 
         public ExitItemResult(ProductExit exit)
         {
-            ProductName = exit.Product?.Name ?? "Produto não encontrado";
-            EmployeeName = exit.Employee?.Name ?? "Funcionário não encontrado";
+            Id = exit.Id;
+            ProductName = exit.NameProduct ?? "Produto não encontrado";
+            EmployeeName = exit.EmployeeName ?? "Funcionário não encontrado";
             Quantity = exit.Quantity;
             ReturnedQuantity = exit.ReturnedQuantity;
             ExitDate = exit.ExitDate;
             IsReturnable = exit.IsReturnable;
-            InsertedBy = exit.User?.UserName ?? "Desconhecido";
+            InsertedBy = exit.NameOperator ?? "Desconhecido";
+            Observation = exit.Observation ?? "Nenhuma observação";
         }
     }
 }
