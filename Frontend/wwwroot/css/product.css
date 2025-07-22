@@ -314,21 +314,37 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
 }
 
-/* Edição na Tabela */
+/* Estilos para inputs editáveis na tabela */
 .edit-input {
     width: 100%;
     padding: 8px;
-    border: 2px solid #e67e22;
+    border: 2px solid #e67e22; /* Borda laranja padrão para campos editáveis */
     border-radius: 6px;
     font-size: 0.9rem;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
 }
 
-.edit-input:focus {
-    outline: none;
-    box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
-}
+    .edit-input:focus {
+        outline: none;
+        box-shadow: 0 0 10px rgba(230, 126, 34, 0.3);
+    }
+
+    /* --- ADICIONE ESTE BLOCO --- */
+    /* Estilo específico para inputs .edit-input que são somente leitura (readonly) */
+    .edit-input[readonly] {
+        border: 2px solid #ccc; /* Altera a borda para cinza */
+        background-color: #f0f0f0; /* Um fundo levemente cinza para indicar que não é editável */
+        cursor: not-allowed; /* Altera o cursor para indicar que não é clicável */
+        color: #666; /* Cor do texto mais suave */
+    }
+
+        .edit-input[readonly]:focus {
+            outline: none; /* Remove o outline laranja no foco */
+            box-shadow: none; /* Remove a sombra no foco */
+            border-color: #ccc; /* Mantém a borda cinza no foco */
+        }
+/* --- FIM DO BLOCO ADICIONADO --- */
 
 /* Paginação */
 .pagination-controls {
