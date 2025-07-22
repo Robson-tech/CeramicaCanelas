@@ -1,8 +1,5 @@
 console.log('Script js/saida.js DEFINIDO.');
 
-// Este script utiliza as variáveis globais de main.js
-// (API_BASE_URL, showErrorModal, positionMap, getPositionName, etc.)
-
 
 
 // =======================================================
@@ -15,9 +12,12 @@ function initDynamicForm() {
     initializeProductModal();
     initializeEmployeeModal();
     initializeHistoryFilters();
-    // A função loadProductCategories não é necessária para o filtro de histórico aqui,
-    // mas pode ser adicionada se o filtro de categoria for reintroduzido no HTML
-    fetchAndRenderHistory(1);
+
+    // Carrega as categorias no filtro do histórico e, em seguida, busca os registros.
+    loadProductCategories(document.getElementById('historyCategoryFilter'), 'Todas as Categorias')
+        .then(() => {
+            fetchAndRenderHistory(1);
+        });
 }
 
 // =======================================================
@@ -146,15 +146,18 @@ function initializeProductModal() {
     const openBtn = document.getElementById('openProductModalBtn');
     if (!modal || !openBtn) return;
     const closeBtn = modal.querySelector('.modal-close-btn');
+    const filterBtn = modal.querySelector('#modalProductFilterBtn');
     
     openBtn.addEventListener('click', () => { 
         currentProductModalPage = 1;
         modal.style.display = 'block'; 
-        fetchPaginatedProducts(currentProductModalPage); 
+        // Carrega as categorias no filtro da modal e depois busca os produtos
+        loadProductCategories(modal.querySelector('#modalProductCategoryFilter'), 'Todas as Categorias')
+            .then(() => fetchPaginatedProducts(1));
     });
     
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedProducts(1));
     if(closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    window.addEventListener('click', (event) => { if (event.target === modal) modal.style.display = 'none'; });
     
     modal.querySelector('#modalProductResultsContainer')?.addEventListener('click', (event) => {
         if (event.target.classList.contains('btn-select-product')) {
@@ -174,7 +177,14 @@ async function fetchPaginatedProducts(page) {
     resultsContainer.innerHTML = '<p>Buscando...</p>';
     paginationContainer.innerHTML = '';
     
-    const params = new URLSearchParams({ Page: page, PageSize: 5 });
+    const search = document.getElementById('modalProductSearchInput')?.value;
+    const categoryId = document.getElementById('modalProductCategoryFilter')?.value;
+    const orderBy = document.getElementById('modalProductOrderBySelect')?.value;
+
+    const params = new URLSearchParams({ Page: page, PageSize: 5, OrderBy: orderBy || 'Name' });
+    if(search) params.append('Search', search);
+    if(categoryId) params.append('CategoryId', categoryId);
+
     const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
     
     try {
@@ -199,30 +209,27 @@ function renderProductModalPagination(paginationData) {
     if (!controlsContainer) return;
     controlsContainer.innerHTML = '';
     
-    if(!paginationData.totalPages) {
-        paginationData.totalPages = Math.ceil(paginationData.totalItems / paginationData.pageSize);
-    }
+    if(!paginationData.totalPages) paginationData.totalPages = Math.ceil(paginationData.totalItems / paginationData.pageSize);
     if (isNaN(paginationData.totalPages) || paginationData.totalPages <= 1) return;
 
     const hasPreviousPage = paginationData.page > 1;
     const hasNextPage = paginationData.page < paginationData.totalPages;
-
-    let paginationHTML = '';
-    if (hasPreviousPage) {
-        paginationHTML += `<button class="pagination-btn" data-page="${paginationData.page - 1}">Anterior</button>`;
-    }
-    paginationHTML += `<span class="pagination-info">Página ${paginationData.page} de ${paginationData.totalPages}</span>`;
-    if (hasNextPage) {
-        paginationHTML += `<button class="pagination-btn" data-page="${paginationData.page + 1}">Próxima</button>`;
-    }
-    controlsContainer.innerHTML = paginationHTML;
-
-    controlsContainer.querySelectorAll('.pagination-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const newPage = parseInt(event.target.dataset.page);
-            fetchPaginatedProducts(newPage);
-        });
-    });
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Anterior';
+    prevButton.className = 'pagination-btn';
+    prevButton.disabled = !hasPreviousPage;
+    prevButton.addEventListener('click', () => fetchPaginatedProducts(paginationData.page - 1));
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Próxima';
+    nextButton.className = 'pagination-btn';
+    nextButton.disabled = !hasNextPage;
+    nextButton.addEventListener('click', () => fetchPaginatedProducts(paginationData.page + 1));
+    
+    controlsContainer.appendChild(prevButton);
+    controlsContainer.appendChild(pageInfo);
+    controlsContainer.appendChild(nextButton);
 }
 
 
@@ -238,15 +245,11 @@ function initializeEmployeeModal() {
     const positionSelect = modal.querySelector('#modalEmployeePositionFilter');
 
     populatePositionFilter(positionSelect);
-
     openBtn.addEventListener('click', () => {
         modal.style.display = 'block';
         fetchPaginatedEmployees(1);
     });
-    
     if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
-    window.addEventListener('click', (event) => { if (event.target === modal) modal.style.display = 'none'; });
-    
     if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
 
     modal.querySelector('#modalEmployeeResultsContainer').addEventListener('click', (event) => {
@@ -260,8 +263,8 @@ function initializeEmployeeModal() {
 
 function populatePositionFilter(selectElement) {
     if (!selectElement) return;
-    // positionMap é uma variável global do seu main.js
     if(typeof positionMap !== 'undefined') {
+        selectElement.innerHTML = '<option value="">Todos os Cargos</option>';
         for (const [key, value] of Object.entries(positionMap)) {
             const option = new Option(value, key);
             selectElement.appendChild(option);
@@ -273,19 +276,17 @@ async function fetchPaginatedEmployees(page = 1) {
     currentEmployeeModalPage = page;
     const resultsContainer = document.getElementById('modalEmployeeResultsContainer');
     if (!resultsContainer) return;
-    resultsContainer.innerHTML = '<p>Buscando funcionários...</p>';
+    resultsContainer.innerHTML = '<p>Buscando...</p>';
     try {
         const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) throw new Error('Não autenticado.');
         const search = document.getElementById('modalEmployeeSearchInput')?.value;
         const position = document.getElementById('modalEmployeePositionFilter')?.value;
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
         if (position) params.append('Positions', position);
-        const url = `${API_BASE_URL}/employees/pages?${params.toString()}`;
+        const url = `${API_BASE_URL}/employees/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar funcionários (Status: ${response.status})`);
-        
         const paginatedData = await response.json();
         renderEmployeeModalResults(paginatedData.items);
         renderEmployeeModalPagination(paginatedData);
@@ -297,12 +298,8 @@ async function fetchPaginatedEmployees(page = 1) {
 
 function renderEmployeeModalResults(employees) {
     const container = document.getElementById('modalEmployeeResultsContainer');
-    if (!employees || employees.length === 0) {
-        container.innerHTML = '<p>Nenhum funcionário encontrado.</p>';
-        return;
-    }
-    const tableHTML = `<table class="results-table">
-        <thead><tr><th>Nome</th><th>Cargo</th><th>Ação</th></tr></thead>
+    if (!employees || employees.length === 0) { container.innerHTML = '<p>Nenhum funcionário encontrado.</p>'; return; }
+    const tableHTML = `<table class="results-table"><thead><tr><th>Nome</th><th>Cargo</th><th>Ação</th></tr></thead>
         <tbody>${employees.map(e => `<tr><td>${e.name}</td><td>${getPositionName(e.positions)}</td><td><button type="button" class="btn-select-employee" data-id="${e.id}" data-name="${e.name}">Selecionar</button></td></tr>`).join('')}</tbody>
     </table>`;
     container.innerHTML = tableHTML;
@@ -338,10 +335,8 @@ function renderEmployeeModalPagination(paginationData) {
 // LÓGICA DO HISTÓRICO DE SAÍDAS
 // =======================================================
 function initializeHistoryFilters() {
-    const filterBtn = document.getElementById('historyFilterBtn');
-    const clearBtn = document.getElementById('historyClearFilterBtn');
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderHistory(1));
-    if(clearBtn) clearBtn.addEventListener('click', () => {
+    document.getElementById('historyFilterBtn')?.addEventListener('click', () => fetchAndRenderHistory(1));
+    document.getElementById('historyClearFilterBtn')?.addEventListener('click', () => {
         document.getElementById('historySearchInput').value = '';
         document.getElementById('historyCategoryFilter').value = '';
         fetchAndRenderHistory(1);

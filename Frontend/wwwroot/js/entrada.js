@@ -320,11 +320,33 @@ window.deleteEntry = async (entryId) => {
 
 window.editEntry = (entry) => {
     const row = document.getElementById(`row-entry-${entry.id}`);
-    if (!row) return;
+    if (!row) {
+        console.error(`Linha com ID row-entry-${entry.id} não encontrada.`);
+        return;
+    }
+
+    // Armazena o HTML original da linha para poder cancelar a edição
     originalEntryRowHTML[entry.id] = row.innerHTML;
-    row.querySelector('[data-field="quantity"]').innerHTML = `<input type="number" name="Quantity" class="edit-input" value="${entry.quantity}">`;
-    row.querySelector('[data-field="unitPrice"]').innerHTML = `<input type="number" step="0.01" name="UnitPrice" class="edit-input" value="${entry.unitPrice}">`;
-    row.querySelector('[data-field="actions"]').innerHTML = `<button class="btn-action btn-save" onclick="saveEntryChanges('${entry.id}')">Salvar</button><button class="btn-action btn-cancel" onclick="cancelEntryEdit('${entry.id}')">Cancelar</button>`;
+
+    // Cria o novo conteúdo HTML para a linha inteira em modo de edição
+    const editRowContent = `
+        <td data-field="productName">${entry.productName}</td>
+        <td data-field="quantity">
+            <input type="number" name="Quantity" class="edit-input" value="${entry.quantity}">
+        </td>
+        <td data-field="unitPrice">
+            <input type="number" step="0.01" name="UnitPrice" class="edit-input" value="${entry.unitPrice}">
+        </td>
+        <td data-field="entryDate">${new Date(entry.entryDate).toLocaleDateString('pt-BR')}</td>
+        <td data-field="insertedBy">${entry.insertedBy || 'N/A'}</td>
+        <td class="actions-cell" data-field="actions">
+            <button class="btn-action btn-save" onclick="saveEntryChanges('${entry.id}')">Salvar</button>
+            <button class="btn-action btn-cancel" onclick="cancelEntryEdit('${entry.id}')">Cancelar</button>
+        </td>
+    `;
+
+    // Substitui o conteúdo da linha pelo formulário de edição
+    row.innerHTML = editRowContent;
 };
 
 window.saveEntryChanges = async (entryId) => {
