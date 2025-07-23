@@ -30,6 +30,12 @@ async function processAndSendSupplierData(form) {
         showErrorModal({ title: "Validação Falhou", detail: "Nome/Razão Social e CNPJ são obrigatórios." });
         return;
     }
+
+    const submitButton = form.querySelector('.submit-btn');
+    const originalButtonHTML = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/supplier`, {
@@ -47,9 +53,11 @@ async function processAndSendSupplierData(form) {
         }
     } catch (error) {
         showErrorModal({ title: "Erro de Conexão", detail: "Não foi possível comunicar com o servidor." });
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
     }
 }
-
 // =======================================================
 // LÓGICA DA TABELA (FILTROS, PAGINAÇÃO, CRUD)
 // =======================================================
@@ -177,11 +185,16 @@ window.editSupplier = (supplier) => {
 window.saveSupplierChanges = async (supplierId) => {
     const row = document.getElementById(`row-supplier-${supplierId}`);
     if (!row) return;
+
+    const saveButton = row.querySelector('.btn-save');
+    saveButton.disabled = true;
+    saveButton.innerHTML = `<span class="loading-spinner"></span>`;
+
     const formData = new FormData();
     formData.append('Id', supplierId);
     const inputs = row.querySelectorAll('input');
     inputs.forEach(input => formData.append(input.name, input.value));
-    
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/supplier`, {
@@ -190,11 +203,14 @@ window.saveSupplierChanges = async (supplierId) => {
             body: formData
         });
         if (response.ok) {
-            alert('Fornecedor atualizado com sucesso!');
+            // A recarga da tabela já é um feedback visual, o alert é opcional.
+            // alert('Fornecedor atualizado com sucesso!');
             fetchAndRenderSuppliers(currentSupplierPage);
         } else {
             const errorData = await response.json();
             showErrorModal(errorData);
+            // Restaura a linha em caso de erro para o usuário poder corrigir.
+            cancelEditSupplier(supplierId);
         }
     } catch (error) {
         showErrorModal({ title: "Erro de Conexão", detail: error.message });
