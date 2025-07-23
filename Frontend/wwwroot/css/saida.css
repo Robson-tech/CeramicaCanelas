@@ -362,11 +362,43 @@ h2::after, .form-title::after {
     border: 1px solid rgba(224, 224, 224, 0.3);
     box-shadow: none;
     padding: 1rem;
-    /* Estilos específicos para alinhamento dos campos na modal de produtos */
+    /* Layout em coluna única por padrão para melhor usabilidade */
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    grid-template-columns: 1fr;
     gap: 1rem;
-    align-items: end;
+    align-items: stretch;
+}
+
+/* Layout horizontal apenas para telas muito grandes */
+@media (min-width: 1200px) {
+    .filter-bar.modal-filter-bar {
+        grid-template-columns: 2fr 1fr 1fr auto;
+        align-items: end;
+        gap: 1rem;
+    }
+    
+    .filter-bar.modal-filter-bar .filter-group-buttons {
+        align-items: flex-end;
+        justify-content: flex-start;
+    }
+    
+    .filter-bar.modal-filter-bar .search-btn {
+        width: auto;
+        max-width: none;
+        margin: 0;
+    }
+}
+
+/* Ajustes específicos para layout vertical (padrão) */
+.filter-bar.modal-filter-bar .filter-group-buttons {
+    align-items: stretch;
+    justify-content: center;
+}
+
+.filter-bar.modal-filter-bar .search-btn {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
 .filter-group {
@@ -670,17 +702,8 @@ textarea:focus {
         gap: 1rem;
     }
     
-    .filter-bar.modal-filter-bar {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
     .filter-group {
         min-width: auto;
-    }
-    
-    .filter-group-buttons {
-        align-items: stretch;
     }
     
     .results-table, .items-table {
@@ -702,17 +725,108 @@ textarea:focus {
         gap: 4px;
     }
     
+    /* Ajustes específicos da modal para dispositivos móveis */
     .modal-content {
         width: 95%;
         margin: 10% auto;
         padding: 1.5rem;
+        max-height: 90vh;
     }
     
-    .modal-filter-bar {
-        flex-direction: column;
+    .modal-content h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Garantir que o container da tabela da modal seja visível em telas pequenas */
+    .modal-content .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem 0;
+        border-radius: 8px;
+        min-height: 200px;
+    }
+    
+    /* Tabela dentro da modal - ajustes para mobile */
+    .modal-content .results-table {
+        min-width: 400px; /* Força uma largura mínima para que a tabela seja rolável horizontalmente */
+        font-size: 0.8rem;
+    }
+    
+    .modal-content .results-table th,
+    .modal-content .results-table td {
+        padding: 0.5rem;
+        white-space: nowrap;
+    }
+    
+    /* Botões de ação da modal em mobile */
+    .modal-content .btn-action {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    /* Container de resultados da modal */
+    #modalProductResultsContainer,
+    #modalEmployeeResultsContainer {
+        min-height: 150px;
+        margin: 1rem 0;
+    }
+    
+    /* Controles de paginação da modal */
+    .modal-content .pagination-controls {
+        padding: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .modal-content .pagination-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+    
+    .modal-content .pagination-info {
+        font-size: 0.9rem;
+        text-align: center;
+        width: 100%;
+        order: -1;
+        margin-bottom: 0.5rem;
     }
 }
 
+/* Breakpoint adicional para telas muito pequenas */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        margin: 5% auto;
+        padding: 1rem;
+    }
+    
+    .modal-content .results-table {
+        min-width: 350px;
+        font-size: 0.75rem;
+    }
+    
+    .modal-content .results-table th,
+    .modal-content .results-table td {
+        padding: 0.4rem;
+    }
+    
+    .filter-bar.modal-filter-bar {
+        padding: 0.8rem;
+        gap: 0.8rem;
+    }
+    
+    .form-input {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .filter-bar.modal-filter-bar .search-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.8rem;
+    }
+}
 
 /* --- INÍCIO: Bloco de Animação dos Botões --- */
 
@@ -734,11 +848,11 @@ textarea:focus {
     gap: 10px;
 }
 
-    /* Estilo para o botão principal quando desabilitado */
-    .submit-btn:disabled {
-        opacity: 0.7;
-        cursor: wait;
-    }
+/* Estilo para o botão principal quando desabilitado */
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
 
 /* Estilo para o botão de salvar na tabela */
 .btn-save {
@@ -749,10 +863,10 @@ textarea:focus {
     min-width: 90px; /* Garante espaço para o spinner */
 }
 
-    /* Estilo para o botão da tabela quando desabilitado */
-    .btn-save:disabled {
-        opacity: 0.7;
-        cursor: wait;
-    }
+/* Estilo para o botão da tabela quando desabilitado */
+.btn-save:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
 
 /* --- FIM: Bloco de Animação dos Botões --- */
