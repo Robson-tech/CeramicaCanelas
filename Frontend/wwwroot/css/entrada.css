@@ -841,3 +841,38 @@ textarea:focus {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
 }
+
+
+/* ======================================================= */
+/* == AJUSTE ROBUSTO PARA LAYOUT INTERNO DA MODAL == */
+/* ======================================================= */
+
+/* Transforma o container da modal em uma coluna flexível */
+.modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+    /* Garante que a barra de filtros não seja espremida */
+    .modal-content .filter-bar {
+        flex-shrink: 0;
+    }
+
+    /*
+ * A Regra Mais Importante:
+ * Faz o container da tabela crescer para ocupar todo o espaço vertical
+ * que sobra, e adiciona uma barra de rolagem a ele, se necessário.
+*/
+    .modal-content .table-container {
+        flex-grow: 1;
+        min-height: 200px; /* Garante que a tabela nunca desapareça completamente */
+        overflow-y: auto; /* Adiciona a barra de rolagem vertical à própria tabela */
+    }
+
+    /*
+ * Garante que os controles de paginação também não sejam espremidos e
+ * permaneçam sempre visíveis na parte inferior.
+*/
+    .modal-content .pagination-controls {
+        flex-shrink: 0;
+    }
