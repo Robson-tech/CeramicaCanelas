@@ -34,20 +34,4 @@ html, body {
 /* ==================================================== */
 /* REGRAS PARA TELAS PEQUENAS (Bloco Único e Limpo)    */
 /* ==================================================== */
-@media (max-width: 768px) {
-    .main-content {
-        /* Remove a margem para ocupar toda a largura */
-        margin-left: 0;
-        padding: 10px;
-    }
 
-    .hamburger-menu {
-        /* Mostra o botão de hambúrguer */
-        display: block;
-    }
-
-    /* Mostra o overlay quando o menu está aberto */
-    .menu-overlay.open {
-        display: block;
-    }
-}
