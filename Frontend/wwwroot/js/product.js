@@ -106,7 +106,6 @@ function initializeProductForm(form) {
 }
 
 async function processAndSendProductData(form) {
-    // O FormData captura todos os campos do formulário (incluindo os novos)
     const formData = new FormData(form);
 
     if (!formData.get('Code')?.trim() || !formData.get('Name')?.trim() || !formData.get('CategoryId')) {
@@ -114,18 +113,24 @@ async function processAndSendProductData(form) {
         return;
     }
 
+    // --- INÍCIO DAS NOVAS LINHAS ---
+    const submitButton = form.querySelector('.submit-btn');
+    const originalButtonHTML = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
+    // --- FIM DAS NOVAS LINHAS ---
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/products`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${accessToken}` },
-            body: formData, // Envia todos os dados, incluindo os novos campos do HTML
+            body: formData,
         });
 
         if (response.ok) {
             alert('Produto cadastrado com sucesso!');
             form.reset();
-            // Recarrega as categorias do formulário caso uma nova tenha sido criada
             loadProductCategories(document.querySelector('select[name="CategoryId"]'));
             fetchAndRenderProducts(1);
         } else {
@@ -135,6 +140,13 @@ async function processAndSendProductData(form) {
     } catch (error) {
         console.error('❌ Erro na requisição de cadastro:', error);
         alert('Falha na comunicação com o servidor.');
+    } finally {
+        // --- INÍCIO DAS NOVAS LINHAS ---
+        // Este bloco é executado sempre, seja em caso de sucesso ou falha,
+        // garantindo que o botão seja restaurado.
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
+        // --- FIM DAS NOVAS LINHAS ---
     }
 }
 
@@ -336,12 +348,20 @@ window.saveProductChanges = async (productId) => {
     const row = document.getElementById(`row-${productId}`);
     if (!row) return;
 
+    // --- INÍCIO DAS NOVAS LINHAS ---
+    const saveButton = row.querySelector('.btn-save');
+    if (saveButton) {
+        saveButton.disabled = true;
+        // Para um botão pequeno, só a animação já fica bom.
+        saveButton.innerHTML = `<span class="loading-spinner"></span>`;
+    }
+    // --- FIM DAS NOVAS LINHAS ---
+
     const formData = new FormData();
     formData.append('Id', productId);
-    
+
     const inputs = row.querySelectorAll('input, select');
     inputs.forEach(input => {
-        // O campo 'IsReturnable' será capturado aqui automaticamente
         if (input.name === 'Value') {
             formData.append(input.name, input.value.replace(',', '.'));
         } else {
@@ -358,7 +378,7 @@ window.saveProductChanges = async (productId) => {
         });
 
         if (response.ok) {
-            alert('Produto atualizado com sucesso!');
+            // Não precisa de alerta aqui, o reload da tabela já é um feedback
             fetchAndRenderProducts(currentTablePage);
         } else {
             const errorData = await response.json();
@@ -366,8 +386,11 @@ window.saveProductChanges = async (productId) => {
         }
     } catch (error) {
         alert(error.message);
+        // A função cancelEditProduct já restaura a linha, então o botão de loading some.
         cancelEditProduct(productId);
     }
+    // Não precisamos do bloco "finally" aqui, pois em ambos os casos (sucesso ou erro),
+    // a linha da tabela é redesenhada, removendo o botão de "carregando".
 };
 
 window.cancelEditProduct = (productId) => {
