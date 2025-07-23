@@ -303,3 +303,57 @@ a:focus {
         padding: 1rem;
     }
 }
+
+/* --- INÍCIO: Bloco de Animação dos Botões --- */
+
+/* Animação que faz o spinner girar */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Classe do ícone de spinner */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+/* Estilo para o botão principal do formulário */
+.submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+    /* Estilo para o botão principal quando desabilitado */
+    .submit-btn:disabled {
+        opacity: 0.7;
+        cursor: wait;
+    }
+
+/* Estilo para o botão de salvar na tabela */
+.btn-save {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 90px; /* Garante espaço para o spinner */
+}
+
+    /* Estilo para o botão da tabela quando desabilitado */
+    .btn-save:disabled {
+        opacity: 0.7;
+        cursor: wait;
+    }
+
+/* --- FIM: Bloco de Animação dos Botões --- */

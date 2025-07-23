@@ -25,10 +25,14 @@ function initializeCategoryForm(form) {
 async function processAndSendCategoryData(form) {
     const formData = new FormData(form);
     if (!formData.get('Name')?.trim()) {
-        // MODIFICADO: Trocado showErrorModal por alert
         alert("O campo 'Nome da Categoria' é obrigatório.");
         return;
     }
+
+    const submitButton = form.querySelector('.submit-btn');
+    const originalButtonHTML = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
 
     try {
         const accessToken = localStorage.getItem('accessToken');
@@ -44,12 +48,13 @@ async function processAndSendCategoryData(form) {
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json();
-            // MODIFICADO: Trocado showErrorModal por alert
             alert(`Erro: ${errorData.title || errorData.detail || 'Não foi possível salvar a categoria.'}`);
         }
     } catch (error) {
-        // MODIFICADO: Trocado showErrorModal por alert
         alert("Erro de Conexão: Não foi possível comunicar com o servidor.");
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
     }
 }
 
@@ -169,6 +174,10 @@ window.saveCategoryChanges = async (categoryId) => {
         return;
     }
 
+    const saveButton = row.querySelector('.btn-save');
+    saveButton.disabled = true;
+    saveButton.innerHTML = `<span class="loading-spinner"></span>`;
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/categories`, {
@@ -178,15 +187,16 @@ window.saveCategoryChanges = async (categoryId) => {
         });
 
         if (response.ok) {
-            alert('Categoria atualizada com sucesso!');
+            // A atualização da tabela já é um feedback visual, o alert é opcional.
+            // alert('Categoria atualizada com sucesso!');
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar" }));
-            // MODIFICADO: Trocado showErrorModal por alert
             alert(`Erro: ${errorData.title || 'Não foi possível atualizar a categoria.'}`);
+            // Em caso de erro, restaura a linha para que o usuário possa tentar novamente.
+            cancelEditCategory(categoryId);
         }
     } catch (error) {
-        // MODIFICADO: Trocado showErrorModal por alert
         alert(`Erro de Conexão: ${error.message}`);
         cancelEditCategory(categoryId);
     }
