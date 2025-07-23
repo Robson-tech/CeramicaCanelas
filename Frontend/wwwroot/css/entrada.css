@@ -795,3 +795,11 @@ textarea:focus {
     }
 
 /* --- FIM: Bloco de Animação dos Botões --- */
+
+/* Estilo do botão de edição inline */
+.btn-edit-inline {
+    background: linear-gradient(45deg, #2980b9, #1f618d);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+}
+
