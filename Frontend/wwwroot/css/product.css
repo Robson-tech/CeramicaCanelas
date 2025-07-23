@@ -90,6 +90,9 @@ h2 {
         min-height: 100px;
     }
 
+
+
+
 /* Botão de Submit */
 button[type="submit"] {
     width: 100%;
@@ -521,6 +524,34 @@ button[type="submit"] {
         border-radius: 50%;
         border-top-color: transparent;
         animation: spin 1s linear infinite;
+    }
+
+/* ======================== */
+/* == Estilos de Validação == */
+/* ======================== */
+
+/* Estilo para campos VÁLIDOS (borda verde) */
+.form-input.is-valid,
+.form-row select.is-valid {
+    border-color: #28a745; /* Verde */
+}
+
+    .form-input.is-valid:focus,
+    .form-row select.is-valid:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+    }
+
+/* Estilo para campos INVÁLIDOS (borda laranja) */
+.form-input.is-invalid,
+.form-row select.is-invalid {
+    border-color: #e67e22; /* Laranja */
+}
+
+    .form-input.is-invalid:focus,
+    .form-row select.is-invalid:focus {
+        border-color: #e67e22;
+        box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
     }
 
 /* Melhorias de Acessibilidade */
