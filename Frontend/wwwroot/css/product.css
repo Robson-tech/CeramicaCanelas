@@ -20,16 +20,16 @@ h2 {
     display: inline-block;
 }
 
-h2::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 30%;
-    height: 3px;
-    background: linear-gradient(45deg, #e67e22, #f39c12);
-    border-radius: 2px;
-}
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 0;
+        width: 30%;
+        height: 3px;
+        background: linear-gradient(45deg, #e67e22, #f39c12);
+        border-radius: 2px;
+    }
 
 /* Formulário de Cadastro */
 .form-container {
@@ -49,46 +49,46 @@ h2::after {
     margin-bottom: 1.5rem;
 }
 
-.form-row label {
-    display: flex;
-    flex-direction: column;
-    font-weight: 500;
-    color: #555;
-    position: relative;
-}
+    .form-row label {
+        display: flex;
+        flex-direction: column;
+        font-weight: 500;
+        color: #555;
+        position: relative;
+    }
 
-.form-row label span {
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+        .form-row label span {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-.form-input, 
-.form-row select, 
-.form-row textarea {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid #e1e8ed;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
-}
+    .form-input,
+    .form-row select,
+    .form-row textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
 
-.form-input:focus, 
-.form-row select:focus, 
-.form-row textarea:focus {
-    outline: none;
-    border-color: #e67e22;
-    box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
-    transform: translateY(-2px);
-}
+        .form-input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: #e67e22;
+            box-shadow: 0 0 20px rgba(230, 126, 34, 0.3);
+            transform: translateY(-2px);
+        }
 
-.form-row textarea {
-    resize: vertical;
-    min-height: 100px;
-}
+    .form-row textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
 
 /* Botão de Submit */
 button[type="submit"] {
@@ -105,13 +105,38 @@ button[type="submit"] {
     text-transform: uppercase;
     letter-spacing: 1px;
     box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+    /* ADICIONADO: para alinhar o spinner e o texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
-button[type="submit"]:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+    button[type="submit"]:hover {
+        background: linear-gradient(45deg, #d68910, #e67e22);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+    }
+
+/* Estilo para o botão quando desabilitado/carregando */
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: wait;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.2);
 }
+
+/* Animação do Spinner */
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+/* A animação @keyframes spin já existe no seu CSS, então não precisa adicionar novamente. */
 
 /* Divisor de Seção */
 .section-divider {
@@ -141,31 +166,31 @@ button[type="submit"]:hover {
     flex-direction: column;
 }
 
-.filter-group label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    color: #555;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
+    .filter-group label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-.filter-group input,
-.filter-group select {
-    padding: 0.8rem;
-    border: 2px solid #e1e8ed;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
-}
+    .filter-group input,
+    .filter-group select {
+        padding: 0.8rem;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
 
-.filter-group input:focus,
-.filter-group select:focus {
-    outline: none;
-    border-color: #e67e22;
-    box-shadow: 0 0 15px rgba(230, 126, 34, 0.3);
-}
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #e67e22;
+            box-shadow: 0 0 15px rgba(230, 126, 34, 0.3);
+        }
 
 .filter-group-buttons {
     display: flex;
@@ -188,34 +213,34 @@ button[type="submit"]:hover {
     font-size: 0.9rem;
 }
 
-.results-table th {
-    background: linear-gradient(135deg, #e67e22, #f39c12);
-    color: white;
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
+    .results-table th {
+        background: linear-gradient(135deg, #e67e22, #f39c12);
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
 
-.results-table td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(224, 224, 224, 0.3);
-    vertical-align: middle;
-}
+    .results-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+        vertical-align: middle;
+    }
 
-/* CORREÇÃO: Removido o transform do hover que causava o bug */
-.results-table tbody tr {
-    transition: background-color 0.3s ease;
-}
+    /* CORREÇÃO: Removido o transform do hover que causava o bug */
+    .results-table tbody tr {
+        transition: background-color 0.3s ease;
+    }
 
-.results-table tbody tr:hover {
-    background: rgba(230, 126, 34, 0.1);
-    /* Removido: transform: scale(1.01); - Isso causava o bug na scrollbar */
-}
+        .results-table tbody tr:hover {
+            background: rgba(230, 126, 34, 0.1);
+            /* Removido: transform: scale(1.01); - Isso causava o bug na scrollbar */
+        }
 
 .product-table-img {
     width: 60px;
@@ -226,9 +251,9 @@ button[type="submit"]:hover {
     transition: transform 0.3s ease;
 }
 
-.product-table-img:hover {
-    transform: scale(1.1);
-}
+    .product-table-img:hover {
+        transform: scale(1.1);
+    }
 
 /* Botões */
 .search-btn {
@@ -245,11 +270,11 @@ button[type="submit"]:hover {
     box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
 }
 
-.search-btn:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
-}
+    .search-btn:hover {
+        background: linear-gradient(45deg, #d68910, #e67e22);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 126, 34, 0.6);
+    }
 
 .actions-cell {
     display: flex;
@@ -275,44 +300,56 @@ button[type="submit"]:hover {
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
-.btn-edit:hover {
-    background: linear-gradient(45deg, #2980b9, #1f618d);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
-}
+    .btn-edit:hover {
+        background: linear-gradient(45deg, #2980b9, #1f618d);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+    }
 
 .btn-delete {
     background: linear-gradient(45deg, #e74c3c, #c0392b);
     box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
-.btn-delete:hover {
-    background: linear-gradient(45deg, #c0392b, #a93226);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
-}
+    .btn-delete:hover {
+        background: linear-gradient(45deg, #c0392b, #a93226);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.5);
+    }
 
 .btn-save {
     background: linear-gradient(45deg, #2ecc71, #27ae60);
     box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+    /* ADICIONADO: para alinhar o spinner e o texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Um espaço menor para um botão menor */
+    min-width: 80px; /* Garante que o botão não encolha demais */
 }
 
-.btn-save:hover {
-    background: linear-gradient(45deg, #27ae60, #229954);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.5);
-}
+    /* Estilo para o botão de salvar quando desabilitado */
+    .btn-save:disabled {
+        opacity: 0.7;
+        cursor: wait;
+    }
+
+    .btn-save:hover {
+        background: linear-gradient(45deg, #27ae60, #229954);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(46, 204, 113, 0.5);
+    }
 
 .btn-cancel {
     background: linear-gradient(45deg, #95a5a6, #7f8c8d);
     box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
 }
 
-.btn-cancel:hover {
-    background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
-}
+    .btn-cancel:hover {
+        background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
+    }
 
 /* Estilos para inputs editáveis na tabela */
 .edit-input {
@@ -372,18 +409,18 @@ button[type="submit"]:hover {
     letter-spacing: 0.5px;
 }
 
-.pagination-btn:not(:disabled):hover {
-    background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
-}
+    .pagination-btn:not(:disabled):hover {
+        background: linear-gradient(45deg, #7f8c8d, #6c7b7d);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(149, 165, 166, 0.5);
+    }
 
-.pagination-btn:disabled {
-    background: linear-gradient(45deg, #bdc3c7, #95a5a6);
-    cursor: not-allowed;
-    opacity: 0.6;
-    transform: none;
-}
+    .pagination-btn:disabled {
+        background: linear-gradient(45deg, #bdc3c7, #95a5a6);
+        cursor: not-allowed;
+        opacity: 0.6;
+        transform: none;
+    }
 
 .pagination-info {
     font-weight: 600;
@@ -397,39 +434,39 @@ button[type="submit"]:hover {
         width: 100%;
         padding: 10px;
     }
-    
+
     .form-container {
         padding: 1.5rem;
     }
-    
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .filter-bar {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
     .filter-group-buttons {
         justify-content: center;
     }
-    
+
     .results-table {
         font-size: 0.8rem;
     }
-    
-    .results-table th,
-    .results-table td {
-        padding: 0.5rem;
-    }
-    
+
+        .results-table th,
+        .results-table td {
+            padding: 0.5rem;
+        }
+
     .pagination-controls {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .actions-cell {
         flex-direction: column;
         gap: 4px;
@@ -442,6 +479,7 @@ button[type="submit"]:hover {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -452,6 +490,7 @@ button[type="submit"]:hover {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -470,19 +509,19 @@ button[type="submit"]:hover {
     position: relative;
 }
 
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #e67e22;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-}
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid #e67e22;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s linear infinite;
+    }
 
 /* Melhorias de Acessibilidade */
 button:focus,
@@ -511,9 +550,9 @@ textarea:focus {
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.table-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-}
+    .table-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(45deg, #d68910, #e67e22);
+    }
 
 .table-container::-webkit-scrollbar-corner {
     background: rgba(255, 255, 255, 0.3);
@@ -535,6 +574,6 @@ textarea:focus {
     border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, #d68910, #e67e22);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(45deg, #d68910, #e67e22);
+    }
