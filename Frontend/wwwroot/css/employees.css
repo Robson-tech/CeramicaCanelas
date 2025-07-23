@@ -35,6 +35,7 @@ h2, .form-title {
 /* Barra de Filtros */
 .filter-bar {
     display: flex;
+    flex-wrap: wrap; /* ADICIONADO: Permite que os itens quebrem para a próxima linha */
     gap: 1rem;
     margin-bottom: 2rem;
     padding: 1.5rem;
