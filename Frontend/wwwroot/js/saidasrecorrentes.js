@@ -1,7 +1,5 @@
 console.log('Script js/relatorio-saidas.js DEFINIDO.');
 
-
-
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
@@ -11,31 +9,30 @@ function initDynamicForm() {
 }
 
 function initializeSearch() {
-    document.getElementById('searchButton')?.addEventListener('click', () => performSearch(1));
+    document.getElementById('searchButton')?.addEventListener('click', () => performSearch());
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
     
     if (typeof loadProductCategories === 'function') {
         loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias')
             .then(() => {
-                performSearch(1);
+                performSearch();
             });
     } else {
         console.warn("Função 'loadProductCategories' não encontrada.");
-        performSearch(1);
+        performSearch();
     }
 }
 
 function clearFilters() {
     document.getElementById('search').value = '';
     document.getElementById('categoryId').value = '';
-    performSearch(1);
+    performSearch();
 }
 
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
 // =======================================================
-async function performSearch(page = 1) {
-    currentPage = page;
+async function performSearch() {
     const loadingDiv = document.getElementById('loading');
     const resultsSection = document.getElementById('resultsSection');
     
@@ -46,7 +43,7 @@ async function performSearch(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
+        const params = new URLSearchParams();
         const search = document.getElementById('search')?.value;
         const categoryId = document.getElementById('categoryId')?.value;
 
@@ -61,14 +58,13 @@ async function performSearch(page = 1) {
 
         const data = await response.json();
         
-        // Supondo que a API paginada retorna um objeto com 'items' e metadados de paginação
-        if (!data.items || !data.hasOwnProperty('totalPages')) {
-             throw new Error("A resposta da API não tem o formato paginado esperado (ex: { items: [], totalPages: 0 }).");
+        // Valida se a resposta da API é um array, como esperado agora.
+        if (!Array.isArray(data)) {
+            throw new Error("A resposta da API não é um array de itens como o esperado.");
         }
 
         updateSummary(data);
-        renderResultsTable(data.items);
-        renderPagination(data);
+        renderResultsTable(data);
         
         if(resultsSection) resultsSection.style.display = 'block';
 
@@ -83,14 +79,14 @@ async function performSearch(page = 1) {
     }
 }
 
-function updateSummary(data) {
+function updateSummary(items) {
     const summaryContainer = document.getElementById('resultsSummary');
     if (!summaryContainer) return;
 
-    // Calcula os totais a partir dos itens, já que a API não os envia separados
-    const totalProducts = data.totalItems || 0;
-    const totalExits = data.items ? data.items.reduce((sum, item) => sum + item.totalSaidas, 0) : 0;
-    const totalStock = data.items ? data.items.reduce((sum, item) => sum + item.estoqueAtual, 0) : 0;
+    // Calcula os totais a partir do array de itens recebido
+    const totalProducts = items ? items.length : 0;
+    const totalExits = items ? items.reduce((sum, item) => sum + item.totalSaidas, 0) : 0;
+    const totalStock = items ? items.reduce((sum, item) => sum + item.estoqueAtual, 0) : 0;
     const avgExits = totalProducts > 0 ? (totalExits / totalProducts).toFixed(1) : 0;
     
     summaryContainer.innerHTML = `
@@ -140,35 +136,4 @@ function renderResultsTable(items) {
             <td>${item.estoqueAtual}</td>
         `;
     });
-}
-
-function renderPagination(paginationData) {
-    const controlsContainer = document.getElementById('pagination-controls');
-    if (!controlsContainer) return;
-    controlsContainer.innerHTML = '';
-    
-    if (!paginationData || !paginationData.totalPages || paginationData.totalPages <= 1) return;
-    
-    const page = paginationData.page;
-    const totalPages = paginationData.totalPages;
-    
-    const prevButton = document.createElement('button');
-    prevButton.textContent = 'Anterior';
-    prevButton.className = 'pagination-btn';
-    prevButton.disabled = page <= 1;
-    prevButton.onclick = () => performSearch(page - 1);
-    
-    const pageInfo = document.createElement('span');
-    pageInfo.textContent = `Página ${page} de ${totalPages}`;
-    pageInfo.className = 'pagination-info';
-    
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Próxima';
-    nextButton.className = 'pagination-btn';
-    nextButton.disabled = page >= totalPages;
-    nextButton.onclick = () => performSearch(page + 1);
-    
-    controlsContainer.appendChild(prevButton);
-    controlsContainer.appendChild(pageInfo);
-    controlsContainer.appendChild(nextButton);
 }
