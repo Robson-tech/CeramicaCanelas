@@ -1,130 +1,174 @@
 ﻿<div class="sidebar">
-    <div class="logo-container">
-        <div class="logo">
-            <img src="images/logo.png" alt="Logo" />
-        </div>
-        <div class="company-name">CERÂMICA CANELAS</div>
+  <!-- LOGO -->
+  <div class="logo-container">
+    <div class="logo">
+      <img src="images/logo.png" alt="Logo" />
     </div>
-    <div class="menu">
-        <div class="menu-section">
-            <div class="menu-title expandable" onclick="toggleSubmenu(this)">
-                <svg class="expand-icon" viewBox="0 0 24 24">
-                    <path d="M7,10L12,15L17,10H7Z" />
-                </svg>
-                <span>Almoxarifado</span>
-            </div>
-            
-            <div class="submenu-container" id="almoxarifado-submenu">
-                <div class="menu-section">
-            <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('inicio'); setActive(this);">
-                <svg class="menu-icon" viewBox="0 0 24 24">
-                    <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
-                </svg>
-                <span class="menu-text">Início</span>
-            </a>
-        </div>
-                <div class="menu-subsection">
-                    <div class="menu-subtitle">Cadastro</div>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('product'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L9 7V9H21M23 15V17H1V15H23M12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20Z"
-                            />
-                        </svg>
-                        <span class="menu-text">Produtos</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('employees'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M12 4A4 4 0 0 1 16 8A4 4 0 0 1 12 12A4 4 0 0 1 8 8A4 4 0 0 1 12 4M12 14C16.42 14 20 15.79 20 18V20H4V18C4 15.79 7.58 14 12 14Z" />
-                        </svg>
-                        <span class="menu-text">Funcionários</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('usersys'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path
-                                d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7M12 13C13.37 13 15.14 13.5 16 14.38V11C16 9.67 12.33 9 12 9S8 9.67 8 11V14.38C8.86 13.5 10.63 13 12 13Z"
-                            />
-                        </svg>
-                        <span class="menu-text">Usuários do Sistema</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('category'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M15.5 11L14.09 9.59L11 12.67L9.91 11.59L8.5 13L11 15.5L15.5 11Z" />
-                        </svg>
-                        <span class="menu-text">Categorias</span>
-                    </a>
+    <div class="company-name">CERÂMICA CANELAS</div>
+  </div>
 
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('suppliers'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M20 8L17 4H11V12H2V7H4V4H2A2 2 0 0 0 0 6V17A2 2 0 0 0 2 19H3A3 3 0 0 0 6 22A3 3 0 0 0 9 19H15A3 3 0 0 0 18 22A3 3 0 0 0 21 19H22V12H24V10L20 8M7.5 19A1.5 1.5 0 1 1 6 17.5A1.5 1.5 0 0 1 7.5 19M13 9H16L18.5 12H13V9M19.5 19A1.5 1.5 0 1 1 18 17.5A1.5 1.5 0 0 1 19.5 19Z" />
-                        </svg>
-                        <span class="menu-text">Fornecedores</span>
-                    </a>
-                </div>
-                <div class="menu-subsection">
-                    <div class="menu-subtitle">Movimentação de Produtos</div>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('entrada'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M5 3L19 3V5H21V7H19L18 19C18 20.1 17.1 21 16 21H8C6.9 21 6 20.1 6 19L5 7H3V5H5V3M9 8V17H11V8H9M13 8V17H15V8H13Z" />
-                        </svg>
-                        <span class="menu-text">Entrada De Produtos</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick=" event.preventDefault();loadForm('saida');setActive(this)">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M15.5 11L14.09 9.59L11 12.67L9.91 11.59L8.5 13L11 15.5L15.5 11Z" />
-                        </svg>
-                        <span class="menu-text">Saida De Produtos </span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('devolucao'); setActive(this);">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M16 13V11H8V8L3 12L8 16V13H16M20 3H12V5H20V19H12V21H20A2 2 0 0 0 22 19V5A2 2 0 0 0 20 3Z" />
-                        </svg>
-                        <span class="menu-text">Devolução de Produtos</span>
-                    </a>
-                    <div class="menu-section">
-                        <a href="#" class="menu-item logout" onclick="logout()">
-                            <svg class="menu-icon" viewBox="0 0 24 24">
-                                <path d="M16 13V11H8V8L3 12L8 16V13H16M20 3H12V5H20V19H12V21H20A2 2 0 0 0 22 19V5A2 2 0 0 0 20 3Z" />
-                            </svg>
-                            <span class="menu-text">Sair</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+  <!-- MENU PRINCIPAL -->
+  <div class="menu">
+
+    <!-- SEÇÃO ALMOXARIFADO -->
+    <div class="menu-section">
+      <div class="menu-title expandable" onclick="toggleSubmenu(this)">
+        <svg class="expand-icon" viewBox="0 0 24 24">
+          <path d="M7,10L12,15L17,10H7Z" />
+        </svg>
+        <span>Almoxarifado</span>
+      </div>
+
+      <!-- SUBMENU ALMOXARIFADO -->
+      <div class="submenu-container expanded" id="almoxarifado-submenu">
+
+        <!-- DASHBOARDS -->
+        <div class="menu-subsection">
+          <div class="menu-subtitle">Dashboards</div>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('inicio'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
+            </svg>
+            <span class="menu-text">Início</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('categoriadash'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
+            </svg>
+            <span class="menu-text">Gastos por categorias</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('produtosndevolvidos'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
+            </svg>
+            <span class="menu-text">Produtos não devolvidos</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('produtosemfalta'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
+            </svg>
+            <span class="menu-text">Produtos em falta</span>
+          </a>
+
+            <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('produtosemfalta'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" />
+            </svg>
+            <span class="menu-text">Saidas Recorrentes</span>
+          </a>
         </div>
+
+        <!-- CADASTRO -->
+        <div class="menu-subsection">
+          <div class="menu-subtitle">Cadastro</div>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('product'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1L9 7V9H21M23 15V17H1V15H23M12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20Z" />
+            </svg>
+            <span class="menu-text">Produtos</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('employees'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M12 4A4 4 0 0 1 16 8A4 4 0 0 1 12 12A4 4 0 0 1 8 8A4 4 0 0 1 12 4M12 14C16.42 14 20 15.79 20 18V20H4V18C4 15.79 7.58 14 12 14Z" />
+            </svg>
+            <span class="menu-text">Funcionários</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('usersys'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7M12 13C13.37 13 15.14 13.5 16 14.38V11C16 9.67 12.33 9 12 9S8 9.67 8 11V14.38C8.86 13.5 10.63 13 12 13Z" />
+            </svg>
+            <span class="menu-text">Usuários do Sistema</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('category'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M15.5 11L14.09 9.59L11 12.67L9.91 11.59L8.5 13L11 15.5L15.5 11Z" />
+            </svg>
+            <span class="menu-text">Categorias</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('suppliers'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M20 8L17 4H11V12H2V7H4V4H2A2 2 0 0 0 0 6V17A2 2 0 0 0 2 19H3A3 3 0 0 0 6 22A3 3 0 0 0 9 19H15A3 3 0 0 0 18 22A3 3 0 0 0 21 19H22V12H24V10L20 8M7.5 19A1.5 1.5 0 1 1 6 17.5A1.5 1.5 0 0 1 7.5 19M13 9H16L18.5 12H13V9M19.5 19A1.5 1.5 0 1 1 18 17.5A1.5 1.5 0 0 1 19.5 19Z" />
+            </svg>
+            <span class="menu-text">Fornecedores</span>
+          </a>
+        </div>
+
+        <!-- MOVIMENTAÇÃO -->
+        <div class="menu-subsection">
+          <div class="menu-subtitle">Movimentação de Produtos</div>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('entrada'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M5 3L19 3V5H21V7H19L18 19C18 20.1 17.1 21 16 21H8C6.9 21 6 20.1 6 19L5 7H3V5H5V3M9 8V17H11V8H9M13 8V17H15V8H13Z" />
+            </svg>
+            <span class="menu-text">Entrada de Produtos</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('saida'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M15.5 11L14.09 9.59L11 12.67L9.91 11.59L8.5 13L11 15.5L15.5 11Z" />
+            </svg>
+            <span class="menu-text">Saída de Produtos</span>
+          </a>
+
+          <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('devolucao'); setActive(this);">
+            <svg class="menu-icon" viewBox="0 0 24 24">
+              <path d="M16 13V11H8V8L3 12L8 16V13H16M20 3H12V5H20V19H12V21H20A2 2 0 0 0 22 19V5A2 2 0 0 0 20 3Z" />
+            </svg>
+            <span class="menu-text">Devolução de Produtos</span>
+          </a>
+        </div>
+      </div>
     </div>
+
+    <!-- SAIR -->
+    <div class="menu-section">
+      <a href="#" class="menu-item logout" onclick="logout()">
+        <svg class="menu-icon" viewBox="0 0 24 24">
+          <path d="M16 13V11H8V8L3 12L8 16V13H16M20 3H12V5H20V19H12V21H20A2 2 0 0 0 22 19V5A2 2 0 0 0 20 3Z" />
+        </svg>
+        <span class="menu-text">Sair</span>
+      </a>
+    </div>
+  </div>
 </div>
+
 <script>
-    function setActive(element) {
-        document.querySelectorAll(".menu-item").forEach((item) => {
-            item.classList.remove("active");
-        });
-        element.classList.add("active");
-    }
-
-    function toggleSubmenu(element) {
-        const submenu = element.nextElementSibling;
-        const icon = element.querySelector(".expand-icon");
-        submenu.classList.toggle("expanded");
-        icon.classList.toggle("rotated");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const submenu = document.getElementById("almoxarifado-submenu");
-        const icon = document.querySelector(".expand-icon");
-
-        if (submenu && icon) {
-            submenu.classList.add("expanded");
-            icon.classList.add("rotated");
-        }
-
-        const firstItem = document.querySelector(".menu-item");
-        if (firstItem) {
-            firstItem.classList.add("active");
-        }
+  function setActive(element) {
+    document.querySelectorAll(".menu-item").forEach((item) => {
+      item.classList.remove("active");
     });
-    function logout() {
-        localStorage.removeItem("accessToken");
-        window.location.href = "/"; // redirecione para a página de login correta
+    element.classList.add("active");
+  }
+
+  function toggleSubmenu(element) {
+    const submenu = element.nextElementSibling;
+    const icon = element.querySelector(".expand-icon");
+    submenu.classList.toggle("expanded");
+    icon.classList.toggle("rotated");
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // já deixa aberto por padrão
+    const submenu = document.getElementById("almoxarifado-submenu");
+    const icon = document.querySelector(".expand-icon");
+    if (submenu && icon) {
+      submenu.classList.add("expanded");
+      icon.classList.add("rotated");
     }
+  });
+
+  function logout() {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/";
+  }
 </script>
