@@ -99,6 +99,16 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
 
 function initializeProductForm(form) {
     if (!form) return;
+
+    // --- INÍCIO DAS NOVAS LINHAS ---
+    // Adiciona eventos de validação a todos os campos do formulário
+    const inputs = form.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => validateField(input)); // Valida enquanto digita
+        input.addEventListener('blur', () => validateField(input));  // Valida ao sair do campo
+    });
+    // --- FIM DAS NOVAS LINHAS ---
+
     form.onsubmit = (event) => {
         event.preventDefault();
         processAndSendProductData(form);
@@ -106,19 +116,21 @@ function initializeProductForm(form) {
 }
 
 async function processAndSendProductData(form) {
-    const formData = new FormData(form);
-
-    if (!formData.get('Code')?.trim() || !formData.get('Name')?.trim() || !formData.get('CategoryId')) {
-        alert('Por favor, preencha os campos obrigatórios: Código, Nome e Categoria.');
-        return;
+    // --- LÓGICA DE VALIDAÇÃO ATUALIZADA ---
+    // Substitui a verificação manual pela verificação nativa do formulário
+    if (!form.checkValidity()) {
+        // Força a exibição dos estilos de erro em todos os campos inválidos
+        form.querySelectorAll('.form-input').forEach(validateField);
+        alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+        return; // Impede o envio do formulário
     }
+    // --- FIM DA LÓGICA ATUALIZADA ---
 
-    // --- INÍCIO DAS NOVAS LINHAS ---
+    const formData = new FormData(form);
     const submitButton = form.querySelector('.submit-btn');
     const originalButtonHTML = submitButton.innerHTML;
     submitButton.disabled = true;
     submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
-    // --- FIM DAS NOVAS LINHAS ---
 
     try {
         const accessToken = localStorage.getItem('accessToken');
@@ -131,6 +143,12 @@ async function processAndSendProductData(form) {
         if (response.ok) {
             alert('Produto cadastrado com sucesso!');
             form.reset();
+
+            // Limpa os estilos de validação após o sucesso
+            form.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+
             loadProductCategories(document.querySelector('select[name="CategoryId"]'));
             fetchAndRenderProducts(1);
         } else {
@@ -141,12 +159,8 @@ async function processAndSendProductData(form) {
         console.error('❌ Erro na requisição de cadastro:', error);
         alert('Falha na comunicação com o servidor.');
     } finally {
-        // --- INÍCIO DAS NOVAS LINHAS ---
-        // Este bloco é executado sempre, seja em caso de sucesso ou falha,
-        // garantindo que o botão seja restaurado.
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonHTML;
-        // --- FIM DAS NOVAS LINHAS ---
     }
 }
 
@@ -202,6 +216,24 @@ async function fetchAndRenderProducts(page = 1) {
         // <<< MODIFICAÇÃO >>> Colspan atualizado de 8 para 9
         tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">${error.message}</td></tr>`;
         document.getElementById('pagination-controls').innerHTML = '';
+    }
+}
+
+
+// --- NOVA FUNÇÃO DE VALIDAÇÃO ---
+function validateField(input) {
+    // Limpa classes anteriores para evitar duplicidade
+    input.classList.remove('is-valid', 'is-invalid');
+
+    // checkValidity() usa os atributos do HTML (como 'required') para validar
+    if (input.checkValidity()) {
+        // Só marca como válido se o campo não estiver vazio
+        if (input.value !== '') {
+            input.classList.add('is-valid');
+        }
+    } else {
+        // Marca como inválido se checkValidity() falhar
+        input.classList.add('is-invalid');
     }
 }
 
