@@ -11,7 +11,7 @@ const originalRowHTML_Category = {};
 const originalRowHTML_Supplier = {};
 // Utiliza as variáveis globais de main.js
 const originalHistoryRowHTML = {}; // Objeto para a edição na tabela de histórico
-
+let currentPage = 1;
 let currentEmployeePage = 1;
 const originalEntryRowHTML = {}; 
 // Variável para controlar a paginação da tabela atual
@@ -137,4 +137,26 @@ function showErrorModal(errorData) {
     window.onclick = (event) => {
         if (event.target == modal) modal.style.display = 'none';
     };
+}
+
+// Adicione esta função ao seu arquivo js/main.js, se ela não estiver lá
+
+async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
+    if (!selectElement) return; 
+    try { 
+        const accessToken = localStorage.getItem('accessToken'); 
+        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
+        if (!response.ok) throw new Error('Falha ao carregar categorias.'); 
+        
+        const categories = await response.json(); 
+        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
+        categories.forEach(category => { 
+            const option = new Option(category.name, category.id); 
+            selectElement.appendChild(option); 
+        }); 
+    } catch (error) { 
+        console.error('Erro ao carregar categorias:', error); 
+        selectElement.innerHTML = '<option value="">Erro ao carregar</option>'; 
+        throw error; 
+    } 
 }

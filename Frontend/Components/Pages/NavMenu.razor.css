@@ -8,6 +8,18 @@
             font-family: 'Arial', sans-serif;
             background: #f5f5f5;
         }
+/* Garante que o submenu sempre expanda totalmente */
+.submenu-container.expanded {
+  max-height: none !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+/* Permite rolagem se o menu for muito grande */
+.sidebar .menu {
+  max-height: 100vh;
+  overflow-y: auto;
+}
 
         .sidebar {
             width: 280px;

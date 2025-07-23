@@ -1,0 +1,70 @@
+<div class="container">
+    <div class="header">
+        <h1>Controle de Estoque</h1>
+        <p>Monitoramento de estoque atual, mínimo e alertas de reposição</p>
+    </div>
+
+    <div class="search-section">
+        <div class="search-title">
+            <div class="search-icon">🔍</div>
+            Filtros de Pesquisa
+        </div>
+        
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label class="filter-label" for="search">Pesquisa Geral</label>
+                <input type="text" id="search" class="filter-input" placeholder="Buscar por nome do produto...">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="categoryId">Categoria</label>
+                <select id="categoryId" class="filter-input">
+                    <option value="">Todas as Categorias</option>
+                    </select>
+            </div>
+        </div>
+        
+        <div class="search-actions">
+            <button id="searchButton" class="search-button">
+                <span>🔍</span> Pesquisar
+            </button>
+            <button id="clearButton" class="clear-button">
+                <span>🗑️</span> Limpar Filtros
+            </button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading" style="display: none;">
+        <div class="spinner"></div>
+        Carregando dados de estoque...
+    </div>
+
+    <div class="results-section" id="resultsSection" style="display: none;">
+        <div class="results-title">
+            <div class="results-icon">📦</div>
+            Situação do Estoque
+        </div>
+        <div class="results-summary" id="resultsSummary"></div>
+        <div class="table-responsive">
+            <table class="results-table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Estoque Atual</th>
+                        <th>Estoque Mínimo</th>
+                        <th>Última Saída</th>
+                        <th>Status</th>
+                        <th>Progresso</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>📦 Nenhum produto encontrado para os filtros aplicados.</p>
+        </div>
+        <div id="pagination-controls" class="pagination-controls"></div>
+    </div>
+</div>
+<link rel="stylesheet" href="/css/produtosemfalta.css">
