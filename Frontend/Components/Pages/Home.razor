@@ -5,26 +5,53 @@
     <meta charset="UTF-8">
     <title>Home</title>
     <script>
-        // BLOQUEIO DE ACESSO DIRETO
-        const token = localStorage.getItem('accessToken');
-        console.log('Token:', token);   // Exibe o token no console para depuração
-        if (!token) {
-            window.location.replace("/"); // redireciona imediatamente
+        // BLOQUEIO DE ACESSO E VERIFICAÇÃO DE EXPIRAÇÃO DO TOKEN
+        try {
+            const token = localStorage.getItem('accessToken');
+            console.log('Verificando token:', token);
+
+            // 1. Se não existir token, redireciona para o login
+            if (!token) {
+                console.log("Token não encontrado. Redirecionando...");
+                // Usar replace para não deixar a página home no histórico do navegador
+                window.location.replace("/");
+            } else {
+                // 2. Se o token existir, decodifica o payload para verificar a expiração
+                // Um JWT é composto por header.payload.signature
+                const payloadBase64 = token.split('.')[1];
+                const decodedPayload = atob(payloadBase64); // Decodifica de Base64
+                const payload = JSON.parse(decodedPayload); // Converte a string JSON para um objeto
+
+                // 3. Verifica a data de expiração (o campo 'exp' é um timestamp em segundos)
+                const expirationTime = payload.exp;
+                const currentTime = Math.floor(Date.now() / 1000); // Tempo atual em segundos
+
+                if (expirationTime < currentTime) {
+                    console.log("Token expirado. Redirecionando...");
+                    // É uma boa prática remover o token expirado
+                    localStorage.removeItem('accessToken');
+                    window.location.replace("/");
+                } else {
+                    console.log("Token válido.");
+                }
+            }
+        } catch (error) {
+            // Se houver qualquer erro ao decodificar, o token é inválido ou malformado.
+            console.error("Erro ao processar o token, redirecionando:", error);
+            localStorage.removeItem('accessToken'); // Limpa o token inválido
+            window.location.replace("/");
         }
     </script>
-     <script src="/js/main.js"></script>
+    <script src="/js/main.js"></script>
 </head>
 <body>
     <div class="main-content">
-        <NavMenu /> <div id="form-container"></div>
-        
+        <NavMenu />
+        <div id="form-container"></div>
         <div class="welcome-card" id="welcome-message">
             <h1 class="welcome-title">Bem-vindo ao Sistema</h1>
             <p class="welcome-text">Selecione uma opção no menu lateral para começar.</p>
         </div>
     </div>
-    
-   
-  
 </body>
 </html>

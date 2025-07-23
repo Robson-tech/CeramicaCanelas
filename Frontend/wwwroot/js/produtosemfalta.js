@@ -131,8 +131,7 @@ function renderResultsTable(items) {
     items.forEach(item => {
         const statusInfo = getStatusInfo(item.stockCurrent, item.stockMinimum);
         const formattedDate = item.lastExit ? new Date(item.lastExit).toLocaleDateString('pt-BR') : 'N/A';
-        const progressPercent = Math.min((item.stockCurrent / item.stockMinimum) * 100, 100);
-
+        
         const row = tableBody.insertRow();
         row.innerHTML = `
             <td>${item.productName || 'N/A'}</td>
@@ -141,11 +140,6 @@ function renderResultsTable(items) {
             <td>${item.stockMinimum}</td>
             <td>${formattedDate}</td>
             <td><span class="status-badge ${statusInfo.className}">${statusInfo.text}</span></td>
-            <td>
-                <div class="progress-bar">
-                    <div class="progress-bar-fill ${statusInfo.className}" style="width: ${progressPercent}%;"></div>
-                </div>
-            </td>
         `;
     });
 }
