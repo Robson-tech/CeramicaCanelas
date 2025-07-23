@@ -17,6 +17,15 @@ async function handleSaveEmployee(form) {
         alert('Preencha Nome, CPF e Cargo.');
         return;
     }
+
+    // 1. Encontra o botão e salva o estado original
+    const submitButton = form.querySelector('.submit-btn');
+    const originalButtonHTML = submitButton.innerHTML;
+
+    // 2. Desabilita o botão e mostra o spinner
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/employees`, {
@@ -34,6 +43,10 @@ async function handleSaveEmployee(form) {
         }
     } catch (error) {
         alert('Erro de comunicação com o servidor.');
+    } finally {
+        // 3. SEMPRE restaura o botão ao final da operação
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
     }
 }
 
@@ -160,12 +173,20 @@ window.editEmployee = (employee) => {
 window.saveEmployeeChanges = async (employeeId) => {
     const row = document.getElementById(`row-employee-${employeeId}`);
     if (!row) return;
+
+    // 1. Encontra o botão de salvar na linha
+    const saveButton = row.querySelector('.btn-save');
+
+    // 2. Desabilita o botão e mostra o spinner
+    saveButton.disabled = true;
+    saveButton.innerHTML = `<span class="loading-spinner"></span>`;
+
     const formData = new FormData();
     formData.append('Id', employeeId);
     formData.append('Name', row.querySelector('[name="Name"]').value);
     formData.append('CPF', row.querySelector('[name="CPF"]').value);
-    // Usa 'Positiions' (com dois 'i's') para o POST/PUT
     formData.append('Positiions', row.querySelector('[name="Positiions"]').value);
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/employees`, {
@@ -174,15 +195,19 @@ window.saveEmployeeChanges = async (employeeId) => {
             body: formData
         });
         if (response.ok) {
-            alert('Funcionário atualizado com sucesso!');
+            // Não precisa de alerta, a atualização da tabela é o feedback
             loadEmployees();
         } else {
-            throw new Error('Falha ao atualizar funcionário.');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Falha ao atualizar funcionário.');
         }
     } catch (error) {
         alert(error.message);
+        // 3. Em caso de erro, a linha é restaurada, removendo o botão de loading
         cancelEditEmployee(employeeId);
     }
+    // O bloco finally não é necessário aqui, pois a linha sempre será
+    // redesenhada pelo loadEmployees() ou cancelEditEmployee().
 };
 
 window.cancelEditEmployee = (employeeId) => {
