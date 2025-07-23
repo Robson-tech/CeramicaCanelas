@@ -39,29 +39,32 @@ async function processUserData(form) {
  * Envia os dados para a API para criar um novo usuário.
  * VERSÃO COM DEBUG DETALHADO.
  */
+// Substitua sua função sendUserData inteira por esta:
 async function sendUserData(formData, form) {
     formData.delete('passwordConfirmation');
-    
-    // --- DEBUG: INÍCIO DOS DADOS ENVIADOS ---
-    console.log('%c--- DEBUG: DADOS A SEREM ENVIADOS PARA O CADASTRO DE USUÁRIO ---', 'color: purple; font-weight: bold;');
-    for (const [key, value] of formData.entries()) {
-        // Oculta a senha do log por segurança
-        if (key.toLowerCase() === 'password') {
-            console.log(`➡️ ${key}: "[SENHA OCULTA]"`);
-        } else {
-            console.log(`➡️ ${key}: "${value}"`);
-        }
+
+    // 1. Encontra o botão no formulário usando a classe que adicionamos.
+    const submitButton = form.querySelector('.submit-btn');
+
+    // 2. VERIFICAÇÃO DE SEGURANÇA: Se o botão não for encontrado, para aqui.
+    //    Isso evita o erro de 'innerHTML of null'.
+    if (!submitButton) {
+        console.error("ERRO: Botão com a classe '.submit-btn' não foi encontrado no HTML.");
+        return;
     }
-    console.log('%c-------------------- FIM DO DEBUG --------------------', 'color: purple; font-weight: bold;');
-    // --- FIM DO DEBUG ---
+
+    // 3. Guarda o texto original do botão e o desabilita mostrando o spinner.
+    const originalButtonHTML = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
 
     try {
         const accessToken = localStorage.getItem('accessToken');
         const url = `${API_BASE_URL}/user`;
-        
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Authorization': `Bearer ${accessToken}`
             },
             body: formData
@@ -70,7 +73,7 @@ async function sendUserData(formData, form) {
         if (response.ok) {
             alert('Usuário cadastrado com sucesso!');
             form.reset();
-            fetchAndRenderUsers(); 
+            fetchAndRenderUsers();
         } else {
             const errorData = await response.json().catch(() => ({ title: `Erro ${response.status}` }));
             showErrorModal(errorData);
@@ -78,6 +81,10 @@ async function sendUserData(formData, form) {
     } catch (error) {
         console.error('❌ Erro na requisição:', error);
         showErrorModal({ title: "Erro de Conexão", detail: "Falha na comunicação com o servidor." });
+    } finally {
+        // 4. ESSENCIAL: Com sucesso ou com erro, o botão volta ao normal.
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
     }
 }
 async function fetchAndRenderUsers() {
