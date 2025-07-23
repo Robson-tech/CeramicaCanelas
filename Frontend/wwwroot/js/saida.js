@@ -35,7 +35,7 @@ function initializeExitForm() {
 
 async function handleFormSubmit(event) {
     event.preventDefault();
-    
+
     const employeeId = document.getElementById('employeeId')?.value;
     const observation = document.getElementById('observation')?.value;
     const itemRows = document.querySelectorAll('#exitItemsTbody tr:not(#placeholder-row)');
@@ -64,6 +64,11 @@ async function handleFormSubmit(event) {
         });
     }
 
+    const submitButton = document.querySelector('.submit-btn');
+    const originalButtonHTML = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = `<span class="loading-spinner"></span> Registrando...`;
+
     const requests = exitItems.map(item => {
         const formData = new FormData();
         formData.append('ProductId', item.ProductId);
@@ -84,9 +89,11 @@ async function handleFormSubmit(event) {
     } catch (error) {
         console.error("Falha ao registrar uma ou mais saídas:", error);
         showErrorModal({ title: "Erro ao Registrar Saídas", detail: error.message });
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonHTML;
     }
 }
-
 async function sendExitRequest(formData) {
     const accessToken = localStorage.getItem('accessToken');
     const response = await fetch(`${API_BASE_URL}/products-exit`, {
@@ -503,36 +510,31 @@ window.saveHistoryChanges = async (exitId) => {
     const row = document.getElementById(`row-history-${exitId}`);
     if (!row) return;
 
-    // 1. Criar um objeto FormData, como exigido pela API
-    const formData = new FormData();
-
-    // 2. Adicionar os campos necessários, incluindo o ID
-    formData.append('Id', exitId);
-    formData.append('Quantity', row.querySelector('[name="Quantity"]').value);
-    formData.append('IsReturnable', row.querySelector('[name="IsReturnable"]').checked);
-    formData.append('Observation', row.querySelector('[name="Observation"]').value);
-
-    // Validação da quantidade
-    const quantity = parseInt(formData.get('Quantity'), 10);
+    const quantityValue = row.querySelector('[name="Quantity"]').value;
+    const quantity = parseInt(quantityValue, 10);
     if (isNaN(quantity) || quantity <= 0) {
         alert("A quantidade deve ser um número maior que zero.");
         return;
     }
 
-    try {
-        // Pega o token de acesso do localStorage. "rtoken" é provavelmente o nome que você usa para ele.
-        const accessToken = localStorage.getItem('accessToken'); 
-        const url = `${API_BASE_URL}/products-exit`; // URL base, sem ID no final
+    const saveButton = row.querySelector('.btn-save');
+    saveButton.disabled = true;
+    saveButton.innerHTML = `<span class="loading-spinner"></span>`;
 
-        // 3. Fazer a requisição
+    const formData = new FormData();
+    formData.append('Id', exitId);
+    formData.append('Quantity', quantityValue);
+    formData.append('IsReturnable', row.querySelector('[name="IsReturnable"]').checked);
+    formData.append('Observation', row.querySelector('[name="Observation"]').value);
+
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const url = `${API_BASE_URL}/products-exit`;
+
         const response = await fetch(url, {
-            method: 'PUT', // Usar PUT, conforme a imagem do Swagger
-            headers: {
-                // O 'Content-Type' não é definido ao usar FormData
-                // O cabeçalho de autorização é incluído aqui
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: formData // O corpo da requisição é o FormData
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+            body: formData
         });
 
         if (response.ok) {
@@ -542,12 +544,15 @@ window.saveHistoryChanges = async (exitId) => {
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar", detail: `O servidor respondeu com status ${response.status}.` }));
             showErrorModal(errorData);
+            cancelHistoryEdit(exitId); // Restaura a linha em caso de erro
         }
     } catch (error) {
         showErrorModal({ title: "Erro de Conexão", detail: error.message });
         cancelHistoryEdit(exitId);
     }
 };
+
+
 window.cancelHistoryEdit = (exitId) => {
     const row = document.getElementById(`row-history-${exitId}`);
     if (row && originalHistoryRowHTML[exitId]) {

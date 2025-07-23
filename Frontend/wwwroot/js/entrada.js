@@ -83,6 +83,12 @@ function initializeMainFormSubmit(form) {
             showErrorModal({ title: "Validação Falhou", detail: "Por favor, busque e selecione um Produto." });
             return;
         }
+
+        const submitButton = form.querySelector('.submit-btn');
+        const originalButtonHTML = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="loading-spinner"></span> Registrando...`;
+
         try {
             const accessToken = localStorage.getItem('accessToken');
             const response = await fetch(`${API_BASE_URL}/products-entry`, { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` }, body: formData });
@@ -98,10 +104,12 @@ function initializeMainFormSubmit(form) {
             }
         } catch (error) {
             showErrorModal({ title: "Erro de Conexão", detail: "Falha na comunicação com a API." });
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHTML;
         }
     });
 }
-
 // =======================================================
 // LÓGICA DA MODAL DE BUSCA DE PRODUTOS
 // =======================================================
@@ -394,58 +402,42 @@ window.saveEntryChanges = async (entryId) => {
         return;
     }
 
-    // Coleta dos dados brutos dos inputs
     const rawSupplierId = row.querySelector('.edit-supplier-id-input').value;
     const rawQuantity = row.querySelector('[name="Quantity"]').value;
     const rawUnitPrice = row.querySelector('[name="UnitPrice"]').value;
 
-    // Validações simples no cliente
     if (!rawSupplierId || rawQuantity <= 0 || rawUnitPrice < 0) {
         alert('Por favor, verifique se todos os campos estão preenchidos corretamente.');
         return;
     }
 
-    // ✨ CORREÇÃO PRINCIPAL: Usar FormData em vez de JSON.
+    const saveButton = row.querySelector('.btn-save');
+    saveButton.disabled = true;
+    saveButton.innerHTML = `<span class="loading-spinner"></span>`;
+
     const formData = new FormData();
     formData.append('Id', entryId);
     formData.append('SupplierId', rawSupplierId);
     formData.append('Quantity', rawQuantity);
-    formData.append('UnitPrice', rawUnitPrice.replace(',', '.')); // Envia como string, a API irá converter.
-
-    console.log('✅ PAYLOAD FINAL (FormData) PRONTO PARA ENVIO:');
-    // Para visualizar os dados em um FormData, você precisa iterar sobre ele.
-    for (let [key, value] of formData.entries()) {
-        console.log(`   - ${key}: ${value}`);
-    }
+    formData.append('UnitPrice', rawUnitPrice.replace(',', '.'));
 
     try {
-        console.log('🚀 Enviando requisição PUT com FormData...');
         const accessToken = localStorage.getItem('accessToken');
-
         const response = await fetch(`${API_BASE_URL}/products-entry`, {
             method: 'PUT',
-            headers: {
-                // ❌ IMPORTANTE: NÃO defina o 'Content-Type' aqui.
-                // O navegador irá configurá-lo automaticamente como 'multipart/form-data'
-                // com o 'boundary' correto quando o corpo (body) for um FormData.
-                'Authorization': `Bearer ${accessToken}`
-            },
-            // ✨ O corpo da requisição agora é o objeto FormData.
+            headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData
         });
 
         if (response.ok) {
-            console.log('✔️ Sucesso! A API retornou status OK.', response);
-            alert('Entrada atualizada com sucesso!');
             delete originalEntryRowHTML[entryId];
             fetchAndRenderEntries(currentEntryPage);
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro na resposta", detail: "A API não retornou um JSON válido." }));
-            console.error(`❌ Falha! A API retornou status ${response.status}:`, errorData);
             showErrorModal(errorData);
+            cancelEntryEdit(entryId); // Restaura a linha em caso de erro
         }
     } catch (error) {
-        console.error('❌ Erro de Conexão. Falha na comunicação com a API.', error);
         showErrorModal({ title: "Erro de Conexão", detail: error.message });
         cancelEntryEdit(entryId);
     }
