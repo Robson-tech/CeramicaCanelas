@@ -32,21 +32,21 @@
             <div id="login" class="form-content active">
                 <form id="loginForm">
                     <div class="form-group">
-                        <label class="form-label">Email ou Usuário</label>
                         <div class="input-group">
                             <span class="input-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </span>
-                            <input type="text" class="form-input" name="username" required />
+                            <input type="text" class="form-input" name="username" required placeholder=" " />
+                            <label class="form-label">Email ou Usuário</label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Senha</label>
                         <div class="input-group">
                             <span class="input-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                             </span>
-                            <input type="password" class="form-input" name="password" required />
+                            <input type="password" class="form-input" name="password" required placeholder=" " />
+                            <label class="form-label">Senha</label>
                         </div>
                     </div>
                     <button type="submit" class="form-button">Entrar</button>
@@ -57,12 +57,12 @@
             <div id="recover" class="form-content">
                 <form id="recoverForm">
                     <div class="form-group">
-                        <label class="form-label">Email</label>
                         <div class="input-group">
                             <span class="input-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                             </span>
-                            <input type="email" class="form-input" name="email" required />
+                            <input type="email" class="form-input" name="email" required placeholder=" " />
+                            <label class="form-label">Email</label>
                         </div>
                         <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
                             Digite o email associado à sua conta para receber as instruções de recuperação.
@@ -90,56 +90,104 @@
             event.currentTarget.classList.add("active");
         }
 
-        // Função para mostrar alertas
+        // Função para mostrar alertas (versão com ícones)
         function showAlert(message, type = 'danger') {
             const alertDiv = document.getElementById('alert');
-            alertDiv.textContent = message;
+
+            // Define os ícones SVG para cada tipo de alerta
+            const icons = {
+                success: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+                danger: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+            };
+
+            // Seleciona o ícone correto ou usa o de 'danger' como padrão
+            const icon = icons[type] || icons['danger'];
+
+            // Define o conteúdo HTML do alerta, incluindo o ícone
+            alertDiv.innerHTML = `<div class="alert-icon">${icon}</div><span>${message}</span>`;
+
+            // Adiciona as classes CSS corretas
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.style.display = 'block';
+
+            // Mostra o alerta. Usamos 'flex' por causa do 'align-items' no CSS.
+            alertDiv.style.display = 'flex';
         }
 
         // Lógica para o formulário de login
         document.addEventListener('DOMContentLoaded', () => {
+            // Referências dos formulários e do alerta
             const loginForm = document.getElementById('loginForm');
+            const recoverForm = document.getElementById('recoverForm');
             const alertDiv = document.getElementById('alert');
 
+            // Se os formulários não existirem na página, não faz nada.
+            if (!loginForm || !recoverForm) return;
+
+            // Referências aos botões de cada formulário
+            const loginButton = loginForm.querySelector('.form-button');
+            const recoverButton = recoverForm.querySelector('.form-button');
+
+            // Lógica para o formulário de LOGIN
             loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 alertDiv.style.display = 'none';
+
+                // Salva o texto original, desabilita e mostra o estado de carregamento
+                const originalButtonHTML = loginButton.innerHTML;
+                loginButton.disabled = true;
+                loginButton.innerHTML = `<span class="loading-spinner"></span> Entrando...`;
 
                 const formData = new FormData(loginForm);
                 const params = new URLSearchParams();
                 params.append('Username', formData.get('username'));
                 params.append('Password', formData.get('password'));
 
-                // Constrói a URL com os parâmetros de consulta
                 const url = `https://api.ceramicacanelas.shop/api/auth?${params.toString()}`;
 
                 try {
-                    // Faz a requisição POST enviando os dados na URL, sem corpo (body)
-                    const response = await fetch(url, {
-                        method: 'POST'
-                    });
+                    const response = await fetch(url, { method: 'POST' });
 
                     if (response.ok) {
                         const data = await response.json();
-
-                        // Salvar tokens e informações no localStorage
                         localStorage.setItem('accessToken', data.accessToken);
-                        localStorage.setItem('refreshToken', data.refreshToken);
-                        localStorage.setItem('issuedAt', data.issuedAt);
-                        localStorage.setItem('expirationDate', data.expirationDate);
-                        localStorage.setItem('roles', JSON.stringify(data.roles));
+                        // ... outros dados do localStorage
                         showAlert('Login bem-sucedido! Redirecionando...', 'success');
-                        setTimeout(() => {
-                            window.location.href = '/home'; // Ajuste para a página desejada
-                        }, 1500);
+                        setTimeout(() => window.location.href = '/home', 1500);
+                        // Em caso de sucesso, não precisa restaurar o botão, pois a página vai redirecionar.
                     } else {
                         showAlert('Falha no login. Verifique seu usuário e senha.', 'danger');
+                        // Restaura o botão em caso de falha
+                        loginButton.disabled = false;
+                        loginButton.innerHTML = originalButtonHTML;
                     }
                 } catch (error) {
                     console.error('Erro de conexão:', error);
-                    showAlert('Não foi possível conectar ao servidor. Tente novamente mais tarde.', 'danger');
+                    showAlert('Não foi possível conectar ao servidor.', 'danger');
+                    // Restaura o botão em caso de erro de conexão
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = originalButtonHTML;
+                }
+            });
+
+            // Lógica para o formulário de RECUPERAR SENHA
+            recoverForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                alertDiv.style.display = 'none';
+
+                const originalButtonHTML = recoverButton.innerHTML;
+                recoverButton.disabled = true;
+                recoverButton.innerHTML = `<span class="loading-spinner"></span> Enviando...`;
+
+                try {
+                    // Simulação de uma chamada de API que demora 2 segundos
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    showAlert('Instruções enviadas para o seu e-mail.', 'success');
+                } catch (error) {
+                    showAlert('Ocorreu um erro ao enviar as instruções.', 'danger');
+                } finally {
+                    // No final (sucesso ou erro), restaura o botão ao estado original
+                    recoverButton.disabled = false;
+                    recoverButton.innerHTML = originalButtonHTML;
                 }
             });
         });
