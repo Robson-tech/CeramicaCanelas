@@ -1,9 +1,16 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Common; // Adicione este using
 using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetProductsMost
 {
-    public class GetMostUsedProductsQueryHandler : IRequestHandler<GetMostUsedProductsQuery, List<GetMostUsedProductsResult>>
+    // 2. Mude a assinatura do Handler para corresponder à Query
+    public class GetMostUsedProductsQueryHandler : IRequestHandler<GetMostUsedProductsQuery, PagedResultDashboard<GetMostUsedProductsResult>>
     {
         private readonly IProductRepository _productRepository;
         private readonly IMovExitProductsRepository _exitRepository;
@@ -14,39 +21,55 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
             _exitRepository = exitRepository;
         }
 
-        public async Task<List<GetMostUsedProductsResult>> Handle(GetMostUsedProductsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResultDashboard<GetMostUsedProductsResult>> Handle(GetMostUsedProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.GetAllProductsAsync();
-            var exits = await _exitRepository.GetAllAsync();
+            var allProducts = await _productRepository.GetAllProductsAsync();
+            var allExits = await _exitRepository.GetAllAsync();
 
-            // Aplica os filtros opcionais
+            var filteredProducts = allProducts.AsEnumerable();
+
+            // 3. Aplica os filtros iniciais sobre os produtos
             if (!string.IsNullOrWhiteSpace(request.Search))
-                products = products.Where(p => p.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase)).ToList();
+                filteredProducts = filteredProducts.Where(p => p.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
 
             if (request.CategoryId.HasValue && request.CategoryId != Guid.Empty)
-                products = products.Where(p => p.CategoryId == request.CategoryId.Value).ToList();
+                filteredProducts = filteredProducts.Where(p => p.CategoryId == request.CategoryId.Value);
 
-            // Calcula os dados
-            var data = products
+            // 4. Calcula os dados e aplica o filtro final
+            var calculatedAndFilteredData = filteredProducts
                 .Select(p =>
                 {
-                    var saidas = exits.Where(e => e.ProductId == p.Id).ToList();
+                    var saidasDoProduto = allExits.Where(e => e.ProductId == p.Id).ToList();
                     return new GetMostUsedProductsResult
                     {
                         ProductName = p.Name,
                         Category = p.Category?.Name ?? "Sem categoria",
-                        TotalSaidas = saidas.Sum(e => e.Quantity),
-                        UltimaRetirada = saidas.OrderByDescending(e => e.ExitDate).FirstOrDefault()?.ExitDate,
+                        TotalSaidas = saidasDoProduto.Sum(e => e.Quantity),
+                        UltimaRetirada = saidasDoProduto.OrderByDescending(e => e.ExitDate).FirstOrDefault()?.ExitDate,
                         EstoqueAtual = p.StockCurrent
                     };
                 })
-                .Where(r => r.TotalSaidas > 0) // só produtos com saídas
+                .Where(r => r.TotalSaidas > 0); // Filtro final
+
+            // 5. Conte o total de itens APÓS TODOS os filtros e cálculos
+            var totalItems = calculatedAndFilteredData.Count();
+
+            // 6. Aplique a ordenação e a paginação
+            var itemsForPage = calculatedAndFilteredData
                 .OrderByDescending(r => r.TotalSaidas)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
 
-            return data;
+            // 7. Crie e retorne o objeto PagedResultDashboard preenchido
+            var pagedResult = new PagedResultDashboard<GetMostUsedProductsResult>(
+                items: itemsForPage,
+                totalItems: totalItems,
+                page: request.Page,
+                pageSize: request.PageSize
+            );
+
+            return pagedResult;
         }
     }
 }
