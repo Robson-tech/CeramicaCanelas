@@ -1,17 +1,4 @@
 @page "/validarsenha"
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redefinir Senha - Cerâmica Canelas</title>
-  
-      
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo"></div>
-            <h1>CERÂMICA CANELAS</h1>
-            <p>Sistema de Almoxarifado</p>
-        </div>
 
 <div class="container">
     <div class="header">
@@ -70,10 +57,23 @@
 @code {
     // You'll likely want to add C# logic here for handling password reset,
     // validation, and the togglePassword JavaScript function.
-    // For example:
-    private void togglePassword(string elementId)
-    {
-        // This method would call JavaScript to toggle password visibility.
-        // In Blazor, you'd use JS interop (IJSRuntime).
-    }
+    // For example, using IJSRuntime for JavaScript interop:
+    // [Inject] public IJSRuntime JSRuntime { get; set; }
+
+    // private async Task TogglePassword(string elementId)
+    // {
+    //     await JSRuntime.InvokeVoidAsync("togglePasswordVisibility", elementId);
+    // }
+
+    // You would then define a JavaScript function like this in your wwwroot/js/site.js (or similar):
+    /*
+    function togglePasswordVisibility(elementId) {
+        var input = document.getElementById(elementId);
+        if (input.type === "password") {
+            input.type = "text";
+            } else {
+            input.type = "password";
+            }
+        }
+        */
 }
