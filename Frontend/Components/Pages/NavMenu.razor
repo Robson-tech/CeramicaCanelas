@@ -172,8 +172,8 @@
         function logout() {
             console.log("Fazendo logout...");
             // Simula logout - descomente para produção
-            // localStorage.removeItem("accessToken");
-            // window.location.href = "/";
+            localStorage.removeItem("accessToken");
+            window.location.href = "/";
             alert("Logout realizado com sucesso! (Simulação)");
         }
 

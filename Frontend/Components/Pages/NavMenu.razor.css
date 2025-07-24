@@ -1,4 +1,4 @@
-        * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -10,20 +10,22 @@
             overflow-x: hidden;
         }
 
-        /* Menu Hambúrguer */
+        /* Menu Hambúrguer - Sempre fixo no canto esquerdo */
         .hamburger {
             display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 9999 !important;
             background: #e67e22;
             border: none;
-            border-radius: 8px;
-            padding: 12px;
+            border-radius: 0 0 8px 0;
+            padding: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin: 0 !important;
+            transform: none !important;
         }
 
         .hamburger:hover {
@@ -324,7 +326,16 @@
         /* RESPONSIVIDADE */
         @media (max-width: 768px) {
             .hamburger {
-                display: block;
+                display: block !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: auto !important;
+                bottom: auto !important;
+                margin: 0 !important;
+                transform: none !important;
+                border-radius: 0 0 8px 0 !important;
+                padding: 15px !important;
             }
 
             .sidebar {
@@ -337,7 +348,7 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 80px 20px 40px;
+                padding: 70px 20px 40px;
             }
 
             .company-name {
@@ -369,27 +380,34 @@
         }
 
         @media (max-width: 480px) {
-            .sidebar {
-                width: 100%;
-            }
-
-            .main-content {
-                padding: 80px 15px 20px;
-            }
-
-            .content-card {
-                padding: 20px;
-            }
-
             .hamburger {
-                top: 15px;
-                left: 15px;
-                padding: 10px;
+                display: block !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: auto !important;
+                bottom: auto !important;
+                margin: 0 !important;
+                transform: none !important;
+                border-radius: 0 0 8px 0 !important;
+                padding: 12px !important;
             }
 
             .hamburger span {
                 width: 20px;
                 height: 2px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 60px 15px 20px;
+            }
+
+            .content-card {
+                padding: 20px;
             }
         }
 
