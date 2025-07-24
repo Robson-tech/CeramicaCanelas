@@ -24,7 +24,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
 
             // 3. Aplique todos os filtros primeiro
             if (!string.IsNullOrWhiteSpace(request.SearchEmployee))
-                filteredData = filteredData.Where(x => x.Employee.Name.Contains(request.SearchEmployee, StringComparison.OrdinalIgnoreCase));
+                filteredData = filteredData.Where(x => x.EmployeeName.Contains(request.SearchEmployee, StringComparison.OrdinalIgnoreCase));
 
             if (request.StartDate.HasValue)
                 filteredData = filteredData.Where(x => x.ExitDate.Date >= request.StartDate.Value.Date);
