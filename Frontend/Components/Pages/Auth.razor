@@ -23,8 +23,8 @@
 
         <div class="form-container">
             <div class="form-tabs">
-                <button class="tab-button active" onclick="switchTab('login')">Login</button>
-                <button class="tab-button" onclick="switchTab('recover')">Recuperar Senha</button>
+                <button class="tab-button active" onclick="switchTab('login', event)">Login</button>
+                <button class="tab-button" onclick="switchTab('recover', event)">Recuperar Senha</button>
             </div>
 
             <div id="alert" class="alert"></div>
@@ -71,7 +71,7 @@
                     <button type="submit" class="form-button">Enviar Instruções</button>
                 </form>
                 <div class="forgot-password">
-                    <a href="#" onclick="switchTab('login')">Voltar ao Login</a>
+                    <a href="#" onclick="switchTab('login', event)">Voltar ao Login</a>
                 </div>
             </div>
         </div>
@@ -79,51 +79,50 @@
 
     <script>
         // Função para trocar de abas (Login / Recuperar Senha)
-        function switchTab(tabName) {
+        function switchTab(tabName, event) {
             const contents = document.getElementsByClassName("form-content");
             const buttons = document.getElementsByClassName("tab-button");
+            
+            // Limpa as classes 'active' de todos os conteúdos e botões
             for (let i = 0; i < contents.length; i++) {
                 contents[i].classList.remove("active");
+            }
+            for (let i = 0; i < buttons.length; i++) {
                 buttons[i].classList.remove("active");
             }
+
+            // Ativa a aba e o conteúdo corretos
             document.getElementById(tabName).classList.add("active");
-            event.currentTarget.classList.add("active");
+            
+            // Adiciona a classe 'active' ao botão clicado
+            // Encontra o botão correspondente ao tabName para ativar
+             for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].getAttribute('onclick').includes(`'${tabName}'`)) {
+                    buttons[i].classList.add("active");
+                }
+            }
         }
 
         // Função para mostrar alertas (versão com ícones)
         function showAlert(message, type = 'danger') {
             const alertDiv = document.getElementById('alert');
-
-            // Define os ícones SVG para cada tipo de alerta
             const icons = {
                 success: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
                 danger: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
             };
-
-            // Seleciona o ícone correto ou usa o de 'danger' como padrão
             const icon = icons[type] || icons['danger'];
-
-            // Define o conteúdo HTML do alerta, incluindo o ícone
             alertDiv.innerHTML = `<div class="alert-icon">${icon}</div><span>${message}</span>`;
-
-            // Adiciona as classes CSS corretas
             alertDiv.className = `alert alert-${type}`;
-
-            // Mostra o alerta. Usamos 'flex' por causa do 'align-items' no CSS.
             alertDiv.style.display = 'flex';
         }
 
-        // Lógica para o formulário de login
+        // Lógica para os formulários
         document.addEventListener('DOMContentLoaded', () => {
-            // Referências dos formulários e do alerta
             const loginForm = document.getElementById('loginForm');
             const recoverForm = document.getElementById('recoverForm');
             const alertDiv = document.getElementById('alert');
-
-            // Se os formulários não existirem na página, não faz nada.
             if (!loginForm || !recoverForm) return;
 
-            // Referências aos botões de cada formulário
             const loginButton = loginForm.querySelector('.form-button');
             const recoverButton = recoverForm.querySelector('.form-button');
 
@@ -132,7 +131,6 @@
                 event.preventDefault();
                 alertDiv.style.display = 'none';
 
-                // Salva o texto original, desabilita e mostra o estado de carregamento
                 const originalButtonHTML = loginButton.innerHTML;
                 loginButton.disabled = true;
                 loginButton.innerHTML = `<span class="loading-spinner"></span> Entrando...`;
@@ -141,35 +139,29 @@
                 const params = new URLSearchParams();
                 params.append('Username', formData.get('username'));
                 params.append('Password', formData.get('password'));
-
-                const url = `https://api.ceramicacanelas.shop/api/auth?${params.toString()}`;
+                const url = `http://localhost:5087/api/auth?${params.toString()}`;
 
                 try {
                     const response = await fetch(url, { method: 'POST' });
-
                     if (response.ok) {
                         const data = await response.json();
                         localStorage.setItem('accessToken', data.accessToken);
-                        // ... outros dados do localStorage
                         showAlert('Login bem-sucedido! Redirecionando...', 'success');
                         setTimeout(() => window.location.href = '/home', 1500);
-                        // Em caso de sucesso, não precisa restaurar o botão, pois a página vai redirecionar.
                     } else {
                         showAlert('Falha no login. Verifique seu usuário e senha.', 'danger');
-                        // Restaura o botão em caso de falha
                         loginButton.disabled = false;
                         loginButton.innerHTML = originalButtonHTML;
                     }
                 } catch (error) {
                     console.error('Erro de conexão:', error);
                     showAlert('Não foi possível conectar ao servidor.', 'danger');
-                    // Restaura o botão em caso de erro de conexão
                     loginButton.disabled = false;
                     loginButton.innerHTML = originalButtonHTML;
                 }
             });
 
-            // Lógica para o formulário de RECUPERAR SENHA
+            // Lógica para o formulário de RECUPERAR SENHA (ATUALIZADO)
             recoverForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 alertDiv.style.display = 'none';
@@ -178,14 +170,23 @@
                 recoverButton.disabled = true;
                 recoverButton.innerHTML = `<span class="loading-spinner"></span> Enviando...`;
 
+                const formData = new FormData(recoverForm);
+                const email = formData.get('email');
+                const url = `http://localhost:5087/api/auth/forgot-password?Email=${encodeURIComponent(email)}`;
+
                 try {
-                    // Simulação de uma chamada de API que demora 2 segundos
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    showAlert('Instruções enviadas para o seu e-mail.', 'success');
+                    const response = await fetch(url, { method: 'POST' });
+
+                    if (response.ok) {
+                        showAlert('Instruções enviadas para o seu e-mail.', 'success');
+                    } else {
+                        const errorText = await response.text();
+                        showAlert(errorText || 'Ocorreu um erro ao enviar as instruções.', 'danger');
+                    }
                 } catch (error) {
-                    showAlert('Ocorreu um erro ao enviar as instruções.', 'danger');
+                    console.error('Erro de conexão:', error);
+                    showAlert('Não foi possível conectar ao servidor.', 'danger');
                 } finally {
-                    // No final (sucesso ou erro), restaura o botão ao estado original
                     recoverButton.disabled = false;
                     recoverButton.innerHTML = originalButtonHTML;
                 }
