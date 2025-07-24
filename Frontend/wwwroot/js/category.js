@@ -7,7 +7,17 @@ console.log('Script js/category.js DEFINIDO.');
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de category.js foi chamada.');
-    initializeCategoryForm(document.querySelector('.category-form'));
+
+    // Verifica se estamos na página de categorias antes de inicializar
+    const categoryForm = document.querySelector('.category-form');
+    const categoryTableBody = document.querySelector('#category-list-body');
+
+    if (!categoryForm && !categoryTableBody) {
+        console.log('⚠️ Elementos de categorias não encontrados. Provavelmente em outra página.');
+        return;
+    }
+
+    initializeCategoryForm(categoryForm);
     fetchAndRenderCategories();
 }
 
@@ -30,6 +40,8 @@ async function processAndSendCategoryData(form) {
     }
 
     const submitButton = form.querySelector('.submit-btn');
+    if (!submitButton) return;
+
     const originalButtonHTML = submitButton.innerHTML;
     submitButton.disabled = true;
     submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
@@ -63,20 +75,24 @@ async function processAndSendCategoryData(form) {
 // =======================================================
 async function fetchAndRenderCategories() {
     const tableBody = document.querySelector('#category-list-body');
-    if (!tableBody) return;
+
+    // Se não existe o elemento da tabela, não executa
+    if (!tableBody) {
+        console.log('⚠️ Tabela de categorias não encontrada. Provavelmente em outra página.');
+        return;
+    }
+
     tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Buscando...</td></tr>';
-    
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-
-        // <<< INÍCIO DA NOVA LÓGICA >>>
 
         // Se a resposta for bem-sucedida (status 2xx), processa normalmente.
         if (response.ok) {
             const categories = await response.json();
             renderCategoryTable(categories, tableBody);
-            return; // Encerra a função aqui.
+            return;
         }
 
         // Se a resposta NÃO for bem-sucedida (status 4xx, 5xx), lemos o corpo do erro.
@@ -84,25 +100,22 @@ async function fetchAndRenderCategories() {
 
         // Verificamos se a mensagem de erro é a que esperamos para uma lista vazia.
         if (errorData && errorData.message === "Não há categórias cadastradas.") {
-            // Se for, tratamos como um caso normal de lista vazia, sem exibir alerta.
             console.log("API informou que não há categorias. Renderizando tabela vazia.");
             renderCategoryTable([], tableBody);
         } else {
-            // Se for qualquer outro erro, aí sim lançamos o erro para ser pego pelo catch.
             throw new Error(errorData.message || `Erro ${response.status}`);
         }
-        // <<< FIM DA NOVA LÓGICA >>>
 
     } catch (error) {
-        // Este bloco agora só captura erros de conexão ou erros inesperados da API.
         alert(`Erro ao Listar: ${error.message}`);
         tableBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: red;">${error.message}</td></tr>`;
     }
 }
 
 function renderCategoryTable(categories, tableBody) {
+    if (!tableBody) return;
+
     tableBody.innerHTML = '';
-    // Esta parte já estava correta, exibindo a mensagem para lista vazia.
     if (!categories || categories.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Nenhuma categoria cadastrada.</td></tr>';
         return;
@@ -137,11 +150,9 @@ window.deleteCategory = async (categoryId) => {
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir", detail: "A categoria pode estar associada a produtos." }));
-            // MODIFICADO: Trocado showErrorModal por alert
             alert(`Erro: ${errorData.title}\nDetalhe: ${errorData.detail}`);
         }
     } catch (error) {
-        // MODIFICADO: Trocado showErrorModal por alert
         alert(`Erro de Conexão: ${error.message}`);
     }
 };
@@ -149,11 +160,17 @@ window.deleteCategory = async (categoryId) => {
 window.editCategory = (category) => {
     const row = document.getElementById(`row-category-${category.id}`);
     if (!row) return;
+
+    // Inicializa o objeto se não existir
+    if (typeof originalRowHTML_Category === 'undefined') {
+        window.originalRowHTML_Category = {};
+    }
+
     originalRowHTML_Category[category.id] = row.innerHTML;
-    
+
     row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${category.name}">`;
     row.querySelector('[data-field="description"]').innerHTML = `<textarea name="Description" class="edit-input">${category.description || ''}</textarea>`;
-    
+
     row.querySelector('[data-field="actions"]').innerHTML = `
         <button class="btn-action btn-save" onclick="saveCategoryChanges('${category.id}')">Salvar</button>
         <button class="btn-action btn-cancel" onclick="cancelEditCategory('${category.id}')">Cancelar</button>
@@ -166,8 +183,14 @@ window.saveCategoryChanges = async (categoryId) => {
 
     const formData = new FormData();
     formData.append('Id', categoryId);
-    formData.append('Name', row.querySelector('[name="Name"]').value);
-    formData.append('Description', row.querySelector('[name="Description"]').value);
+
+    const nameInput = row.querySelector('[name="Name"]');
+    const descInput = row.querySelector('[name="Description"]');
+
+    if (!nameInput || !descInput) return;
+
+    formData.append('Name', nameInput.value);
+    formData.append('Description', descInput.value);
 
     if (!formData.get('Name')?.trim()) {
         alert('O nome da categoria não pode estar em branco.');
@@ -175,6 +198,8 @@ window.saveCategoryChanges = async (categoryId) => {
     }
 
     const saveButton = row.querySelector('.btn-save');
+    if (!saveButton) return;
+
     saveButton.disabled = true;
     saveButton.innerHTML = `<span class="loading-spinner"></span>`;
 
@@ -187,13 +212,10 @@ window.saveCategoryChanges = async (categoryId) => {
         });
 
         if (response.ok) {
-            // A atualização da tabela já é um feedback visual, o alert é opcional.
-            // alert('Categoria atualizada com sucesso!');
             fetchAndRenderCategories();
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar" }));
             alert(`Erro: ${errorData.title || 'Não foi possível atualizar a categoria.'}`);
-            // Em caso de erro, restaura a linha para que o usuário possa tentar novamente.
             cancelEditCategory(categoryId);
         }
     } catch (error) {
@@ -204,7 +226,7 @@ window.saveCategoryChanges = async (categoryId) => {
 
 window.cancelEditCategory = (categoryId) => {
     const row = document.getElementById(`row-category-${categoryId}`);
-    if (row && originalRowHTML_Category[categoryId]) {
+    if (row && window.originalRowHTML_Category && originalRowHTML_Category[categoryId]) {
         row.innerHTML = originalRowHTML_Category[categoryId];
         delete originalRowHTML_Category[categoryId];
     }

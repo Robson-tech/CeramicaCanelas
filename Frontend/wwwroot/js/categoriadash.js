@@ -13,6 +13,7 @@ function initializeSearch() {
     if (searchButton) {
         searchButton.onclick = () => performSearch(1);
     }
+    // Carrega as categorias no filtro e depois faz a primeira busca
     loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias')
         .then(() => {
             performSearch(1);
@@ -27,8 +28,8 @@ async function performSearch(page = 1) {
     const resultsSection = document.getElementById('resultsSection');
     const tableBody = document.getElementById('tableBody');
 
-    loadingDiv.style.display = 'flex';
-    resultsSection.style.display = 'none';
+    if(loadingDiv) loadingDiv.style.display = 'flex';
+    if(resultsSection) resultsSection.style.display = 'none';
     if (tableBody) tableBody.innerHTML = '';
 
     try {
@@ -37,7 +38,7 @@ async function performSearch(page = 1) {
 
         const categoryId = document.getElementById('categoryId')?.value;
         const year = document.getElementById('year')?.value;
-        const pageSize = 10;
+        const pageSize = 10; // Fixo no código
 
         const params = new URLSearchParams({
             Page: page,
@@ -52,26 +53,36 @@ async function performSearch(page = 1) {
 
         const data = await response.json();
         
-        // Se a API retornar um array direto, a gente ajusta aqui para o formato esperado
-        const paginatedData = Array.isArray(data) ? { items: data, totalItems: data.length, totalPages: 1, page: 1 } : data;
+        // --- CORREÇÃO APLICADA AQUI ---
+        // Agora, lemos os dados da estrutura correta que a API retorna
+        const paginatedData = data.pagedData; 
+        
+        if (!paginatedData || !paginatedData.items) {
+            throw new Error("A resposta da API não tem o formato esperado (pagedData.items não encontrado).");
+        }
 
-        updateSummary(paginatedData);
+        updateSummary(data); // Passa o objeto 'data' completo para o resumo
         renderResultsTable(paginatedData.items);
         renderPagination(paginatedData);
         
-        resultsSection.style.display = 'block';
+        if(resultsSection) resultsSection.style.display = 'block';
 
     } catch (error) {
-        showErrorModal({ title: "Erro na Pesquisa", detail: error.message });
+        if(typeof showErrorModal === 'function') {
+            showErrorModal({ title: "Erro na Pesquisa", detail: error.message });
+        } else {
+            alert(`Erro na Pesquisa: ${error.message}`);
+        }
     } finally {
-        loadingDiv.style.display = 'none';
+        if(loadingDiv) loadingDiv.style.display = 'none';
     }
 }
 
 function updateSummary(data) {
-    const totalItems = data.totalItems || 0;
-    const grandTotalCost = data.grandTotalCost || 0;
-    const averageCost = data.averageCost || 0;
+    // CORREÇÃO: Lê os totais dos campos corretos na resposta da API
+    const totalItems = data.pagedData?.totalItems || 0;
+    const grandTotalCost = data.totalCostOverall || 0;
+    const averageCost = data.averageCostPerRecord || 0;
 
     const summaryContainer = document.getElementById('resultsSummary');
     summaryContainer.innerHTML = `
@@ -90,26 +101,19 @@ function updateSummary(data) {
     `;
 }
 
-/**
- * Renderiza a tabela de resultados.
- * VERSÃO CORRIGIDA: Inclui a definição de 'monthNames'.
- */
 function renderResultsTable(items) {
     const tableBody = document.getElementById('tableBody');
     const noResultsDiv = document.getElementById('noResults');
     tableBody.innerHTML = '';
 
     if (!items || items.length === 0) {
-        noResultsDiv.style.display = 'block';
+        if(noResultsDiv) noResultsDiv.style.display = 'block';
         return;
     }
     
-    noResultsDiv.style.display = 'none';
+    if(noResultsDiv) noResultsDiv.style.display = 'none';
     
-    // --- CORREÇÃO APLICADA AQUI ---
-    // A lista de nomes dos meses precisa ser definida para a "tradução" funcionar.
     const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    // -----------------------------
 
     items.forEach(item => {
         const row = tableBody.insertRow();
@@ -126,7 +130,8 @@ function renderPagination(paginationData) {
     const controlsContainer = document.getElementById('pagination-controls');
     if (!controlsContainer) return;
     controlsContainer.innerHTML = '';
-    if (!paginationData.totalPages || paginationData.totalPages <= 1) return;
+    
+    if (!paginationData || !paginationData.totalPages || paginationData.totalPages <= 1) return;
     
     const page = paginationData.page;
     const totalPages = paginationData.totalPages;

@@ -13,14 +13,32 @@ console.log('Script js/entrada.js DEFINIDO.');
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de entrada.js foi chamada.');
-    
-    initializeFormListeners(document.querySelector('#productEntryForm'));
+
+    // ✅ VERIFICAÇÃO ADICIONADA: Só executa se os elementos da página de entrada existirem
+    const entryForm = document.querySelector('#productEntryForm');
+    const entryTableBody = document.querySelector('#entry-list-body');
+
+    if (!entryForm || !entryTableBody) {
+        console.log('⚠️ Elementos da página de entrada não encontrados. Pulando inicialização.');
+        return;
+    }
+
+    initializeFormListeners(entryForm);
     initializeEntryTableFilters();
 
-    loadProductCategories(document.querySelector('#entryCategoryFilter'), 'Todas as Categorias')
-        .then(() => {
-            fetchAndRenderEntries(1);
-        });
+    const categoryFilter = document.querySelector('#entryCategoryFilter');
+    if (categoryFilter) {
+        loadProductCategories(categoryFilter, 'Todas as Categorias')
+            .then(() => {
+                fetchAndRenderEntries(1);
+            })
+            .catch(() => {
+                console.log('⚠️ Erro ao carregar categorias, mas continuando...');
+                fetchAndRenderEntries(1);
+            });
+    } else {
+        fetchAndRenderEntries(1);
+    }
 }
 
 // =======================================================
@@ -28,44 +46,72 @@ function initDynamicForm() {
 // =======================================================
 function initializeFormListeners(form) {
     if (!form) return;
-    
+
     // Configura a modal de Produtos
     const productModal = document.getElementById('productSearchModal');
     const openProductModalBtn = document.getElementById('openProductModalBtn');
-    openProductModalBtn.addEventListener('click', () => {
-        productModal.style.display = 'block';
-        currentModalPage = 1;
-        loadProductCategories(productModal.querySelector('#modalCategoryFilter'), 'Todas as Categorias')
-            .then(() => fetchAndRenderProductsInModal());
-    });
-    productModal.querySelector('.modal-close-btn').addEventListener('click', () => productModal.style.display = 'none');
-    productModal.querySelector('#modalFilterBtn').addEventListener('click', () => {
-        currentModalPage = 1;
-        fetchAndRenderProductsInModal();
-    });
-    initializeProductSelectionListener(productModal);
+    if (productModal && openProductModalBtn) {
+        openProductModalBtn.addEventListener('click', () => {
+            productModal.style.display = 'block';
+            currentModalPage = 1;
+            const modalCategoryFilter = productModal.querySelector('#modalCategoryFilter');
+            if (modalCategoryFilter) {
+                loadProductCategories(modalCategoryFilter, 'Todas as Categorias')
+                    .then(() => fetchAndRenderProductsInModal())
+                    .catch(() => fetchAndRenderProductsInModal());
+            } else {
+                fetchAndRenderProductsInModal();
+            }
+        });
+
+        const closeBtn = productModal.querySelector('.modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => productModal.style.display = 'none');
+        }
+
+        const filterBtn = productModal.querySelector('#modalFilterBtn');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', () => {
+                currentModalPage = 1;
+                fetchAndRenderProductsInModal();
+            });
+        }
+
+        initializeProductSelectionListener(productModal);
+    }
 
     // Configura a modal de Fornecedores
     const supplierModal = document.getElementById('supplierSearchModal');
     const openSupplierModalBtn = document.getElementById('openSupplierModalBtn');
-    openSupplierModalBtn.addEventListener('click', () => {
-        // Garante que não estamos em modo de edição ao abrir pelo formulário principal
-        currentEditingEntryId = null; 
-        supplierModal.style.display = 'block';
-        currentSupplierModalPage = 1;
-        fetchAndRenderSuppliersInModal();
-    });
-    supplierModal.querySelector('.modal-close-btn').addEventListener('click', () => supplierModal.style.display = 'none');
-    supplierModal.querySelector('#modalSupplierFilterBtn').addEventListener('click', () => {
-        currentSupplierModalPage = 1;
-        fetchAndRenderSuppliersInModal();
-    });
-    initializeSupplierSelectionListener(supplierModal);
+    if (supplierModal && openSupplierModalBtn) {
+        openSupplierModalBtn.addEventListener('click', () => {
+            // Garante que não estamos em modo de edição ao abrir pelo formulário principal
+            currentEditingEntryId = null;
+            supplierModal.style.display = 'block';
+            currentSupplierModalPage = 1;
+            fetchAndRenderSuppliersInModal();
+        });
+
+        const closeBtn = supplierModal.querySelector('.modal-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => supplierModal.style.display = 'none');
+        }
+
+        const filterBtn = supplierModal.querySelector('#modalSupplierFilterBtn');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', () => {
+                currentSupplierModalPage = 1;
+                fetchAndRenderSuppliersInModal();
+            });
+        }
+
+        initializeSupplierSelectionListener(supplierModal);
+    }
 
     // Fecha modais ao clicar fora
     window.addEventListener('click', (event) => {
-        if (event.target === productModal) productModal.style.display = 'none';
-        if (event.target === supplierModal) supplierModal.style.display = 'none';
+        if (productModal && event.target === productModal) productModal.style.display = 'none';
+        if (supplierModal && event.target === supplierModal) supplierModal.style.display = 'none';
     });
 
     initializeMainFormSubmit(form);
@@ -85,6 +131,8 @@ function initializeMainFormSubmit(form) {
         }
 
         const submitButton = form.querySelector('.submit-btn');
+        if (!submitButton) return;
+
         const originalButtonHTML = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = `<span class="loading-spinner"></span> Registrando...`;
@@ -95,8 +143,10 @@ function initializeMainFormSubmit(form) {
             if (response.ok) {
                 alert('Entrada registrada com sucesso!');
                 form.reset();
-                document.getElementById('selectedProductName').textContent = 'Nenhum produto selecionado';
-                document.getElementById('selectedSupplierName').textContent = 'Nenhum fornecedor selecionado';
+                const selectedProductName = document.getElementById('selectedProductName');
+                const selectedSupplierName = document.getElementById('selectedSupplierName');
+                if (selectedProductName) selectedProductName.textContent = 'Nenhum produto selecionado';
+                if (selectedSupplierName) selectedSupplierName.textContent = 'Nenhum fornecedor selecionado';
                 fetchAndRenderEntries(1);
             } else {
                 const errorData = await response.json();
@@ -110,23 +160,31 @@ function initializeMainFormSubmit(form) {
         }
     });
 }
+
 // =======================================================
 // LÓGICA DA MODAL DE BUSCA DE PRODUTOS
 // =======================================================
 async function fetchAndRenderProductsInModal() {
     const resultsContainer = document.getElementById('modalResultsContainer');
+    if (!resultsContainer) return;
+
     resultsContainer.innerHTML = '<p>Buscando...</p>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Token não encontrado.");
-        
-        const search = document.getElementById('modalSearchInput').value;
-        const categoryId = document.getElementById('modalCategoryFilter').value;
-        const orderBy = document.getElementById('modalOrderBySelect').value;
+
+        const searchInput = document.getElementById('modalSearchInput');
+        const categoryFilter = document.getElementById('modalCategoryFilter');
+        const orderBySelect = document.getElementById('modalOrderBySelect');
+
+        const search = searchInput ? searchInput.value : '';
+        const categoryId = categoryFilter ? categoryFilter.value : '';
+        const orderBy = orderBySelect ? orderBySelect.value : 'name';
+
         const params = new URLSearchParams({ Page: currentModalPage, PageSize: 10, OrderBy: orderBy });
         if (search) params.append('Search', search);
         if (categoryId) params.append('CategoryId', categoryId);
-        
+
         const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha na requisição: ${response.status}`);
@@ -135,15 +193,23 @@ async function fetchAndRenderProductsInModal() {
         renderModalPagination(paginatedData, 'product');
     } catch (error) {
         resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
-        document.getElementById('modalPaginationControls').innerHTML = '';
+        const paginationControls = document.getElementById('modalPaginationControls');
+        if (paginationControls) paginationControls.innerHTML = '';
     }
 }
 
 function initializeProductSelectionListener(modal) {
-    modal.querySelector('#modalResultsContainer').addEventListener('click', (event) => {
+    const resultsContainer = modal.querySelector('#modalResultsContainer');
+    if (!resultsContainer) return;
+
+    resultsContainer.addEventListener('click', (event) => {
         if (event.target.classList.contains('select-product-btn')) {
-            document.getElementById('selectedProductName').textContent = event.target.dataset.name;
-            document.getElementById('productUuid').value = event.target.dataset.id;
+            const selectedProductName = document.getElementById('selectedProductName');
+            const productUuid = document.getElementById('productUuid');
+            if (selectedProductName && productUuid) {
+                selectedProductName.textContent = event.target.dataset.name;
+                productUuid.value = event.target.dataset.id;
+            }
             modal.style.display = 'none';
         }
     });
@@ -154,30 +220,37 @@ function initializeProductSelectionListener(modal) {
 // =======================================================
 async function fetchAndRenderSuppliersInModal() {
     const resultsContainer = document.getElementById('modalSupplierResultsContainer');
+    if (!resultsContainer) return;
+
     resultsContainer.innerHTML = '<p>Buscando fornecedores...</p>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Token não encontrado.");
-        
-        const search = document.getElementById('modalSupplierSearchInput').value;
+
+        const searchInput = document.getElementById('modalSupplierSearchInput');
+        const search = searchInput ? searchInput.value : '';
         const params = new URLSearchParams({ Page: currentSupplierModalPage, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
-        
+
         const url = `${API_BASE_URL}/supplier/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha na requisição: ${response.status}`);
-        
+
         const paginatedData = await response.json();
         renderModalResults(paginatedData.items, resultsContainer, 'supplier');
         renderModalPagination(paginatedData, 'supplier');
     } catch (error) {
         resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
-        document.getElementById('modalSupplierPaginationControls').innerHTML = '';
+        const paginationControls = document.getElementById('modalSupplierPaginationControls');
+        if (paginationControls) paginationControls.innerHTML = '';
     }
 }
 
 function initializeSupplierSelectionListener(modal) {
-    modal.querySelector('#modalSupplierResultsContainer').addEventListener('click', (event) => {
+    const resultsContainer = modal.querySelector('#modalSupplierResultsContainer');
+    if (!resultsContainer) return;
+
+    resultsContainer.addEventListener('click', (event) => {
         if (event.target.classList.contains('select-supplier-btn')) {
             const supplierId = event.target.dataset.id;
             const supplierName = event.target.dataset.name;
@@ -187,16 +260,20 @@ function initializeSupplierSelectionListener(modal) {
                 // Atualiza os campos na linha da tabela que está sendo editada
                 const row = document.getElementById(`row-entry-${currentEditingEntryId}`);
                 if (row) {
-                    row.querySelector('.edit-supplier-name-span').textContent = supplierName;
-                    row.querySelector('.edit-supplier-id-input').value = supplierId;
+                    const supplierNameSpan = row.querySelector('.edit-supplier-name-span');
+                    const supplierIdInput = row.querySelector('.edit-supplier-id-input');
+                    if (supplierNameSpan) supplierNameSpan.textContent = supplierName;
+                    if (supplierIdInput) supplierIdInput.value = supplierId;
                 }
                 currentEditingEntryId = null; // Reseta o estado de edição
             } else {
                 // Comportamento original: atualiza o formulário principal
-                document.getElementById('selectedSupplierName').textContent = supplierName;
-                document.getElementById('supplierUuid').value = supplierId;
+                const selectedSupplierName = document.getElementById('selectedSupplierName');
+                const supplierUuid = document.getElementById('supplierUuid');
+                if (selectedSupplierName) selectedSupplierName.textContent = supplierName;
+                if (supplierUuid) supplierUuid.value = supplierId;
             }
-            
+
             modal.style.display = 'none'; // Fecha a modal em ambos os casos
         }
     });
@@ -206,16 +283,21 @@ function initializeSupplierSelectionListener(modal) {
 // FUNÇÕES GENÉRICAS PARA MODAIS
 // =======================================================
 function renderModalResults(items, container, type) {
-    if (!items || items.length === 0) { container.innerHTML = `<p>Nenhum ${type === 'product' ? 'produto' : 'fornecedor'} encontrado.</p>`; return; }
+    if (!container) return;
+
+    if (!items || items.length === 0) {
+        container.innerHTML = `<p>Nenhum ${type === 'product' ? 'produto' : 'fornecedor'} encontrado.</p>`;
+        return;
+    }
     const table = document.createElement('table');
     table.className = 'results-table';
     if (type === 'product') {
         table.innerHTML = `<thead><tr><th>Nome</th><th>Código</th><th>Estoque</th><th>Ação</th></tr></thead><tbody>
-            ${items.map(p => `<tr><td>${p.name}</td><td>${p.code||'N/A'}</td><td>${p.stockCurrent||0}</td><td><button type="button" class="select-product-btn" data-id="${p.id}" data-name="${p.name}">Selecionar</button></td></tr>`).join('')}
+            ${items.map(p => `<tr><td>${p.name}</td><td>${p.code || 'N/A'}</td><td>${p.stockCurrent || 0}</td><td><button type="button" class="select-product-btn" data-id="${p.id}" data-name="${p.name}">Selecionar</button></td></tr>`).join('')}
         </tbody>`;
     } else { // type === 'supplier'
         table.innerHTML = `<thead><tr><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>Ação</th></tr></thead><tbody>
-            ${items.map(s => `<tr><td>${s.name}</td><td>${s.cnpj||'N/A'}</td><td>${s.phone||'N/A'}</td><td><button type="button" class="select-supplier-btn" data-id="${s.id}" data-name="${s.name}">Selecionar</button></td></tr>`).join('')}
+            ${items.map(s => `<tr><td>${s.name}</td><td>${s.cnpj || 'N/A'}</td><td>${s.phone || 'N/A'}</td><td><button type="button" class="select-supplier-btn" data-id="${s.id}" data-name="${s.name}">Selecionar</button></td></tr>`).join('')}
         </tbody>`;
     }
     container.innerHTML = '';
@@ -223,10 +305,12 @@ function renderModalResults(items, container, type) {
 }
 
 function renderModalPagination(paginationData, type) {
-    const controlsContainer = (type === 'product') 
-        ? document.getElementById('modalPaginationControls') 
+    const controlsContainer = (type === 'product')
+        ? document.getElementById('modalPaginationControls')
         : document.getElementById('modalSupplierPaginationControls');
-    
+
+    if (!controlsContainer) return;
+
     controlsContainer.innerHTML = '';
     if (paginationData.totalPages <= 1) return;
     const { page, totalPages } = paginationData;
@@ -235,7 +319,7 @@ function renderModalPagination(paginationData, type) {
     const prevButton = `<button class="pagination-btn" ${!hasPreviousPage ? 'disabled' : ''} data-page="${page - 1}" data-type="${type}">Anterior</button>`;
     const nextButton = `<button class="pagination-btn" ${!hasNextPage ? 'disabled' : ''} data-page="${page + 1}" data-type="${type}">Próxima</button>`;
     const pageInfo = `<span class="pagination-info">Página ${page} de ${totalPages}</span>`;
-    
+
     controlsContainer.innerHTML = prevButton + pageInfo + nextButton;
 
     controlsContainer.querySelectorAll('.pagination-btn').forEach(button => {
@@ -252,30 +336,44 @@ function renderModalPagination(paginationData, type) {
     });
 }
 
-
 // =======================================================
 // LÓGICA DA TABELA DE ENTRADAS (LISTAGEM E CRUD)
 // =======================================================
 function initializeEntryTableFilters() {
-    document.getElementById('entryFilterBtn')?.addEventListener('click', () => fetchAndRenderEntries(1));
-    document.getElementById('entryClearFilterBtn')?.addEventListener('click', () => {
-        document.getElementById('entrySearchInput').value = '';
-        document.getElementById('entryCategoryFilter').value = '';
-        fetchAndRenderEntries(1);
-    });
+    const filterBtn = document.getElementById('entryFilterBtn');
+    const clearFilterBtn = document.getElementById('entryClearFilterBtn');
+
+    if (filterBtn) {
+        filterBtn.addEventListener('click', () => fetchAndRenderEntries(1));
+    }
+
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+            const searchInput = document.getElementById('entrySearchInput');
+            const categoryFilter = document.getElementById('entryCategoryFilter');
+            if (searchInput) searchInput.value = '';
+            if (categoryFilter) categoryFilter.value = '';
+            fetchAndRenderEntries(1);
+        });
+    }
 }
 
 async function fetchAndRenderEntries(page = 1) {
     currentEntryPage = page;
     const tableBody = document.querySelector('#entry-list-body');
     if (!tableBody) return;
+
     // ✅ Colspan corrigido para 7, que agora corresponde ao número de cabeçalhos
     tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Buscando...</td></tr>';
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
-        const search = document.getElementById('entrySearchInput')?.value;
-        const categoryId = document.getElementById('entryCategoryFilter')?.value;
+
+        const searchInput = document.getElementById('entrySearchInput');
+        const categoryFilter = document.getElementById('entryCategoryFilter');
+
+        const search = searchInput ? searchInput.value : '';
+        const categoryId = categoryFilter ? categoryFilter.value : '';
         const params = new URLSearchParams({ Page: currentEntryPage, PageSize: 10, OrderBy: 'EntryDate', Ascending: false });
         if (search) params.append('Search', search);
         if (categoryId) params.append('CategoryId', categoryId);
@@ -288,11 +386,14 @@ async function fetchAndRenderEntries(page = 1) {
     } catch (error) {
         showErrorModal({ title: "Erro ao Listar Entradas", detail: error.message });
         tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Falha ao carregar.</td></tr>`;
-        document.getElementById('entry-pagination-controls').innerHTML = '';
+        const paginationControls = document.getElementById('entry-pagination-controls');
+        if (paginationControls) paginationControls.innerHTML = '';
     }
 }
 
 function renderEntryTable(entries, tableBody) {
+    if (!tableBody) return;
+
     tableBody.innerHTML = '';
     // ✅ Colspan corrigido para 7
     if (!entries || entries.length === 0) {
@@ -362,7 +463,7 @@ window.editEntry = (entry) => {
     }
 
     originalEntryRowHTML[entry.id] = row.innerHTML;
-    
+
     // ✅ CORREÇÃO: Adicionado um input escondido para productId, necessário para a atualização.
     // O nome do fornecedor é atualizado via modal, por isso tem um span e um botão.
     const editRowContent = `
@@ -402,9 +503,18 @@ window.saveEntryChanges = async (entryId) => {
         return;
     }
 
-    const rawSupplierId = row.querySelector('.edit-supplier-id-input').value;
-    const rawQuantity = row.querySelector('[name="Quantity"]').value;
-    const rawUnitPrice = row.querySelector('[name="UnitPrice"]').value;
+    const supplierIdInput = row.querySelector('.edit-supplier-id-input');
+    const quantityInput = row.querySelector('[name="Quantity"]');
+    const unitPriceInput = row.querySelector('[name="UnitPrice"]');
+
+    if (!supplierIdInput || !quantityInput || !unitPriceInput) {
+        alert('Erro: Campos de edição não encontrados.');
+        return;
+    }
+
+    const rawSupplierId = supplierIdInput.value;
+    const rawQuantity = quantityInput.value;
+    const rawUnitPrice = unitPriceInput.value;
 
     if (!rawSupplierId || rawQuantity <= 0 || rawUnitPrice < 0) {
         alert('Por favor, verifique se todos os campos estão preenchidos corretamente.');
@@ -412,6 +522,8 @@ window.saveEntryChanges = async (entryId) => {
     }
 
     const saveButton = row.querySelector('.btn-save');
+    if (!saveButton) return;
+
     saveButton.disabled = true;
     saveButton.innerHTML = `<span class="loading-spinner"></span>`;
 
@@ -456,21 +568,21 @@ window.cancelEntryEdit = (entryId) => {
 // =======================================================
 // FUNÇÕES UTILITÁRIAS
 // =======================================================
-async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
-    if (!selectElement) return; 
-    try { 
-        const accessToken = localStorage.getItem('accessToken'); 
-        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
-        if (!response.ok) throw new Error('Falha ao carregar categorias.'); 
-        const categories = await response.json(); 
-        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
-        categories.forEach(category => { 
-            const option = new Option(category.name, category.id); 
-            selectElement.appendChild(option); 
-        }); 
-    } catch (error) { 
-        console.error('Erro ao carregar categorias:', error); 
-        selectElement.innerHTML = '<option value="">Erro ao carregar</option>'; 
-        throw error; 
-    } 
+async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') {
+    if (!selectElement) return;
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error('Falha ao carregar categorias.');
+        const categories = await response.json();
+        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`;
+        categories.forEach(category => {
+            const option = new Option(category.name, category.id);
+            selectElement.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+        selectElement.innerHTML = '<option value="">Erro ao carregar</option>';
+        throw error;
+    }
 }

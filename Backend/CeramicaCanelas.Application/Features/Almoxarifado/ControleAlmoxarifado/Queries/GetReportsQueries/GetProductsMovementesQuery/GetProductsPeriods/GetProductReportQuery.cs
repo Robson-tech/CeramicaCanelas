@@ -1,13 +1,12 @@
-﻿using MediatR;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Common; // Adicione este using
+using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetProductsPeriods
 {
-    public class GetProductReportQuery : IRequest<List<GetProductReportResult>>
+    // 1. Mude o tipo de retorno da Query
+    public class GetProductReportQuery : IRequest<PagedResultDashboard<GetProductReportResult>>
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;

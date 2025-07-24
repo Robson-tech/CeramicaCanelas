@@ -1,16 +1,16 @@
 html, body {
     height: 100%;
+    margin: 0; /* Adicionado para remover margens padrão do navegador */
+    font-family: sans-serif; /* Adicionado para uma melhor aparência de fonte */
 }
 
 .main-content {
     height: calc(100% - 0px); /* você pode ajustar isso caso tenha header/footer fixos */
-
     margin-left: 250px;
     padding: 20px;
     box-sizing: border-box;
+    transition: margin-left 0.3s ease; /* Adicionado para uma transição suave ao abrir/fechar o menu */
 }
-
-
 
 .welcome-card {
     background: white;
@@ -32,6 +32,11 @@ html, body {
 }
 
 /* ==================================================== */
-/* REGRAS PARA TELAS PEQUENAS (Bloco Único e Limpo)    */
+/* REGRAS PARA TELAS PEQUENAS (Bloco Único e Limpo)     */
 /* ==================================================== */
-
+/* Responsividade para quando o menu lateral some e o conteúdo principal ocupa a tela toda. */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0; /* Remove a margem esquerda para ocupar 100% da largura */
+    }
+}

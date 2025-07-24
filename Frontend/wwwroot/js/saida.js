@@ -1,19 +1,36 @@
 console.log('Script js/saida.js DEFINIDO.');
 
-
-
-
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de saida.js foi chamada.');
+
+    // ✅ VERIFICAÇÃO ADICIONADA: Só executa se os elementos da página de saída existirem
+    const exitForm = document.getElementById('productExitForm');
+    const historyTbody = document.getElementById('historyTbody');
+
+    if (!exitForm || !historyTbody) {
+        console.log('⚠️ Elementos da página de saída não encontrados. Pulando inicialização.');
+        return;
+    }
+
     initializeExitForm();
     initializeProductModal();
     initializeEmployeeModal();
     initializeHistoryFilters();
     initializeHistoryTableListeners();
-    loadProductCategories(document.getElementById('historyCategoryFilter'), 'Todas as Categorias')
-        .then(() => {
-            fetchAndRenderHistory(1);
-        });
+
+    const categoryFilter = document.getElementById('historyCategoryFilter');
+    if (categoryFilter) {
+        loadProductCategories(categoryFilter, 'Todas as Categorias')
+            .then(() => {
+                fetchAndRenderHistory(1);
+            })
+            .catch(() => {
+                console.log('⚠️ Erro ao carregar categorias, mas continuando...');
+                fetchAndRenderHistory(1);
+            });
+    } else {
+        fetchAndRenderHistory(1);
+    }
 }
 
 // =======================================================
@@ -24,21 +41,27 @@ function initializeExitForm() {
     if (!exitForm) return;
 
     exitForm.addEventListener('submit', handleFormSubmit);
-    
-    document.getElementById('exitItemsTbody')?.addEventListener('click', (event) => {
-        if (event.target.classList.contains('btn-delete')) {
-            event.target.closest('tr').remove();
-            checkPlaceholder();
-        }
-    });
+
+    const exitItemsTbody = document.getElementById('exitItemsTbody');
+    if (exitItemsTbody) {
+        exitItemsTbody.addEventListener('click', (event) => {
+            if (event.target.classList.contains('btn-delete')) {
+                event.target.closest('tr').remove();
+                checkPlaceholder();
+            }
+        });
+    }
 }
 
 async function handleFormSubmit(event) {
     event.preventDefault();
 
-    const employeeId = document.getElementById('employeeId')?.value;
-    const observation = document.getElementById('observation')?.value;
+    const employeeIdInput = document.getElementById('employeeId');
+    const observationInput = document.getElementById('observation');
     const itemRows = document.querySelectorAll('#exitItemsTbody tr:not(#placeholder-row)');
+
+    const employeeId = employeeIdInput ? employeeIdInput.value : '';
+    const observation = observationInput ? observationInput.value : '';
 
     if (!employeeId) {
         showErrorModal({ title: "Validação Falhou", detail: "Por favor, selecione um funcionário responsável." });
@@ -65,6 +88,8 @@ async function handleFormSubmit(event) {
     }
 
     const submitButton = document.querySelector('.submit-btn');
+    if (!submitButton) return;
+
     const originalButtonHTML = submitButton.innerHTML;
     submitButton.disabled = true;
     submitButton.innerHTML = `<span class="loading-spinner"></span> Registrando...`;
@@ -82,9 +107,13 @@ async function handleFormSubmit(event) {
     try {
         await Promise.all(requests);
         alert('Todas as saídas foram registradas com sucesso!');
-        document.getElementById('productExitForm').reset();
-        document.getElementById('exitItemsTbody').innerHTML = '<tr id="placeholder-row"><td colspan="4" style="text-align: center; color: #888;">Nenhum produto adicionado.</td></tr>';
-        document.getElementById('selectedEmployeeName').textContent = 'Nenhum funcionário selecionado';
+        const exitForm = document.getElementById('productExitForm');
+        const exitItemsTbody = document.getElementById('exitItemsTbody');
+        const selectedEmployeeName = document.getElementById('selectedEmployeeName');
+
+        if (exitForm) exitForm.reset();
+        if (exitItemsTbody) exitItemsTbody.innerHTML = '<tr id="placeholder-row"><td colspan="4" style="text-align: center; color: #888;">Nenhum produto adicionado.</td></tr>';
+        if (selectedEmployeeName) selectedEmployeeName.textContent = 'Nenhum funcionário selecionado';
         fetchAndRenderHistory(1);
     } catch (error) {
         console.error("Falha ao registrar uma ou mais saídas:", error);
@@ -94,6 +123,7 @@ async function handleFormSubmit(event) {
         submitButton.innerHTML = originalButtonHTML;
     }
 }
+
 async function sendExitRequest(formData) {
     const accessToken = localStorage.getItem('accessToken');
     const response = await fetch(`${API_BASE_URL}/products-exit`, {
@@ -130,7 +160,7 @@ function addProductToExitTable(product) {
 
 function checkPlaceholder() {
     const tbody = document.getElementById('exitItemsTbody');
-    if(!tbody) return;
+    if (!tbody) return;
     const placeholder = document.getElementById('placeholder-row');
     if (placeholder && tbody.querySelectorAll('tr:not(#placeholder-row)').length > 0) {
         placeholder.style.display = 'none';
@@ -141,7 +171,6 @@ function checkPlaceholder() {
     }
 }
 
-
 // =======================================================
 // LÓGICA DA MODAL DE BUSCA DE PRODUTOS
 // =======================================================
@@ -149,58 +178,72 @@ function initializeProductModal() {
     const modal = document.getElementById('productSearchModal');
     const openBtn = document.getElementById('openProductModalBtn');
     if (!modal || !openBtn) return;
+
     const closeBtn = modal.querySelector('.modal-close-btn');
     const filterBtn = modal.querySelector('#modalProductFilterBtn');
-    
-    openBtn.addEventListener('click', () => { 
+
+    openBtn.addEventListener('click', () => {
         currentProductModalPage = 1;
-        modal.style.display = 'block'; 
-        loadProductCategories(modal.querySelector('#modalProductCategoryFilter'), 'Todas as Categorias')
-            .then(() => fetchPaginatedProducts(1));
-    });
-    
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedProducts(1));
-    if(closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    
-    modal.querySelector('#modalProductResultsContainer')?.addEventListener('click', (event) => {
-        if (event.target.classList.contains('btn-select-product')) {
-            const product = JSON.parse(event.target.dataset.product);
-            addProductToExitTable(product);
-            modal.style.display = 'none';
+        modal.style.display = 'block';
+        const modalCategoryFilter = modal.querySelector('#modalProductCategoryFilter');
+        if (modalCategoryFilter) {
+            loadProductCategories(modalCategoryFilter, 'Todas as Categorias')
+                .then(() => fetchPaginatedProducts(1))
+                .catch(() => fetchPaginatedProducts(1));
+        } else {
+            fetchPaginatedProducts(1);
         }
     });
+
+    if (filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedProducts(1));
+    if (closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+
+    const resultsContainer = modal.querySelector('#modalProductResultsContainer');
+    if (resultsContainer) {
+        resultsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('btn-select-product')) {
+                const product = JSON.parse(event.target.dataset.product);
+                addProductToExitTable(product);
+                modal.style.display = 'none';
+            }
+        });
+    }
 }
 
 async function fetchPaginatedProducts(page) {
     currentProductModalPage = page;
     const resultsContainer = document.getElementById('modalProductResultsContainer');
     const paginationContainer = document.getElementById('modalProductPaginationControls');
-    if(!resultsContainer || !paginationContainer) return;
+    if (!resultsContainer || !paginationContainer) return;
 
     resultsContainer.innerHTML = '<p>Buscando...</p>';
     paginationContainer.innerHTML = '';
-    
-    const search = document.getElementById('modalProductSearchInput')?.value;
-    const categoryId = document.getElementById('modalProductCategoryFilter')?.value;
-    const orderBy = document.getElementById('modalProductOrderBySelect')?.value;
 
-    const params = new URLSearchParams({ Page: page, PageSize: 5, OrderBy: orderBy || 'Name' });
-    if(search) params.append('Search', search);
-    if(categoryId) params.append('CategoryId', categoryId);
+    const searchInput = document.getElementById('modalProductSearchInput');
+    const categoryFilter = document.getElementById('modalProductCategoryFilter');
+    const orderBySelect = document.getElementById('modalProductOrderBySelect');
+
+    const search = searchInput ? searchInput.value : '';
+    const categoryId = categoryFilter ? categoryFilter.value : '';
+    const orderBy = orderBySelect ? orderBySelect.value : 'Name';
+
+    const params = new URLSearchParams({ Page: page, PageSize: 5, OrderBy: orderBy });
+    if (search) params.append('Search', search);
+    if (categoryId) params.append('CategoryId', categoryId);
 
     const url = `${API_BASE_URL}/products/paged?${params.toString()}`;
-    
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error('Falha ao buscar produtos.');
-        
+
         const data = await response.json();
-        const tableHTML = (data.items && data.items.length > 0) 
+        const tableHTML = (data.items && data.items.length > 0)
             ? `<table class="results-table"><thead><tr><th>Nome</th><th>Estoque</th><th>Ação</th></tr></thead><tbody>${data.items.map(p => `<tr><td>${p.name}</td><td>${p.stockCurrent || 0}</td><td><button type="button" class="btn-action btn-select-product" data-product='${JSON.stringify(p)}'>Selecionar</button></td></tr>`).join('')}</tbody></table>`
             : `<p>Nenhum produto encontrado.</p>`;
         resultsContainer.innerHTML = tableHTML;
-        
+
         renderProductModalPagination(data);
     } catch (error) {
         resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
@@ -211,33 +254,32 @@ function renderProductModalPagination(paginationData) {
     const controlsContainer = document.getElementById('modalProductPaginationControls');
     if (!controlsContainer) return;
     controlsContainer.innerHTML = '';
-    
-    if(!paginationData.totalPages) paginationData.totalPages = Math.ceil(paginationData.totalItems / paginationData.pageSize);
+
+    if (!paginationData.totalPages) paginationData.totalPages = Math.ceil(paginationData.totalItems / paginationData.pageSize);
     if (isNaN(paginationData.totalPages) || paginationData.totalPages <= 1) return;
 
     const hasPreviousPage = paginationData.page > 1;
     const hasNextPage = paginationData.page < paginationData.totalPages;
-    
+
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = !hasPreviousPage;
     prevButton.addEventListener('click', () => fetchPaginatedProducts(paginationData.page - 1));
-    
+
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
-    
+
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = !hasNextPage;
     nextButton.addEventListener('click', () => fetchPaginatedProducts(paginationData.page + 1));
-    
+
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
     controlsContainer.appendChild(nextButton);
 }
-
 
 // =======================================================
 // LÓGICA DA MODAL DE BUSCA DE FUNCIONÁRIOS
@@ -246,30 +288,37 @@ function initializeEmployeeModal() {
     const modal = document.getElementById('employeeSearchModal');
     const openBtn = document.getElementById('openEmployeeModalBtn');
     if (!modal || !openBtn) return;
+
     const closeBtn = modal.querySelector('.modal-close-btn');
     const filterBtn = modal.querySelector('#modalEmployeeFilterBtn');
     const positionSelect = modal.querySelector('#modalEmployeePositionFilter');
 
-    populatePositionFilter(positionSelect);
+    if (positionSelect) populatePositionFilter(positionSelect);
+
     openBtn.addEventListener('click', () => {
         modal.style.display = 'block';
         fetchPaginatedEmployees(1);
     });
-    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
-    
-    modal.querySelector('#modalEmployeeResultsContainer').addEventListener('click', (event) => {
-        if (event.target.classList.contains('btn-select-employee')) {
-            document.getElementById('employeeId').value = event.target.dataset.id;
-            document.getElementById('selectedEmployeeName').textContent = event.target.dataset.name;
-            modal.style.display = 'none';
-        }
-    });
+    if (closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if (filterBtn) filterBtn.addEventListener('click', () => fetchPaginatedEmployees(1));
+
+    const resultsContainer = modal.querySelector('#modalEmployeeResultsContainer');
+    if (resultsContainer) {
+        resultsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('btn-select-employee')) {
+                const employeeIdInput = document.getElementById('employeeId');
+                const selectedEmployeeName = document.getElementById('selectedEmployeeName');
+                if (employeeIdInput) employeeIdInput.value = event.target.dataset.id;
+                if (selectedEmployeeName) selectedEmployeeName.textContent = event.target.dataset.name;
+                modal.style.display = 'none';
+            }
+        });
+    }
 }
 
 function populatePositionFilter(selectElement) {
     if (!selectElement) return;
-    if(typeof positionMap !== 'undefined') {
+    if (typeof positionMap !== 'undefined') {
         selectElement.innerHTML = '<option value="">Todos os Cargos</option>';
         for (const [key, value] of Object.entries(positionMap)) {
             const option = new Option(value, key);
@@ -283,22 +332,25 @@ async function fetchPaginatedEmployees(page = 1) {
     const resultsContainer = document.getElementById('modalEmployeeResultsContainer');
     const paginationContainer = document.getElementById('modalEmployeePaginationControls');
     if (!resultsContainer) return;
-    
+
     resultsContainer.innerHTML = '<p>Buscando...</p>';
-    paginationContainer.innerHTML = '';
-    
+    if (paginationContainer) paginationContainer.innerHTML = '';
+
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const search = document.getElementById('modalEmployeeSearchInput')?.value;
-        const position = document.getElementById('modalEmployeePositionFilter')?.value;
+        const searchInput = document.getElementById('modalEmployeeSearchInput');
+        const positionFilter = document.getElementById('modalEmployeePositionFilter');
+
+        const search = searchInput ? searchInput.value : '';
+        const position = positionFilter ? positionFilter.value : '';
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
         if (position) params.append('Positions', position);
         const url = `${API_BASE_URL}/employees/pages?${params.toString()}`;
-        
+
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar funcionários (Status: ${response.status})`);
-        
+
         const paginatedData = await response.json();
         renderEmployeeModalResults(paginatedData.items);
         renderEmployeeModalPagination(paginatedData);
@@ -309,9 +361,11 @@ async function fetchPaginatedEmployees(page = 1) {
 
 function renderEmployeeModalResults(employees) {
     const container = document.getElementById('modalEmployeeResultsContainer');
-    if (!employees || employees.length === 0) { 
-        container.innerHTML = '<p>Nenhum funcionário encontrado.</p>'; 
-        return; 
+    if (!container) return;
+
+    if (!employees || employees.length === 0) {
+        container.innerHTML = '<p>Nenhum funcionário encontrado.</p>';
+        return;
     }
     const tableHTML = `<table class="results-table"><thead><tr><th>Nome</th><th>Cargo</th><th>Ação</th></tr></thead>
         <tbody>${employees.map(e => `<tr><td>${e.name}</td><td>${getPositionName(e.positions)}</td><td><button type="button" class="btn-action btn-select-employee" data-id="${e.id}" data-name="${e.name}">Selecionar</button></td></tr>`).join('')}</tbody>
@@ -322,28 +376,28 @@ function renderEmployeeModalResults(employees) {
 function renderEmployeeModalPagination(paginationData) {
     const controlsContainer = document.getElementById('modalEmployeePaginationControls');
     if (!controlsContainer || paginationData.totalPages <= 1) {
-        if(controlsContainer) controlsContainer.innerHTML = '';
+        if (controlsContainer) controlsContainer.innerHTML = '';
         return;
     }
-    
+
     const page = paginationData.page;
     const totalPages = paginationData.totalPages;
-    
+
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = page <= 1;
     prevButton.addEventListener('click', () => fetchPaginatedEmployees(page - 1));
-    
+
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${page} de ${totalPages}`;
-    
+
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = page >= totalPages;
     nextButton.addEventListener('click', () => fetchPaginatedEmployees(page + 1));
-    
+
     controlsContainer.innerHTML = '';
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
@@ -356,10 +410,12 @@ function renderEmployeeModalPagination(paginationData) {
 function initializeHistoryFilters() {
     const filterBtn = document.getElementById('historyFilterBtn');
     const clearBtn = document.getElementById('historyClearFilterBtn');
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderHistory(1));
-    if(clearBtn) clearBtn.addEventListener('click', () => {
-        document.getElementById('historySearchInput').value = '';
-        document.getElementById('historyCategoryFilter').value = '';
+    if (filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderHistory(1));
+    if (clearBtn) clearBtn.addEventListener('click', () => {
+        const searchInput = document.getElementById('historySearchInput');
+        const categoryFilter = document.getElementById('historyCategoryFilter');
+        if (searchInput) searchInput.value = '';
+        if (categoryFilter) categoryFilter.value = '';
         fetchAndRenderHistory(1);
     });
 }
@@ -392,16 +448,19 @@ async function fetchAndRenderHistory(page = 1) {
     tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Buscando histórico...</td></tr>';
     try {
         const accessToken = localStorage.getItem('accessToken');
-        const search = document.getElementById('historySearchInput')?.value;
-        const categoryId = document.getElementById('historyCategoryFilter')?.value;
+        const searchInput = document.getElementById('historySearchInput');
+        const categoryFilter = document.getElementById('historyCategoryFilter');
+
+        const search = searchInput ? searchInput.value : '';
+        const categoryId = categoryFilter ? categoryFilter.value : '';
         const params = new URLSearchParams({ Page: currentHistoryPage, PageSize: 10, OrderBy: 'ExitDate', Ascending: false });
         if (search) params.append('Search', search);
         if (categoryId) params.append('CategoryId', categoryId);
         const url = `${API_BASE_URL}/products-exit/paged?${params.toString()}`;
-        
+
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar histórico (Status: ${response.status})`);
-        
+
         const paginatedData = await response.json();
         historyItemsCache = paginatedData.items;
         renderHistoryTable(paginatedData.items);
@@ -409,12 +468,15 @@ async function fetchAndRenderHistory(page = 1) {
     } catch (error) {
         showErrorModal({ title: "Erro ao Listar Histórico", detail: error.message });
         tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">${error.message}</td></tr>`;
-        document.getElementById('historyPaginationControls').innerHTML = '';
+        const paginationControls = document.getElementById('historyPaginationControls');
+        if (paginationControls) paginationControls.innerHTML = '';
     }
 }
 
 function renderHistoryTable(items) {
     const tableBody = document.getElementById('historyTbody');
+    if (!tableBody) return;
+
     tableBody.innerHTML = '';
     if (!items || items.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Nenhum registro de saída encontrado.</td></tr>';
@@ -445,28 +507,28 @@ function renderHistoryTable(items) {
 function renderHistoryPagination(paginationData) {
     const controlsContainer = document.getElementById('historyPaginationControls');
     if (!controlsContainer || !paginationData.totalPages || paginationData.totalPages <= 1) {
-        if(controlsContainer) controlsContainer.innerHTML = '';
+        if (controlsContainer) controlsContainer.innerHTML = '';
         return;
     }
 
     const hasPreviousPage = paginationData.page > 1;
     const hasNextPage = paginationData.page < paginationData.totalPages;
-    
+
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = !hasPreviousPage;
     prevButton.addEventListener('click', () => fetchAndRenderHistory(paginationData.page - 1));
-    
+
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
-    
+
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = !hasNextPage;
     nextButton.addEventListener('click', () => fetchAndRenderHistory(paginationData.page + 1));
-    
+
     controlsContainer.innerHTML = '';
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
@@ -495,22 +557,37 @@ window.editHistoryItem = (item) => {
     if (!row || originalHistoryRowHTML[item.id]) return;
 
     originalHistoryRowHTML[item.id] = row.innerHTML;
-    
-    row.querySelector('[data-field="quantity"]').innerHTML = `<input type="number" name="Quantity" class="form-input edit-input" value="${item.quantity}" min="1">`;
-    row.querySelector('[data-field="isReturnable"]').innerHTML = `<input type="checkbox" name="IsReturnable" class="form-checkbox" ${item.isReturnable ? 'checked' : ''}>`;
-    row.querySelector('[data-field="observation"]').innerHTML = `<textarea name="Observation" class="form-input edit-input" rows="2">${item.observation || ''}</textarea>`;
-    
-    row.querySelector('[data-field="actions"]').innerHTML = `
-        <button class="btn-action btn-save" onclick="saveHistoryChanges('${item.id}')">Salvar</button>
-        <button class="btn-action btn-cancel" onclick="cancelHistoryEdit('${item.id}')">Cancelar</button>
-    `;
+
+    const quantityField = row.querySelector('[data-field="quantity"]');
+    const isReturnableField = row.querySelector('[data-field="isReturnable"]');
+    const observationField = row.querySelector('[data-field="observation"]');
+    const actionsField = row.querySelector('[data-field="actions"]');
+
+    if (quantityField) quantityField.innerHTML = `<input type="number" name="Quantity" class="form-input edit-input" value="${item.quantity}" min="1">`;
+    if (isReturnableField) isReturnableField.innerHTML = `<input type="checkbox" name="IsReturnable" class="form-checkbox" ${item.isReturnable ? 'checked' : ''}>`;
+    if (observationField) observationField.innerHTML = `<textarea name="Observation" class="form-input edit-input" rows="2">${item.observation || ''}</textarea>`;
+    if (actionsField) {
+        actionsField.innerHTML = `
+            <button class="btn-action btn-save" onclick="saveHistoryChanges('${item.id}')">Salvar</button>
+            <button class="btn-action btn-cancel" onclick="cancelHistoryEdit('${item.id}')">Cancelar</button>
+        `;
+    }
 };
 
 window.saveHistoryChanges = async (exitId) => {
     const row = document.getElementById(`row-history-${exitId}`);
     if (!row) return;
 
-    const quantityValue = row.querySelector('[name="Quantity"]').value;
+    const quantityInput = row.querySelector('[name="Quantity"]');
+    const isReturnableInput = row.querySelector('[name="IsReturnable"]');
+    const observationInput = row.querySelector('[name="Observation"]');
+
+    if (!quantityInput) {
+        alert("Campo quantidade não encontrado.");
+        return;
+    }
+
+    const quantityValue = quantityInput.value;
     const quantity = parseInt(quantityValue, 10);
     if (isNaN(quantity) || quantity <= 0) {
         alert("A quantidade deve ser um número maior que zero.");
@@ -518,14 +595,16 @@ window.saveHistoryChanges = async (exitId) => {
     }
 
     const saveButton = row.querySelector('.btn-save');
+    if (!saveButton) return;
+
     saveButton.disabled = true;
     saveButton.innerHTML = `<span class="loading-spinner"></span>`;
 
     const formData = new FormData();
     formData.append('Id', exitId);
     formData.append('Quantity', quantityValue);
-    formData.append('IsReturnable', row.querySelector('[name="IsReturnable"]').checked);
-    formData.append('Observation', row.querySelector('[name="Observation"]').value);
+    formData.append('IsReturnable', isReturnableInput ? isReturnableInput.checked : false);
+    formData.append('Observation', observationInput ? observationInput.value : '');
 
     try {
         const accessToken = localStorage.getItem('accessToken');
@@ -552,7 +631,6 @@ window.saveHistoryChanges = async (exitId) => {
     }
 };
 
-
 window.cancelHistoryEdit = (exitId) => {
     const row = document.getElementById(`row-history-${exitId}`);
     if (row && originalHistoryRowHTML[exitId]) {
@@ -564,21 +642,21 @@ window.cancelHistoryEdit = (exitId) => {
 // =======================================================
 // FUNÇÕES UTILITÁRIAS DE CARREGAMENTO DE DADOS
 // =======================================================
-async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
-    if (!selectElement) return; 
-    try { 
-        const accessToken = localStorage.getItem('accessToken'); 
-        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
-        if (!response.ok) throw new Error('Falha ao carregar categorias.'); 
-        const categories = await response.json(); 
-        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
-        categories.forEach(category => { 
-            const option = new Option(category.name, category.id); 
-            selectElement.appendChild(option); 
-        }); 
-    } catch (error) { 
-        console.error('Erro ao carregar categorias:', error); 
-        selectElement.innerHTML = `<option value="">Erro ao carregar</option>`; 
+async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') {
+    if (!selectElement) return;
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error('Falha ao carregar categorias.');
+        const categories = await response.json();
+        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`;
+        categories.forEach(category => {
+            const option = new Option(category.name, category.id);
+            selectElement.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+        selectElement.innerHTML = `<option value="">Erro ao carregar</option>`;
         // Não lançar o erro impede a renderização da tabela de histórico
-    } 
+    }
 }

@@ -1,5 +1,6 @@
 console.log('Script js/estoque.js DEFINIDO.');
 
+
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
@@ -9,30 +10,31 @@ function initDynamicForm() {
 }
 
 function initializeSearch() {
-    document.getElementById('searchButton')?.addEventListener('click', performSearch);
+    document.getElementById('searchButton')?.addEventListener('click', () => performSearch(1));
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
     
     if (typeof loadProductCategories === 'function') {
         loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias')
             .then(() => {
-                performSearch();
+                performSearch(1);
             });
     } else {
         console.warn("Função 'loadProductCategories' não encontrada.");
-        performSearch();
+        performSearch(1);
     }
 }
 
 function clearFilters() {
     document.getElementById('search').value = '';
     document.getElementById('categoryId').value = '';
-    performSearch();
+    performSearch(1);
 }
 
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
 // =======================================================
-async function performSearch() {
+async function performSearch(page = 1) {
+    currentPage = page;
     const loadingDiv = document.getElementById('loading');
     const resultsSection = document.getElementById('resultsSection');
     
@@ -43,7 +45,12 @@ async function performSearch() {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const params = new URLSearchParams();
+        // Adiciona os parâmetros de paginação
+        const params = new URLSearchParams({
+            Page: currentPage,
+            PageSize: 1
+        });
+
         const search = document.getElementById('search')?.value;
         const categoryId = document.getElementById('categoryId')?.value;
 
@@ -56,10 +63,16 @@ async function performSearch() {
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
-        const items = await response.json();
+        const data = await response.json();
         
-        updateSummary(items);
-        renderResultsTable(items);
+        // Verifica se o formato da resposta está correto
+        if (!data.items || !data.hasOwnProperty('totalPages')) {
+             throw new Error("A resposta da API não tem o formato paginado esperado (ex: { items: [], totalPages: 0 }).");
+        }
+        
+        updateSummary(data);
+        renderResultsTable(data.items);
+        renderPagination(data);
         
         if(resultsSection) resultsSection.style.display = 'block';
 
@@ -74,20 +87,18 @@ async function performSearch() {
     }
 }
 
-function updateSummary(items = []) {
+function updateSummary(data) {
     const summaryContainer = document.getElementById('resultsSummary');
     if (!summaryContainer) return;
 
-    const totalProducts = items.length;
+    // Calcula os totais a partir dos itens, como antes
+    const totalProducts = data.totalItems || data.items.length;
     let outOfStock = 0;
     let lowStock = 0;
 
-    items.forEach(item => {
-        if (item.stockCurrent <= 0) {
-            outOfStock++;
-        } else if (item.stockCurrent < item.stockMinimum) {
-            lowStock++;
-        }
+    (data.items || []).forEach(item => {
+        if (item.stockCurrent <= 0) outOfStock++;
+        else if (item.stockCurrent < item.stockMinimum) lowStock++;
     });
 
     const normalStock = totalProducts - outOfStock - lowStock;
@@ -131,8 +142,7 @@ function renderResultsTable(items) {
     items.forEach(item => {
         const statusInfo = getStatusInfo(item.stockCurrent, item.stockMinimum);
         const formattedDate = item.lastExit ? new Date(item.lastExit).toLocaleDateString('pt-BR') : 'N/A';
-        const progressPercent = Math.min((item.stockCurrent / item.stockMinimum) * 100, 100);
-
+        
         const row = tableBody.insertRow();
         row.innerHTML = `
             <td>${item.productName || 'N/A'}</td>
@@ -141,11 +151,6 @@ function renderResultsTable(items) {
             <td>${item.stockMinimum}</td>
             <td>${formattedDate}</td>
             <td><span class="status-badge ${statusInfo.className}">${statusInfo.text}</span></td>
-            <td>
-                <div class="progress-bar">
-                    <div class="progress-bar-fill ${statusInfo.className}" style="width: ${progressPercent}%;"></div>
-                </div>
-            </td>
         `;
     });
 }
@@ -158,4 +163,35 @@ function getStatusInfo(current, min) {
         return { text: "Estoque Baixo", className: "status-warning" };
     }
     return { text: "Normal", className: "status-success" };
+}
+
+function renderPagination(paginationData) {
+    const controlsContainer = document.getElementById('pagination-controls');
+    if (!controlsContainer) return;
+    controlsContainer.innerHTML = '';
+    
+    if (!paginationData || !paginationData.totalPages || paginationData.totalPages <= 1) return;
+    
+    const page = paginationData.page;
+    const totalPages = paginationData.totalPages;
+    
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Anterior';
+    prevButton.className = 'pagination-btn';
+    prevButton.disabled = page <= 1;
+    prevButton.onclick = () => performSearch(page - 1);
+    
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Página ${page} de ${totalPages}`;
+    pageInfo.className = 'pagination-info';
+    
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Próxima';
+    nextButton.className = 'pagination-btn';
+    nextButton.disabled = page >= totalPages;
+    nextButton.onclick = () => performSearch(page + 1);
+    
+    controlsContainer.appendChild(prevButton);
+    controlsContainer.appendChild(pageInfo);
+    controlsContainer.appendChild(nextButton);
 }

@@ -1,31 +1,19 @@
 <div class="container">
     <div class="header">
         <h1>Controle de Retiradas</h1>
-        <p>Pesquisa e monitoramento de retiradas de produtos por funcionários</p>
+        <p>Monitore as retiradas e devoluções de produtos pelos funcionários</p>
     </div>
 
     <div class="search-section">
         <div class="search-title">
             <div class="search-icon">🔍</div>
-            Filtros de Pesquisa
+            Filtrar Retiradas
         </div>
         
         <div class="filters-grid">
             <div class="filter-group">
-                <label class="filter-label" for="search">Pesquisa Geral</label>
-                <input type="text" id="search" class="filter-input" placeholder="Buscar por produto...">
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="categoryId">Categoria</label>
-                <select id="categoryId" class="filter-input">
-                    <option value="">Todas as Categorias</option>
-                    </select>
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="employeeName">Nome do Funcionário</label>
-                <input type="text" id="employeeName" class="filter-input" placeholder="Nome do funcionário">
+                <label class="filter-label" for="searchEmployee">Funcionário</label>
+                <input type="text" id="searchEmployee" class="filter-input" placeholder="Nome do funcionário...">
             </div>
             
             <div class="filter-group">
@@ -41,45 +29,39 @@
         
         <div class="search-actions">
             <button id="searchButton" class="search-button">
-                <span>🔍</span> Pesquisar
+                🔍 Buscar
             </button>
             <button id="clearButton" class="clear-button">
-                <span>🗑️</span> Limpar Filtros
+                🗑️ Limpar
             </button>
         </div>
     </div>
 
     <div class="loading" id="loading" style="display: none;">
         <div class="spinner"></div>
-        Carregando resultados...
+        <p>Carregando resultados...</p>
     </div>
 
     <div class="results-section" id="resultsSection" style="display: none;">
-        <div class="results-title">
-            <div class="results-icon">📋</div>
-            Resultados da Pesquisa
-        </div>
         <div class="results-summary" id="resultsSummary"></div>
+        
         <div class="table-responsive">
-            <table class="results-table" id="resultsTable">
+            <table class="results-table">
                 <thead>
                     <tr>
-                        <th>Produto</th>
                         <th>Funcionário</th>
+                        <th>Produto</th>
                         <th>Qtd. Retirada</th>
                         <th>Qtd. Devolvida</th>
                         <th>Qtd. Pendente</th>
-                        <th>Data Retirada</th>
-                        <th>Status</th>
+                        <th>Data da Retirada</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="resultsTableBody"></tbody>
             </table>
         </div>
-        <div class="no-results" id="noResults" style="display: none;">
-            <p>📋 Nenhuma retirada encontrada para os filtros aplicados.</p>
-        </div>
-        <div id="pagination-controls" class="pagination-controls"></div>
+        
+        <div id="pagination-controls" class="pagination-controls-footer"></div>
     </div>
 </div>
 

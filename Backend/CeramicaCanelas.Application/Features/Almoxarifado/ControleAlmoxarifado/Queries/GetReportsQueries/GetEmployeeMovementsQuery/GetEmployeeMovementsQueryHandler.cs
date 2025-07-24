@@ -1,9 +1,14 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Common; // Adicione este using
 using MediatR;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetEmployeeMovementsQuery
 {
-    public class GetEmployeeMovementsQueryHandler : IRequestHandler<GetEmployeeMovementsQuery, List<GetEmployeeMovementsResult>>
+    // 2. Mude a assinatura do Handler para corresponder à Query
+    public class GetEmployeeMovementsQueryHandler : IRequestHandler<GetEmployeeMovementsQuery, PagedResultDashboard<GetEmployeeMovementsResult>>
     {
         private readonly IMovExitProductsRepository _exitRepository;
 
@@ -12,21 +17,26 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
             _exitRepository = exitRepository;
         }
 
-        public async Task<List<GetEmployeeMovementsResult>> Handle(GetEmployeeMovementsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResultDashboard<GetEmployeeMovementsResult>> Handle(GetEmployeeMovementsQuery request, CancellationToken cancellationToken)
         {
-            var data = await _exitRepository.GetAllAsync();
+            var allMovements = await _exitRepository.GetAllAsync();
+            var filteredData = allMovements.AsEnumerable(); // Usar AsEnumerable para aplicar filtros em memória
 
-            // Filtro por nome
+            // 3. Aplique todos os filtros primeiro
             if (!string.IsNullOrWhiteSpace(request.SearchEmployee))
-                data = data.Where(x => x.Employee.Name.Contains(request.SearchEmployee)).ToList();
+                filteredData = filteredData.Where(x => x.Employee.Name.Contains(request.SearchEmployee, StringComparison.OrdinalIgnoreCase));
 
-            // Filtro por data
             if (request.StartDate.HasValue)
-                data = data.Where(x => x.ExitDate >= request.StartDate.Value).ToList();
-            if (request.EndDate.HasValue)
-                data = data.Where(x => x.ExitDate <= request.EndDate.Value).ToList();
+                filteredData = filteredData.Where(x => x.ExitDate.Date >= request.StartDate.Value.Date);
 
-            var result = data
+            if (request.EndDate.HasValue)
+                filteredData = filteredData.Where(x => x.ExitDate.Date <= request.EndDate.Value.Date);
+
+            // 4. Conte o total de itens APÓS os filtros
+            var totalItems = filteredData.Count();
+
+            // 5. Aplique a ordenação, paginação e o mapeamento para o DTO
+            var itemsForPage = filteredData
                 .OrderByDescending(x => x.ExitDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
@@ -38,11 +48,18 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                     QuantityDevolvida = x.ReturnedQuantity,
                     QuantityPendente = x.IsReturnable ? x.Quantity - x.ReturnedQuantity : 0,
                     DataRetirada = x.ExitDate
-                }).ToList();
+                })
+                .ToList();
 
+            // 6. Crie e retorne o objeto PagedResultDashboard preenchido
+            var pagedResult = new PagedResultDashboard<GetEmployeeMovementsResult>(
+                items: itemsForPage,
+                totalItems: totalItems,
+                page: request.Page,
+                pageSize: request.PageSize
+            );
 
-            return result;
+            return pagedResult;
         }
     }
-
 }
