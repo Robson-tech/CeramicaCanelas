@@ -1,14 +1,12 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Common; // Adicione este using
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetOutOfStockProducts
 {
-    public class GetOutOfStockProductsQueryHandler : IRequestHandler<GetOutOfStockProductsQuery, List<GetOutOfStockProductsResult>>
+    // 2. Mude a assinatura do Handler para corresponder à Query
+    public class GetOutOfStockProductsQueryHandler : IRequestHandler<GetOutOfStockProductsQuery, PagedResultDashboard<GetOutOfStockProductsResult>>
     {
         private readonly IProductRepository _productRepository;
         private readonly IMovExitProductsRepository _exitRepository;
@@ -19,22 +17,35 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
             _exitRepository = exitRepository;
         }
 
-        public async Task<List<GetOutOfStockProductsResult>> Handle(GetOutOfStockProductsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResultDashboard<GetOutOfStockProductsResult>> Handle(GetOutOfStockProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.GetAllProductsAsync();
-            var exits = await _exitRepository.GetAllAsync();
+            var allProducts = await _productRepository.GetAllProductsAsync();
+            var allExits = await _exitRepository.GetAllAsync();
 
+            var filteredProducts = allProducts.AsEnumerable();
+
+            // 3. Aplique todos os filtros primeiro
             if (!string.IsNullOrWhiteSpace(request.Search))
-                products = products.Where(p => p.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase)).ToList();
+                filteredProducts = filteredProducts.Where(p => p.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
 
             if (request.CategoryId.HasValue && request.CategoryId.Value != Guid.Empty)
-                products = products.Where(p => p.CategoryId == request.CategoryId.Value).ToList();
+                filteredProducts = filteredProducts.Where(p => p.CategoryId == request.CategoryId.Value);
 
-            var data = products
-                .Where(p => p.StockCurrent <= 0)
+            // Filtro principal da query: produtos sem estoque
+            filteredProducts = filteredProducts.Where(p => p.StockCurrent <= 0);
+
+            // 4. Conte o total de itens APÓS os filtros
+            var totalItems = filteredProducts.Count();
+
+            // 5. Aplique a ordenação, paginação e o mapeamento para o DTO
+            var itemsForPage = filteredProducts
+                .OrderBy(p => p.Name)
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .Select(p =>
                 {
-                    var ultimaSaida = exits
+                    // A busca pela última saída continua sendo feita aqui, na lista menor de itens paginados
+                    var ultimaSaida = allExits
                         .Where(e => e.ProductId == p.Id)
                         .OrderByDescending(e => e.ExitDate)
                         .FirstOrDefault()?.ExitDate;
@@ -49,12 +60,17 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado
                         Status = "Em Falta"
                     };
                 })
-                .OrderBy(p => p.ProductName)
-                .Skip((request.Page - 1) * request.PageSize)
-                .Take(request.PageSize)
                 .ToList();
 
-            return data;
+            // 6. Crie e retorne o objeto PagedResultDashboard preenchido
+            var pagedResult = new PagedResultDashboard<GetOutOfStockProductsResult>(
+                items: itemsForPage,
+                totalItems: totalItems,
+                page: request.Page,
+                pageSize: request.PageSize
+            );
+
+            return pagedResult;
         }
     }
 }

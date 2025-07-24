@@ -1,23 +1,19 @@
-﻿using MediatR;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.Common; // Adicione este using
+using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.ControleAlmoxarifado.Queries.GetReportsQueries.GetProductsMovementesQuery.GetUnreturnedProducts
 {
-    public class GetUnreturnedProductsQuery : IRequest<List<GetUnreturnedProductsResult>>
+    // 1. Mude o tipo de retorno da Query
+    public class GetUnreturnedProductsQuery : IRequest<PagedResultDashboard<GetUnreturnedProductsResult>>
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-
         public string? Search { get; set; }
         public Guid? CategoryId { get; set; }
-
-        public string? EmployeeName { get; set; } // Filtro por nome do funcionário
-        public DateTime? StartDate { get; set; } // Filtro "De"
-        public DateTime? EndDate { get; set; } // Filtro "Até"
+        public string? EmployeeName { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
-
 }
