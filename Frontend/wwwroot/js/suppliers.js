@@ -7,8 +7,17 @@ console.log('Script js/supplier.js DEFINIDO.');
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de supplier.js foi chamada.');
-    
-    initializeSupplierForm(document.querySelector('.supplier-form'));
+
+    // Verifica se estamos na página de fornecedores antes de inicializar
+    const supplierForm = document.querySelector('.supplier-form');
+    const supplierTableBody = document.querySelector('#supplier-list-body');
+
+    if (!supplierForm && !supplierTableBody) {
+        console.log('⚠️ Elementos de fornecedores não encontrados. Provavelmente em outra página.');
+        return;
+    }
+
+    initializeSupplierForm(supplierForm);
     initializeSupplierTableFilters();
     fetchAndRenderSuppliers(1);
 }
@@ -32,6 +41,8 @@ async function processAndSendSupplierData(form) {
     }
 
     const submitButton = form.querySelector('.submit-btn');
+    if (!submitButton) return;
+
     const originalButtonHTML = submitButton.innerHTML;
     submitButton.disabled = true;
     submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
@@ -58,38 +69,55 @@ async function processAndSendSupplierData(form) {
         submitButton.innerHTML = originalButtonHTML;
     }
 }
+
 // =======================================================
 // LÓGICA DA TABELA (FILTROS, PAGINAÇÃO, CRUD)
 // =======================================================
 function initializeSupplierTableFilters() {
     const filterBtn = document.getElementById('supplierFilterBtn');
     const clearBtn = document.getElementById('supplierClearFilterBtn');
-    
-    filterBtn?.addEventListener('click', () => fetchAndRenderSuppliers(1));
-    clearBtn?.addEventListener('click', () => {
-        document.getElementById('supplierSearchInput').value = '';
-        fetchAndRenderSuppliers(1);
-    });
+
+    // Só adiciona os listeners se os elementos existirem
+    if (filterBtn) {
+        filterBtn.addEventListener('click', () => fetchAndRenderSuppliers(1));
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            const searchInput = document.getElementById('supplierSearchInput');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            fetchAndRenderSuppliers(1);
+        });
+    }
 }
 
 async function fetchAndRenderSuppliers(page = 1) {
     currentSupplierPage = page;
     const tableBody = document.querySelector('#supplier-list-body');
-    if (!tableBody) return;
+
+    // Se não existe o elemento da tabela, não executa
+    if (!tableBody) {
+        console.log('⚠️ Tabela de fornecedores não encontrada. Provavelmente em outra página.');
+        return;
+    }
+
     tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Buscando...</td></tr>';
-    
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
-        
-        const search = document.getElementById('supplierSearchInput')?.value;
+
+        const searchInput = document.getElementById('supplierSearchInput');
+        const search = searchInput ? searchInput.value : '';
         const params = new URLSearchParams({ Page: currentSupplierPage, PageSize: 10, OrderBy: 'Name' });
         if (search) params.append('Search', search);
 
         const url = `${API_BASE_URL}/supplier/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar fornecedores (Status: ${response.status})`);
-        
+
         const paginatedData = await response.json();
         renderSupplierTable(paginatedData.items);
         renderSupplierPagination(paginatedData);
@@ -101,6 +129,8 @@ async function fetchAndRenderSuppliers(page = 1) {
 
 function renderSupplierTable(suppliers) {
     const tableBody = document.querySelector('#supplier-list-body');
+    if (!tableBody) return;
+
     tableBody.innerHTML = '';
     if (!suppliers || suppliers.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum fornecedor encontrado.</td></tr>';
@@ -126,25 +156,26 @@ function renderSupplierTable(suppliers) {
 function renderSupplierPagination(paginationData) {
     const controlsContainer = document.getElementById('supplier-pagination-controls');
     if (!controlsContainer) return;
+
     controlsContainer.innerHTML = '';
     if (paginationData.totalPages <= 1) return;
-    
+
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
     prevButton.disabled = !paginationData.hasPreviousPage;
     prevButton.addEventListener('click', () => fetchAndRenderSuppliers(currentSupplierPage - 1));
-    
+
     const pageInfo = document.createElement('span');
     pageInfo.textContent = `Página ${paginationData.page} de ${paginationData.totalPages}`;
     pageInfo.className = 'pagination-info';
-    
+
     const nextButton = document.createElement('button');
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = !paginationData.hasNextPage;
     nextButton.addEventListener('click', () => fetchAndRenderSuppliers(currentSupplierPage + 1));
-    
+
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
     controlsContainer.appendChild(nextButton);
@@ -170,13 +201,19 @@ window.deleteSupplier = async (supplierId) => {
 window.editSupplier = (supplier) => {
     const row = document.getElementById(`row-supplier-${supplier.id}`);
     if (!row) return;
+
+    // Inicializa o objeto se não existir
+    if (typeof originalRowHTML_Supplier === 'undefined') {
+        window.originalRowHTML_Supplier = {};
+    }
+
     originalRowHTML_Supplier[supplier.id] = row.innerHTML;
 
     row.querySelector('[data-field="name"]').innerHTML = `<input type="text" name="Name" class="edit-input" value="${supplier.name}">`;
     row.querySelector('[data-field="cnpj"]').innerHTML = `<input type="text" name="Cnpj" class="edit-input" value="${supplier.cnpj || ''}">`;
     row.querySelector('[data-field="email"]').innerHTML = `<input type="email" name="Email" class="edit-input" value="${supplier.email || ''}">`;
     row.querySelector('[data-field="phone"]').innerHTML = `<input type="text" name="Phone" class="edit-input" value="${supplier.phone || ''}">`;
-    
+
     row.querySelector('.actions-cell').innerHTML = `
         <button class="btn-action btn-save" onclick="saveSupplierChanges('${supplier.id}')">Salvar</button>
         <button class="btn-action btn-cancel" onclick="cancelEditSupplier('${supplier.id}')">Cancelar</button>`;
@@ -187,6 +224,8 @@ window.saveSupplierChanges = async (supplierId) => {
     if (!row) return;
 
     const saveButton = row.querySelector('.btn-save');
+    if (!saveButton) return;
+
     saveButton.disabled = true;
     saveButton.innerHTML = `<span class="loading-spinner"></span>`;
 
@@ -203,13 +242,10 @@ window.saveSupplierChanges = async (supplierId) => {
             body: formData
         });
         if (response.ok) {
-            // A recarga da tabela já é um feedback visual, o alert é opcional.
-            // alert('Fornecedor atualizado com sucesso!');
             fetchAndRenderSuppliers(currentSupplierPage);
         } else {
             const errorData = await response.json();
             showErrorModal(errorData);
-            // Restaura a linha em caso de erro para o usuário poder corrigir.
             cancelEditSupplier(supplierId);
         }
     } catch (error) {
@@ -220,7 +256,7 @@ window.saveSupplierChanges = async (supplierId) => {
 
 window.cancelEditSupplier = (supplierId) => {
     const row = document.getElementById(`row-supplier-${supplierId}`);
-    if (row && originalRowHTML_Supplier[supplierId]) {
+    if (row && window.originalRowHTML_Supplier && originalRowHTML_Supplier[supplierId]) {
         row.innerHTML = originalRowHTML_Supplier[supplierId];
         delete originalRowHTML_Supplier[supplierId];
     }
