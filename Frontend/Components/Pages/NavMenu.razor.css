@@ -1,4 +1,4 @@
- * {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -7,19 +7,83 @@
         body {
             font-family: 'Arial', sans-serif;
             background: #f5f5f5;
+            overflow-x: hidden;
         }
-/* Garante que o submenu sempre expanda totalmente */
-.submenu-container.expanded {
-  max-height: none !important;
-  overflow: visible !important;
-  display: block !important;
-}
 
-/* Permite rolagem se o menu for muito grande */
-.sidebar .menu {
-  max-height: 100vh;
-  overflow-y: auto;
-}
+        /* Menu Hambúrguer */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #e67e22;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hamburger:hover {
+            background: #d35400;
+            transform: scale(1.05);
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        /* Overlay para fechar o menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Garante que o submenu sempre expanda totalmente */
+        .submenu-container.expanded {
+            max-height: none !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+
+        /* Permite rolagem se o menu for muito grande */
+        .sidebar .menu {
+            max-height: 100vh;
+            overflow-y: auto;
+        }
 
         .sidebar {
             width: 280px;
@@ -32,7 +96,8 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Esconde o overflow do container principal */
+            overflow: hidden;
+            z-index: 1000;
         }
 
         .logo-container {
@@ -40,7 +105,7 @@
             text-align: center;
             background: rgba(255,255,255,0.1);
             border-bottom: 1px solid rgba(255,255,255,0.2);
-            flex-shrink: 0; /* Impede que o logo encolha */
+            flex-shrink: 0;
         }
 
         .logo {
@@ -71,9 +136,9 @@
 
         .menu {
             padding: 20px 0;
-            flex: 1; /* Ocupa o espaço restante */
-            overflow-y: auto; /* Permite scroll vertical */
-            overflow-x: hidden; /* Esconde scroll horizontal */
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* Customização da scrollbar */
@@ -230,11 +295,12 @@
             padding-top: 20px;
         }
 
-        /* Conteúdo principal para demonstração */
+        /* Conteúdo principal */
         .main-content {
             margin-left: 280px;
             padding: 40px;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
 
         .content-card {
@@ -253,4 +319,84 @@
             color: #666;
             line-height: 1.6;
             margin-bottom: 15px;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 20px 40px;
+            }
+
+            .company-name {
+                font-size: 16px;
+            }
+
+            .logo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .menu-item {
+                padding: 15px 20px;
+            }
+
+            .menu-text {
+                font-size: 16px;
+            }
+
+            .menu-icon {
+                width: 22px;
+                height: 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 80px 15px 20px;
+            }
+
+            .content-card {
+                padding: 20px;
+            }
+
+            .hamburger {
+                top: 15px;
+                left: 15px;
+                padding: 10px;
+            }
+
+            .hamburger span {
+                width: 20px;
+                height: 2px;
+            }
+        }
+
+        /* Animações suaves */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
         }

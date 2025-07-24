@@ -64,58 +64,91 @@ let currentProductModalPage = 1;
 /**
  * Carrega dinamicamente um formulário e seu script correspondente.
  */
-function loadForm(formName) {
-    console.log(`▶️ Iniciando carregamento do formulário: ${formName}`);
-    
+/**
+ * Carrega dinamicamente um formulário, seu CSS e seu script correspondente.
+ * Garante que o CSS seja aplicado antes do HTML ser exibido para evitar FOUC.
+ */
+async function loadForm(formName) {
+    console.log(`▶️ Iniciando carregamento completo do formulário: ${formName}`);
+
     const container = document.getElementById('form-container');
     if (!container) {
         console.error("❌ ERRO: Elemento 'form-container' não encontrado!");
         return;
     }
-    
+
+    // Exibe a mensagem de carregamento e oculta a de boas-vindas
+    container.innerHTML = '<h2>Carregando Formulário...</h2>';
     const welcomeMessage = document.getElementById('welcome-message');
     if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
     }
 
-    container.innerHTML = '<h2>Carregando Formulário...</h2>';
-    const oldScript = document.getElementById('dynamic-form-script');
-    if (oldScript) {
-        oldScript.remove();
-    }
+    // 1. Limpa o script e o estilo (CSS) dinâmicos da carga anterior
+    document.getElementById('dynamic-form-script')?.remove();
+    document.getElementById('dynamic-form-style')?.remove();
 
-    fetch(`/forms/${formName}.html`)
-        .then(response => {
-            if (!response.ok) throw new Error(`Formulário ${formName}.html não encontrado.`);
-            return response.text();
-        })
-        .then(html => {
-            container.innerHTML = html;
-            
-            const script = document.createElement('script');
-            script.id = 'dynamic-form-script';
-            script.src = `/js/${formName}.js`;
-            
-            script.onload = () => {
-                console.log(`✅ Script ${formName}.js carregado com sucesso.`);
-                if (typeof window.initDynamicForm === 'function') {
-                    console.log(`🚀 Executando initDynamicForm() de ${formName}.js`);
-                    window.initDynamicForm();
-                } else {
-                    console.warn(`⚠️ AVISO: O script ${formName}.js não possui a função initDynamicForm().`);
-                }
-            };
-            
-            script.onerror = () => {
-                console.error(`❌ Erro fatal ao carregar o script ${formName}.js`);
-            };
-            
-            document.body.appendChild(script);
-        })
-        .catch(error => {
-            console.error('💥 Erro no processo de loadForm:', error);
-            container.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
-        });
+    // 2. Define as URLs para os arquivos HTML, CSS e JS
+    const htmlUrl = `/forms/${formName}.html`;
+    const cssUrl = `/css/${formName}.css`; // Assumindo que o CSS fica em /css/
+    const jsUrl = `/js/${formName}.js`;
+
+    try {
+        // 3. Tenta carregar HTML e CSS em paralelo para otimizar
+        const [htmlResponse, cssResponse] = await Promise.all([
+            fetch(htmlUrl),
+            fetch(cssUrl).catch(err => {
+                // Permite que a função continue mesmo se o CSS não for encontrado (404)
+                console.warn(`⚠️ CSS em ${cssUrl} não encontrado, carregando sem ele.`);
+                return null; // Retorna null para indicar falha opcional
+            })
+        ]);
+
+        if (!htmlResponse.ok) {
+            throw new Error(`Formulário ${formName}.html não encontrado (Status: ${htmlResponse.status}).`);
+        }
+
+        const htmlContent = await htmlResponse.text();
+
+        // 4. Processa e injeta o CSS (se foi carregado com sucesso)
+        if (cssResponse && cssResponse.ok) {
+            const cssContent = await cssResponse.text();
+            const style = document.createElement('style');
+            style.id = 'dynamic-form-style';
+            style.textContent = cssContent;
+            document.head.appendChild(style);
+            console.log(`✅ CSS ${formName}.css carregado e injetado.`);
+        }
+
+        // 5. Injeta o HTML no container (agora que o CSS já está aplicado)
+        container.innerHTML = htmlContent;
+
+        // 6. Carrega o script JavaScript associado
+        const script = document.createElement('script');
+        script.id = 'dynamic-form-script';
+        script.src = jsUrl;
+
+        script.onload = () => {
+            console.log(`✅ Script ${formName}.js carregado com sucesso.`);
+            if (typeof window.initDynamicForm === 'function') {
+                console.log(`🚀 Executando initDynamicForm() de ${formName}.js`);
+                window.initDynamicForm();
+            } else {
+                console.warn(`⚠️ AVISO: O script ${formName}.js não possui a função initDynamicForm().`);
+            }
+        };
+
+        script.onerror = () => {
+            console.error(`❌ Erro fatal ao carregar o script ${jsUrl}`);
+            // Opcional: Reverter para uma mensagem de erro se o script for crucial
+        };
+
+        document.body.appendChild(script);
+
+    } catch (error) {
+        console.error('💥 Erro no processo de loadForm:', error);
+        container.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
+    }
 }
 function showErrorModal(errorData) {
     const modal = document.getElementById('errorModal');
