@@ -1,38 +1,33 @@
-console.log('Script js/estoque.js DEFINIDO.');
+console.log('Script js/relatorio-retiradas.js DEFINIDO.');
+
+let currentPage = 1;
 
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
-    console.log('▶️ initDynamicForm() de estoque.js foi chamada.');
+    console.log('▶️ initDynamicForm() de relatorio-retiradas.js foi chamada.');
     initializeSearch();
 }
 
 function initializeSearch() {
-    document.getElementById('searchButton')?.addEventListener('click', performSearch);
+    document.getElementById('searchButton')?.addEventListener('click', () => searchRetiradas(1));
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
-    
-    if (typeof loadProductCategories === 'function') {
-        loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias')
-            .then(() => {
-                performSearch();
-            });
-    } else {
-        console.warn("Função 'loadProductCategories' não encontrada.");
-        performSearch();
-    }
+    searchRetiradas(1); // Carga inicial
 }
 
 function clearFilters() {
-    document.getElementById('search').value = '';
-    document.getElementById('categoryId').value = '';
-    performSearch();
+    document.getElementById('searchEmployee').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    searchRetiradas(1);
 }
 
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
 // =======================================================
-async function performSearch() {
+async function searchRetiradas(page = 1) {
+    currentPage = page;
     const loadingDiv = document.getElementById('loading');
     const resultsSection = document.getElementById('resultsSection');
     
@@ -43,23 +38,25 @@ async function performSearch() {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const params = new URLSearchParams();
-        const search = document.getElementById('search')?.value;
-        const categoryId = document.getElementById('categoryId')?.value;
+        const pageSize = 10;
+        const employeeName = document.getElementById('searchEmployee')?.value;
+        const startDate = document.getElementById('startDate')?.value;
+        const endDate = document.getElementById('endDate')?.value;
 
-        if (search) params.append('Search', search);
-        if (categoryId) params.append('CategoryId', categoryId);
+        const params = new URLSearchParams({ Page: currentPage, PageSize: pageSize });
+        if (employeeName) params.append('EmployeeName', employeeName);
+        if (startDate) params.append('StartDate', new Date(startDate).toISOString());
+        if (endDate) params.append('EndDate', new Date(endDate).toISOString());
 
-        const url = `${API_BASE_URL}/dashboard/reports/products/stock-outof?${params.toString()}`;
-        console.log("📡 Buscando dados em:", url);
-
+        const url = `${API_BASE_URL}/dashboard/reports/employees?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
-        const items = await response.json();
+        const data = await response.json();
         
-        updateSummary(items);
-        renderResultsTable(items);
+        updateSummary(data);
+        renderResultsTable(data.items);
+        renderPagination(data);
         
         if(resultsSection) resultsSection.style.display = 'block';
 
@@ -74,82 +71,74 @@ async function performSearch() {
     }
 }
 
-function updateSummary(items = []) {
+function updateSummary(data) {
     const summaryContainer = document.getElementById('resultsSummary');
     if (!summaryContainer) return;
-
-    const totalProducts = items.length;
-    let outOfStock = 0;
-    let lowStock = 0;
-
-    items.forEach(item => {
-        if (item.stockCurrent <= 0) {
-            outOfStock++;
-        } else if (item.stockCurrent < item.stockMinimum) {
-            lowStock++;
-        }
-    });
-
-    const normalStock = totalProducts - outOfStock - lowStock;
+    
+    const items = data.items || [];
+    const totalRetiradas = items.reduce((sum, item) => sum + item.quantityRetirada, 0);
+    const quantidadeDevolvida = items.reduce((sum, item) => sum + item.quantityDevolvida, 0);
+    const quantidadePendente = items.reduce((sum, item) => sum + item.quantityPendente, 0);
 
     summaryContainer.innerHTML = `
         <div class="summary-item">
-            <div class="summary-value">${totalProducts}</div>
-            <div class="summary-label">Total de Produtos</div>
+            <div class="summary-value">${data.totalItems || 0}</div>
+            <div class="summary-label">Total de Registros</div>
         </div>
         <div class="summary-item">
-            <div class="summary-value">${outOfStock}</div>
-            <div class="summary-label">Em Falta</div>
+            <div class="summary-value">${totalRetiradas}</div>
+            <div class="summary-label">Qtd. Retirada (pág.)</div>
         </div>
         <div class="summary-item">
-            <div class="summary-value">${lowStock}</div>
-            <div class="summary-label">Estoque Baixo</div>
+            <div class="summary-value">${quantidadeDevolvida}</div>
+            <div class="summary-label">Qtd. Devolvida (pág.)</div>
         </div>
         <div class="summary-item">
-            <div class="summary-value">${normalStock}</div>
-            <div class="summary-label">Estoque Normal</div>
+            <div class="summary-value">${quantidadePendente}</div>
+            <div class="summary-label">Qtd. Pendente (pág.)</div>
         </div>
     `;
 }
 
 function renderResultsTable(items) {
-    const tableBody = document.getElementById('tableBody');
-    const noResultsDiv = document.getElementById('noResults');
-    if(!tableBody || !noResultsDiv) return;
-
+    const tableBody = document.getElementById('resultsTableBody');
     tableBody.innerHTML = '';
-
-    if (!items || items.length === 0) {
-        noResultsDiv.style.display = 'block';
-        if(tableBody.parentElement.parentElement) tableBody.parentElement.parentElement.style.display = 'none';
-        return;
-    }
-    
-    noResultsDiv.style.display = 'none';
-    if(tableBody.parentElement.parentElement) tableBody.parentElement.parentElement.style.display = 'block';
+    if (!items || items.length === 0) return;
 
     items.forEach(item => {
-        const statusInfo = getStatusInfo(item.stockCurrent, item.stockMinimum);
-        const formattedDate = item.lastExit ? new Date(item.lastExit).toLocaleDateString('pt-BR') : 'N/A';
+        const formattedDate = new Date(item.dataRetirada).toLocaleString('pt-BR');
         
         const row = tableBody.insertRow();
         row.innerHTML = `
+            <td>${item.employeeName || 'N/A'}</td>
             <td>${item.productName || 'N/A'}</td>
-            <td>${item.category || 'N/A'}</td>
-            <td>${item.stockCurrent}</td>
-            <td>${item.stockMinimum}</td>
+            <td>${item.quantityRetirada}</td>
+            <td>${item.quantityDevolvida}</td>
+            <td>${item.quantityPendente}</td>
             <td>${formattedDate}</td>
-            <td><span class="status-badge ${statusInfo.className}">${statusInfo.text}</span></td>
         `;
     });
 }
 
-function getStatusInfo(current, min) {
-    if (current <= 0) {
-        return { text: "Em Falta", className: "status-danger" };
+function renderPagination(paginationData) {
+    const controlsContainer = document.getElementById('pagination-controls');
+    if (!controlsContainer) return;
+    controlsContainer.innerHTML = '';
+    
+    const { page, totalPages } = paginationData;
+    if (totalPages <= 1) return;
+
+    let paginationHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const activeClass = (i === page) ? 'active' : '';
+        paginationHTML += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
     }
-    if (current < min) {
-        return { text: "Estoque Baixo", className: "status-warning" };
-    }
-    return { text: "Normal", className: "status-success" };
+    controlsContainer.innerHTML = paginationHTML;
+
+    controlsContainer.querySelectorAll('.page-number').forEach(button => {
+        button.onclick = (event) => {
+            const newPage = parseInt(event.target.dataset.page);
+            searchRetiradas(newPage);
+        };
+    });
 }
