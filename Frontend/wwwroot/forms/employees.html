@@ -4,15 +4,18 @@
     <div class="form-container">
         <form class="employee-form">
             <div class="form-row">
-                <label class="half-width">Nome Completo:
+                <label class="half-width">
+                    Nome Completo:
                     <input type="text" name="Name" required>
                 </label>
-                <label class="half-width">CPF:
+                <label class="half-width">
+                    CPF:
                     <input type="text" name="CPF" placeholder="000.000.000-00" required>
                 </label>
             </div>
             <div class="form-row">
-                <label class="half-width">Cargo/Posição:
+                <label class="half-width">
+                    Cargo/Posição:
                     <select name="Positiions" required>
                         <option value="">Selecione um cargo</option>
                         <option value="0">Enfornador</option>
@@ -31,11 +34,13 @@
                         <option value="13">Auxiliar de Estoque</option>
                     </select>
                 </label>
-                <label class="half-width">Foto do Funcionário:
+                <label class="half-width">
+                    Foto do Funcionário:
                     <input type="file" name="Imagem" accept="image/*">
                 </label>
             </div>
-            <button type="submit" class="submit-btn">Salvar Funcionário</button>        </form>
+            <button type="submit" class="submit-btn">Salvar Funcionário</button>
+        </form>
     </div>
 
     <form id="filter-form" class="filter-bar">
@@ -80,6 +85,7 @@
             </tbody>
         </table>
     </div>
+    <div id="pagination-controls" class="pagination-controls"></div>
 </div>
 
 <link rel="stylesheet" href="/css/employees.css">
