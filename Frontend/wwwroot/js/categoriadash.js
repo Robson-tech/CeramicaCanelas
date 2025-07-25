@@ -13,11 +13,14 @@ function initializeSearch() {
     if (searchButton) {
         searchButton.onclick = () => performSearch(1);
     }
-    // Carrega as categorias no filtro e depois faz a primeira busca
-    loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias')
-        .then(() => {
-            performSearch(1);
-        });
+    
+    if (typeof loadProductCategories === 'function') {
+        loadProductCategories(document.getElementById('categoryId'), 'Todas as Categorias');
+    } else {
+        console.warn("Função 'loadProductCategories' não foi encontrada.");
+    }
+    
+    performSearch(1);
 }
 
 // =======================================================
@@ -38,7 +41,7 @@ async function performSearch(page = 1) {
 
         const categoryId = document.getElementById('categoryId')?.value;
         const year = document.getElementById('year')?.value;
-        const pageSize = 10; // Fixo no código
+        const pageSize = 10;
 
         const params = new URLSearchParams({
             Page: page,
@@ -49,25 +52,34 @@ async function performSearch(page = 1) {
         
         const url = `${API_BASE_URL}/dashboard/financial/monthly-cost-category?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
-
-        const data = await response.json();
         
         // --- CORREÇÃO APLICADA AQUI ---
-        // Agora, lemos os dados da estrutura correta que a API retorna
+        // Se a resposta for um erro, mas não queremos mostrar a modal
+        if (!response.ok) {
+            // Se for um erro 500 (ou qualquer outro), tratamos como "sem dados" e saímos da função
+            console.warn(`A API retornou um erro ${response.status}. Exibindo a tela como vazia.`);
+            updateSummary({}); // Chama com objeto vazio para limpar os cards
+            renderResultsTable([]); // Chama com array vazio para mostrar "Nenhum resultado"
+            renderPagination({}); // Chama com objeto vazio para limpar a paginação
+            if(resultsSection) resultsSection.style.display = 'block'; // Mostra a seção de resultados vazia
+            return; // Encerra a execução aqui
+        }
+
+        const data = await response.json();
         const paginatedData = data.pagedData; 
         
         if (!paginatedData || !paginatedData.items) {
-            throw new Error("A resposta da API não tem o formato esperado (pagedData.items não encontrado).");
+            throw new Error("A resposta da API não tem o formato esperado.");
         }
 
-        updateSummary(data); // Passa o objeto 'data' completo para o resumo
+        updateSummary(data);
         renderResultsTable(paginatedData.items);
         renderPagination(paginatedData);
         
         if(resultsSection) resultsSection.style.display = 'block';
 
     } catch (error) {
+        // O catch agora só vai pegar erros de conexão ou falhas inesperadas no código
         if(typeof showErrorModal === 'function') {
             showErrorModal({ title: "Erro na Pesquisa", detail: error.message });
         } else {
@@ -79,7 +91,6 @@ async function performSearch(page = 1) {
 }
 
 function updateSummary(data) {
-    // CORREÇÃO: Lê os totais dos campos corretos na resposta da API
     const totalItems = data.pagedData?.totalItems || 0;
     const grandTotalCost = data.totalCostOverall || 0;
     const averageCost = data.averageCostPerRecord || 0;
@@ -150,7 +161,7 @@ function renderPagination(paginationData) {
     nextButton.textContent = 'Próxima';
     nextButton.className = 'pagination-btn';
     nextButton.disabled = page >= totalPages;
-    nextButton.onclick = () => performSearch(page + 1);
+    nextButton.onclick = () => performSearch(page + T1);
     
     controlsContainer.appendChild(prevButton);
     controlsContainer.appendChild(pageInfo);
