@@ -57,6 +57,12 @@ namespace CeramicaCanelas.Application.Features.Auth.Commands.UpdatePasswordComma
                 throw new BadRequestException("User not found");
             }
 
+            //Validar se o email pertence a um user
+            if (user.Email != command.Email.Trim())
+            {
+                throw new BadRequestException("Email does not match the user");
+            }
+
             return user;
         }
 
