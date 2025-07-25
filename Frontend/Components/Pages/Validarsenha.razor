@@ -1,79 +1,157 @@
 @page "/validarsenha"
-
-<div class="container">
-    <div class="header">
-        <div class="logo"></div>
-        <h1>CERÂMICA CANELAS</h1>
-        <p>Sistema de Almoxarifado</p>
-    </div>
-
-    <div class="success-message">
-        Link de recuperação validado com sucesso!
-    </div>
-
-    <form>
-        <div class="form-group">
-            <label class="form-label">Nova Senha</label>
-            <div class="password-input-wrapper">
-                <input type="password"
-                       class="form-input"
-                       id="password"
-                       placeholder="Digite sua nova senha"
-                       required>
-                <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
-            </div>
-            <div class="password-requirements">
-                <div class="requirement" id="length">Mínimo de 8 caracteres</div>
-                <div class="requirement" id="uppercase">Pelo menos 1 letra maiúscula</div>
-                <div class="requirement" id="lowercase">Pelo menos 1 letra minúscula</div>
-                <div class="requirement" id="number">Pelo menos 1 número</div>
-                <div class="requirement" id="special">Pelo menos 1 caractere especial</div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <div class="logo"></div>
+            <h1>CERÂMICA CANELAS</h1>
+            <p>Sistema de Almoxarifado</p>
         </div>
 
-        <div class="form-group">
-            <label class="form-label">Confirmar Nova Senha</label>
-            <div class="password-input-wrapper">
-                <input type="password"
-                       class="form-input"
-                       id="confirmPassword"
-                       placeholder="Confirme sua nova senha"
-                       required>
-                <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</button>
+        <div id="message"></div>
+
+        <form id="resetForm">
+            <div class="form-group">
+                <label class="form-label" for="password">Nova Senha</label>
+                <div class="password-input-wrapper">
+                    <input type="password"
+                           class="form-input"
+                           id="password"
+                           placeholder="Digite sua nova senha"
+                           required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
+                </div>
+                <div class="password-requirements">
+                    <div class="requirement" id="length">Mínimo de 8 caracteres</div>
+                    <div class="requirement" id="uppercase">Pelo menos 1 letra maiúscula</div>
+                    <div class="requirement" id="lowercase">Pelo menos 1 letra minúscula</div>
+                    <div class="requirement" id="number">Pelo menos 1 número</div>
+                    <div class="requirement" id="special">Pelo menos 1 caractere especial</div>
+                </div>
             </div>
-            <div class="helper-text">
-                Digite novamente a senha para confirmação
+
+            <div class="form-group">
+                <label class="form-label" for="confirmPassword">Confirmar Nova Senha</label>
+                <div class="password-input-wrapper">
+                    <input type="password"
+                           class="form-input"
+                           id="confirmPassword"
+                           placeholder="Confirme sua nova senha"
+                           required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</button>
+                </div>
+                <div class="helper-text">
+                    Digite novamente a senha para confirmação
+                </div>
             </div>
-        </div>
 
-        <button type="submit" class="submit-btn">
-            Redefinir Senha
-        </button>
-    </form>
+            <button type="submit" class="submit-btn">
+                Redefinir Senha
+            </button>
+        </form>
 
-    <a href="#" class="back-link">← Voltar ao Login</a>
-</div>
+        <a href="/" class="back-link">← Voltar ao Login</a>
+    </div>
 
-@code {
-    // You'll likely want to add C# logic here for handling password reset,
-    // validation, and the togglePassword JavaScript function.
-    // For example, using IJSRuntime for JavaScript interop:
-    // [Inject] public IJSRuntime JSRuntime { get; set; }
+    <script >// Função para mostrar/esconder a senha
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+    } else {
+        input.type = "password";
+    }
+}
 
-    // private async Task TogglePassword(string elementId)
-    // {
-    //     await JSRuntime.InvokeVoidAsync("togglePasswordVisibility", elementId);
-    // }
+// Aguarda o carregamento completo da página para executar o script
+document.addEventListener('DOMContentLoaded', () => {
 
-    // You would then define a JavaScript function like this in your wwwroot/js/site.js (or similar):
-    /*
-    function togglePasswordVisibility(elementId) {
-        var input = document.getElementById(elementId);
-        if (input.type === "password") {
-            input.type = "text";
+    // Seleciona os elementos do formulário
+    const resetForm = document.getElementById('resetForm');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const messageDiv = document.getElementById('message');
+    const submitButton = resetForm.querySelector('button[type="submit"]');
+
+    // Função para exibir mensagens
+    function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = type; // 'success' ou 'error'
+        messageDiv.style.display = 'block';
+    }
+
+    // Adiciona um "ouvinte" para o evento de envio do formulário
+    resetForm.addEventListener('submit', async (event) => {
+        // Previne o comportamento padrão do formulário (que recarregaria a página)
+        event.preventDefault();
+
+        // Desabilita o botão para evitar múltiplos envios
+        submitButton.disabled = true;
+        submitButton.textContent = 'Aguarde...';
+
+        // 1. Pega o token da URL
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (!token) {
+            showMessage('ERRO: Token de redefinição não encontrado na URL.', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Redefinir Senha';
+            return;
+        }
+
+        // 2. Pega os valores dos campos de senha
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        // Validação simples: verifica se as senhas são iguais
+        if (password !== confirmPassword) {
+            showMessage('As senhas não coincidem. Tente novamente.', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Redefinir Senha';
+            return;
+        }
+        
+        // 3. Monta a URL da API com os parâmetros
+        const apiUrl = `https://api.ceramicacanelas.shop/api/auth/validation-reset?Token=${encodeURIComponent(token)}&Password=${encodeURIComponent(password)}&ConfirmPassword=${encodeURIComponent(confirmPassword)}`;
+
+        // 4. Envia a requisição para a API
+        try {
+            // Usamos o método POST conforme a boa prática para alterações de dados
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Sucesso!
+                showMessage('Senha redefinida com sucesso! Você será redirecionado para o login.', 'success');
+                // Oculta o formulário após o sucesso
+                resetForm.style.display = 'none'; 
+                
+                // Redireciona para a página de login após 3 segundos
+                setTimeout(() => {
+                    window.location.href = 'URL_DA_SUA_PAGINA_DE_LOGIN'; 
+                }, 3000);
+
             } else {
-            input.type = "password";
+                // Erro vindo do servidor
+                const errorData = await response.json(); // Tenta ler a resposta de erro em JSON
+                const errorMessage = errorData.message || 'Ocorreu um erro ao redefinir a senha. Verifique os dados ou o token.';
+                showMessage(errorMessage, 'error');
+            }
+
+        } catch (error) {
+            // Erro de rede ou conexão
+            console.error('Falha na comunicação com a API:', error);
+            showMessage('Não foi possível conectar ao servidor. Verifique sua conexão.', 'error');
+        } finally {
+            // Reabilita o botão (exceto em caso de sucesso)
+            if (!resetForm.style.display) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Redefinir Senha';
             }
         }
-        */
-}
+    });
+});</script>
+

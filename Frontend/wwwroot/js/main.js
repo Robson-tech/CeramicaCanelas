@@ -173,23 +173,50 @@ function showErrorModal(errorData) {
 }
 
 // Adicione esta função ao seu arquivo js/main.js, se ela não estiver lá
-
 async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
     if (!selectElement) return; 
+    
     try { 
         const accessToken = localStorage.getItem('accessToken'); 
         const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
-        if (!response.ok) throw new Error('Falha ao carregar categorias.'); 
+        
+        // --- CORREÇÃO APLICADA AQUI ---
+        // Verifica primeiro se a requisição falhou
+        if (!response.ok) {
+            // Se o erro for um 400 (Bad Request), tentamos ler a mensagem
+            if (response.status === 400) {
+                const errorData = await response.json();
+                // Verificamos se é a mensagem específica de "sem categorias"
+                if (errorData && errorData.message === "Não há categórias cadastradas.") {
+                    selectElement.innerHTML = `<option value="">Nenhuma categoria cadastrada</option>`;
+                    selectElement.disabled = true;
+                    return; // Encerra a função aqui, pois já tratamos o caso
+                }
+            }
+            // Para todos os outros erros, lança uma exceção
+            throw new Error(`Falha ao carregar categorias (Status: ${response.status})`);
+        }
         
         const categories = await response.json(); 
-        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
-        categories.forEach(category => { 
-            const option = new Option(category.name, category.id); 
-            selectElement.appendChild(option); 
-        }); 
+        
+        // Esta parte continua a mesma para o caso de sucesso com uma lista vazia
+        if (!categories || categories.length === 0) {
+            selectElement.innerHTML = `<option value="">Nenhuma categoria cadastrada</option>`;
+            selectElement.disabled = true;
+        } else {
+            // Se houver categorias, preenche o select normalmente
+            selectElement.disabled = false;
+            selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
+            categories.forEach(category => { 
+                const option = new Option(category.name, category.id); 
+                selectElement.appendChild(option); 
+            }); 
+        }
+        // --- FIM DA CORREÇÃO ---
+
     } catch (error) { 
         console.error('Erro ao carregar categorias:', error); 
         selectElement.innerHTML = '<option value="">Erro ao carregar</option>'; 
-        throw error; 
+        // Não relançamos o erro para não quebrar a inicialização de outras partes da página
     } 
 }
