@@ -1,55 +1,52 @@
 @page "/validarsenha"
-    <div class="container">
-        <div class="header">
-            <div class="logo"></div>
-            <h1>CERÂMICA CANELAS</h1>
-            <p>Sistema de Almoxarifado</p>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo"></div>
+                <h1>CERÂMICA CANELAS</h1>
+                <p>Sistema de Almoxarifado</p>
+            </div>
+            <div id="message"></div>
+            <form id="resetForm">
+                <div class="form-group">
+                    <label class="form-label" for="password">Nova Senha</label>
+                    <div class="password-input-wrapper">
+                        <input type="password"
+                               class="form-input"
+                               id="password"
+                               placeholder="Digite sua nova senha"
+                               required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
+                    </div>
+                    <div class="password-requirements">
+                        <div class="requirement" id="length">Mínimo de 8 caracteres</div>
+                        <div class="requirement" id="uppercase">Pelo menos 1 letra maiúscula</div>
+                        <div class="requirement" id="lowercase">Pelo menos 1 letra minúscula</div>
+                        <div class="requirement" id="number">Pelo menos 1 número</div>
+                        <div class="requirement" id="special">Pelo menos 1 caractere especial</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirmar Nova Senha</label>
+                    <div class="password-input-wrapper">
+                        <input type="password"
+                               class="form-input"
+                               id="confirmPassword"
+                               placeholder="Confirme sua nova senha"
+                               required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</button>
+                    </div>
+                    <div class="helper-text">
+                        Digite novamente a senha para confirmação
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">
+                    Redefinir Senha
+                </button>
+            </form>
+            <a href="/" class="back-link">← Voltar ao Login</a>
         </div>
-
-        <div id="message"></div>
-
-        <form id="resetForm">
-            <div class="form-group">
-                <label class="form-label" for="password">Nova Senha</label>
-                <div class="password-input-wrapper">
-                    <input type="password"
-                           class="form-input"
-                           id="password"
-                           placeholder="Digite sua nova senha"
-                           required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('password')">👁️</button>
-                </div>
-                <div class="password-requirements">
-                    <div class="requirement" id="length">Mínimo de 8 caracteres</div>
-                    <div class="requirement" id="uppercase">Pelo menos 1 letra maiúscula</div>
-                    <div class="requirement" id="lowercase">Pelo menos 1 letra minúscula</div>
-                    <div class="requirement" id="number">Pelo menos 1 número</div>
-                    <div class="requirement" id="special">Pelo menos 1 caractere especial</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="confirmPassword">Confirmar Nova Senha</label>
-                <div class="password-input-wrapper">
-                    <input type="password"
-                           class="form-input"
-                           id="confirmPassword"
-                           placeholder="Confirme sua nova senha"
-                           required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</button>
-                </div>
-                <div class="helper-text">
-                    Digite novamente a senha para confirmação
-                </div>
-            </div>
-
-            <button type="submit" class="submit-btn">
-                Redefinir Senha
-            </button>
-        </form>
-
-        <a href="/" class="back-link">← Voltar ao Login</a>
-    </div>
+    </body>
 
     <script >// Função para mostrar/esconder a senha
 function togglePassword(inputId) {
