@@ -48,7 +48,7 @@ async function performSearch(page = 1) {
         // Adiciona os parâmetros de paginação
         const params = new URLSearchParams({
             Page: currentPage,
-            PageSize: 1
+            PageSize: 10
         });
 
         const search = document.getElementById('search')?.value;

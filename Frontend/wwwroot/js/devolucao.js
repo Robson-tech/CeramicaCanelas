@@ -199,24 +199,3 @@ async function returnHistoryItem(exitId) {
 // =================================================================================
 // FIM DA FUNÇÃO ALTERADA
 // =================================================================================
-
-
-async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') {
-    if (!selectElement) return;
-    try {
-        const accessToken = localStorage.getItem('accessToken');
-        const response = await fetch(`${API_BASE_URL}/categories`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        if (!response.ok) throw new Error('Falha ao carregar categorias.');
-        const categories = await response.json();
-        selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`;
-        categories.forEach(category => {
-            const option = new Option(category.name, category.id);
-            selectElement.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-        selectElement.innerHTML = `<option value="">Erro ao carregar</option>`;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', initDynamicForm);
