@@ -50,6 +50,12 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployee
                 // Cria URL pública de acesso à imagem
                 imageUrl = $"{UrlBase}{nomeArquivo}";
             }
+            else
+            {
+                // Se não houver imagem, define uma URL padrão ou nula
+                var ImageDefault = "imageDefault.jpg"; // Nome do arquivo padrão
+                imageUrl = $"{UrlBase}{ImageDefault}"; // ou defina uma URL padrão se necessário
+            }
 
             var employee = request.AssignToEmployee();
             employee.ImageUrl = imageUrl;

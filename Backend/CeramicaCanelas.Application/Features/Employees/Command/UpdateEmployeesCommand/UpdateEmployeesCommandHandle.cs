@@ -65,6 +65,12 @@ namespace CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployees
 
                 newImageUrl = $"{UrlBase}{nomeNovoArquivo}";
             }
+            else
+            {
+                // Se não houver imagem, define uma URL padrão ou nula
+                var ImageDefault = "imageDefault.jpg"; // Nome do arquivo padrão
+                newImageUrl = $"{UrlBase}{ImageDefault}"; // ou defina uma URL padrão se necessário
+            }
 
             // 5. Mapeia os dados da requisição para a entidade
             // ATENÇÃO: Verifique se a propriedade "Positiions" não deveria ser "Positions" (sem o 'i' extra)
