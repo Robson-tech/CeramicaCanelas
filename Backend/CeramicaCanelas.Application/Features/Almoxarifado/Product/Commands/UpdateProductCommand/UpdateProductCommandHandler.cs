@@ -45,12 +45,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
 
                 url = $"{UrlBase}{nomeArquivo}";
             }
-            else
-            {
-                // Se não houver imagem, define uma URL padrão ou nula
-                var ImageDefault = "productDefault.jpg"; // Nome do arquivo padrão
-                url = $"{UrlBase}{ImageDefault}"; // ou defina uma URL padrão se necessário
-            }
 
             // Atualiza os dados
             product.Name = request.Name;
