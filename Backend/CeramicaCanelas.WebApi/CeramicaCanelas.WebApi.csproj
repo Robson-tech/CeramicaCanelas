@@ -24,4 +24,8 @@
     <ProjectReference Include="..\CeramicaCanelas.Persistence\CeramicaCanelas.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\employees\images\" />
+  </ItemGroup>
+
 </Project>
