@@ -15,10 +15,18 @@ function initDynamicForm() {
 }
 
 function initializeFilters() {
-    document.getElementById('filter-btn')?.addEventListener('click', () => loadEmployees(1));
+    // Escuta o evento de SUBMISSÃO do formulário de filtros
+    const filterForm = document.getElementById('filter-form');
+    filterForm?.addEventListener('submit', (event) => {
+        event.preventDefault(); // Impede o recarregamento da página
+        loadEmployees(1);       // Chama a função para carregar os dados com os filtros
+    });
+
+    // A lógica para limpar os filtros já está correta
     document.getElementById('clear-filters-btn')?.addEventListener('click', () => {
         document.getElementById('search-filter').value = '';
         document.getElementById('position-filter').value = '';
+        document.getElementById('active-filter').value = ''; // Adicionado para limpar este filtro também
         loadEmployees(1);
     });
 }

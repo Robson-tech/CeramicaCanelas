@@ -33,7 +33,8 @@ const positionMap = {
     10: 'Auxiliar de Limpeza',
     11: 'Dono',
     12: 'Gerente',
-    13: 'Auxiliar de Estoque'
+    13: 'Auxiliar de Estoque',
+    14: 'Prestador de Serviços',
 };
 
 // NOVO: Mapa para traduzir os números das funções para texto
