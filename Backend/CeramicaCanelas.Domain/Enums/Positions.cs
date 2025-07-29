@@ -23,5 +23,6 @@ namespace CeramicaCanelas.Domain.Enums
         Dono = 11,
         Gerente = 12,
         AuxiliarDeEstoque = 13,
+        PrestadorDeServico = 14
     }
 }
