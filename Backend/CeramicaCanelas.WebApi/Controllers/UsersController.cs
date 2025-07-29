@@ -15,7 +15,7 @@ namespace CeramicaCanelas.WebApi.Controllers;
 public class UsersController(IMediator mediator) : Controller {
     private readonly IMediator _mediator = mediator;
 
-    [Authorize(Roles = "Custoumer,Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(CreateUserResult), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateUserResult), StatusCodes.Status400BadRequest)]
@@ -24,7 +24,7 @@ public class UsersController(IMediator mediator) : Controller {
         return Created(HttpContext.Request.GetDisplayUrl(), response);
     }
 
-    [Authorize(Roles = "Custoumer,Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete]
     [Route("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -35,7 +35,7 @@ public class UsersController(IMediator mediator) : Controller {
         return NoContent();
     }
 
-    [Authorize(Roles = "Custoumer,Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
