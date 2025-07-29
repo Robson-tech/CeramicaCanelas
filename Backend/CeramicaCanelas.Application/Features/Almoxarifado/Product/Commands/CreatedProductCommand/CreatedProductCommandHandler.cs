@@ -49,6 +49,12 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
                 // Cria URL pública de acesso à imagem
                 imageUrl = $"{UrlBase}{nomeArquivo}";
             }
+            else
+            {
+                // Se não houver imagem, define uma URL padrão ou nula
+                var ImageDefault = "productDefault.jpg"; // Nome do arquivo padrão
+                imageUrl = $"{UrlBase}{ImageDefault}"; // ou defina uma URL padrão se necessário
+            }
 
             var product = request.AssignToProducts();
             product.ImageUrl = imageUrl;
