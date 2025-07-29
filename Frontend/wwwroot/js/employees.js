@@ -108,10 +108,10 @@ async function loadEmployees(page = 1) {
         renderEmployeeTable(paginatedData.items);
         renderPagination(paginatedData);
     } catch (error) {
-        showErrorModal({ title: "Erro ao Listar", detail: error.message });
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
-        const paginationControls = document.getElementById('pagination-controls');
-        if (paginationControls) paginationControls.innerHTML = '';
+        // // showErrorModal({ title: "Erro ao Listar", detail: error.message });
+        // tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        // const paginationControls = document.getElementById('pagination-controls');
+        // if (paginationControls) paginationControls.innerHTML = '';
     }
 }
 

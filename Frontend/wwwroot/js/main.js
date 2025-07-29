@@ -35,6 +35,7 @@ const positionMap = {
     12: 'Gerente',
     13: 'Auxiliar de Estoque',
     14: 'Prestador de Serviços',
+    15: 'Pedreiro',
 };
 
 // NOVO: Mapa para traduzir os números das funções para texto
@@ -68,40 +69,61 @@ let currentProductModalPage = 1;
 /**
  * Carrega dinamicamente um formulário, seu CSS e seu script correspondente.
  * Garante que o CSS seja aplicado antes do HTML ser exibido para evitar FOUC.
+let isFormLoading = false; // Trava para evitar race conditions
+
+// ... (o resto das suas variáveis globais)
+
+
+// =======================================================
+// FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS (REFATORADA)
+// =======================================================
+
+/**
+ * Carrega dinamicamente um formulário, seu CSS e seu script correspondente,
+ * prevenindo carregamentos simultâneos para evitar race conditions.
  */
+let isFormLoading = false; // Trava para evitar race conditions
+
 async function loadForm(formName) {
-    console.log(`▶️ Iniciando carregamento completo do formulário: ${formName}`);
+    // 1. VERIFICA SE UM CARREGAMENTO JÁ ESTÁ EM ANDAMENTO
+    if (isFormLoading) {
+        console.warn(`🚦 AVISO: Tentativa de carregar '${formName}' enquanto outro formulário está em andamento. Ação ignorada.`);
+        return;
+    }
+
+    // 2. ATIVA A TRAVA E INICIA O PROCESSO
+    isFormLoading = true;
+    console.log(`▶️ Iniciando carregamento do formulário: ${formName}. Trava ativada.`);
 
     const container = document.getElementById('form-container');
     if (!container) {
         console.error("❌ ERRO: Elemento 'form-container' não encontrado!");
+        isFormLoading = false; // Libera a trava em caso de erro fatal
         return;
     }
 
-    // Exibe a mensagem de carregamento e oculta a de boas-vindas
+    // Exibe a mensagem de carregamento
     container.innerHTML = '<h2>Carregando Formulário...</h2>';
     const welcomeMessage = document.getElementById('welcome-message');
     if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
     }
 
-    // 1. Limpa o script e o estilo (CSS) dinâmicos da carga anterior
-    document.getElementById('dynamic-form-script')?.remove();
-    document.getElementById('dynamic-form-style')?.remove();
-
-    // 2. Define as URLs para os arquivos HTML, CSS e JS
-    const htmlUrl = `/forms/${formName}.html`;
-    const cssUrl = `/css/${formName}.css`; // Assumindo que o CSS fica em /css/
-    const jsUrl = `/js/${formName}.js`;
-
     try {
-        // 3. Tenta carregar HTML e CSS em paralelo para otimizar
+        // 3. LIMPEZA DOS RECURSOS ANTERIORES
+        document.getElementById('dynamic-form-script')?.remove();
+        document.getElementById('dynamic-form-style')?.remove();
+
+        const htmlUrl = `/forms/${formName}.html`;
+        const cssUrl = `/css/${formName}.css`;
+        const jsUrl = `/js/${formName}.js`;
+
+        // 4. CARREGAMENTO PARALELO DE HTML E CSS
         const [htmlResponse, cssResponse] = await Promise.all([
             fetch(htmlUrl),
             fetch(cssUrl).catch(err => {
-                // Permite que a função continue mesmo se o CSS não for encontrado (404)
-                console.warn(`⚠️ CSS em ${cssUrl} não encontrado, carregando sem ele.`);
-                return null; // Retorna null para indicar falha opcional
+                console.warn(`⚠️ CSS em ${cssUrl} não encontrado, continuando sem ele.`);
+                return null; // Falha no CSS não é fatal
             })
         ]);
 
@@ -111,7 +133,7 @@ async function loadForm(formName) {
 
         const htmlContent = await htmlResponse.text();
 
-        // 4. Processa e injeta o CSS (se foi carregado com sucesso)
+        // 5. INJEÇÃO DO CSS (SE EXISTIR)
         if (cssResponse && cssResponse.ok) {
             const cssContent = await cssResponse.text();
             const style = document.createElement('style');
@@ -121,36 +143,51 @@ async function loadForm(formName) {
             console.log(`✅ CSS ${formName}.css carregado e injetado.`);
         }
 
-        // 5. Injeta o HTML no container (agora que o CSS já está aplicado)
+        // 6. INJEÇÃO DO HTML
         container.innerHTML = htmlContent;
+        console.log(`✅ HTML ${formName}.html injetado no container.`);
 
-        // 6. Carrega o script JavaScript associado
-        const script = document.createElement('script');
-        script.id = 'dynamic-form-script';
-        script.src = jsUrl;
+        // 7. CARREGAMENTO CONTROLADO DO SCRIPT USANDO PROMISE
+        await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.id = 'dynamic-form-script';
+            script.src = jsUrl;
 
-        script.onload = () => {
-            console.log(`✅ Script ${formName}.js carregado com sucesso.`);
-            if (typeof window.initDynamicForm === 'function') {
-                console.log(`🚀 Executando initDynamicForm() de ${formName}.js`);
-                window.initDynamicForm();
-            } else {
-                console.warn(`⚠️ AVISO: O script ${formName}.js não possui a função initDynamicForm().`);
-            }
-        };
+            script.onload = () => {
+                console.log(`✅ Script ${formName}.js carregado.`);
+                // Executa a função de inicialização do formulário, se existir
+                if (typeof window.initDynamicForm === 'function') {
+                    console.log(`🚀 Executando initDynamicForm() de ${formName}.js`);
+                    // Idealmente, initDynamicForm também seria assíncrona e retornaria uma promise
+                    // para ser aguardada aqui, mas para este caso, chamá-la já é suficiente.
+                    window.initDynamicForm();
+                } else {
+                    console.warn(`⚠️ O script ${formName}.js não possui a função initDynamicForm().`);
+                }
+                resolve(); // Resolve a promise, indicando sucesso.
+            };
 
-        script.onerror = () => {
-            console.error(`❌ Erro fatal ao carregar o script ${jsUrl}`);
-            // Opcional: Reverter para uma mensagem de erro se o script for crucial
-        };
+            script.onerror = () => {
+                console.error(`❌ Erro fatal ao carregar o script ${jsUrl}`);
+                // Rejeita a promise, o que fará o bloco catch principal ser acionado.
+                reject(new Error(`Falha ao carregar o script ${jsUrl}`));
+            };
 
-        document.body.appendChild(script);
+            document.body.appendChild(script);
+        });
 
     } catch (error) {
         console.error('💥 Erro no processo de loadForm:', error);
         container.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
+    } finally {
+        // 8. LIBERAÇÃO DA TRAVA
+        // Este bloco será executado sempre, seja em caso de sucesso ou de erro,
+        // garantindo que a aplicação não fique "travada".
+        isFormLoading = false;
+        console.log(`⏹️ Carregamento do formulário ${formName} finalizado. Trava liberada.`);
     }
 }
+
 function showErrorModal(errorData) {
     // const modal = document.getElementById('errorModal');
     // if (!modal) {
@@ -173,7 +210,7 @@ function showErrorModal(errorData) {
     // };
 }
 
-// Adicione esta função ao seu arquivo js/main.js, se ela não estiver lá
+// Adicione esta função ao seu arquivo js/main.j, se ela não estiver lá
 async function loadProductCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
     if (!selectElement) return; 
     

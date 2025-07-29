@@ -173,8 +173,8 @@ async function fetchAndRenderUsers() {
         }
         renderUserTable(users, tableBody);
     } catch (error) {
-        showErrorModal({ title: "Erro ao Listar", detail: error.message });
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
+        // showErrorModal({ title: "Erro ao Listar", detail: error.message });
+        // tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">${error.message}</td></tr>`;
     }
 }
 
