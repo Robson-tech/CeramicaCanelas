@@ -89,11 +89,11 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
         // <<< FIM DA NOVA LÓGICA >>>
 
     } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-        selectElement.innerHTML = '<option value="">Erro ao carregar</option>';
-        selectElement.disabled = true;
-        // Opcional: relançar o erro se a função que chama precisar saber da falha.
-        // throw error; 
+        // console.error('Erro ao carregar categorias:', error);
+        // selectElement.innerHTML = '<option value="">Erro ao carregar</option>';
+        // selectElement.disabled = true;
+        // // Opcional: relançar o erro se a função que chama precisar saber da falha.
+        // // throw error; 
     }
 }
 
