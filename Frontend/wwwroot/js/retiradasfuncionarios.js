@@ -30,20 +30,23 @@ async function searchRetiradas(page = 1) {
     const loadingDiv = document.getElementById('loading');
     const resultsSection = document.getElementById('resultsSection');
     
-    if(loadingDiv) loadingDiv.style.display = 'flex';
-    if(resultsSection) resultsSection.style.display = 'none';
+    if (loadingDiv) loadingDiv.style.display = 'flex';
+    if (resultsSection) resultsSection.style.display = 'none';
 
     try {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
         const pageSize = 10;
-        const employeeName = document.getElementById('searchEmployee')?.value;
+        const employeeName = document.getElementById('searchEmployee')?.value.trim(); 
         const startDate = document.getElementById('startDate')?.value;
         const endDate = document.getElementById('endDate')?.value;
 
         const params = new URLSearchParams({ Page: currentPage, PageSize: pageSize });
-        if (employeeName) params.append('EmployeeName', employeeName);
+        
+        // ⭐ ALTERAÇÃO AQUI: O parâmetro foi trocado de 'EmployeeName' para 'SearchEmployee'
+        if (employeeName) params.append('SearchEmployee', employeeName); 
+        
         if (startDate) params.append('StartDate', new Date(startDate).toISOString());
         if (endDate) params.append('EndDate', new Date(endDate).toISOString());
 
@@ -54,15 +57,28 @@ async function searchRetiradas(page = 1) {
         const data = await response.json();
         
         updateSummary(data);
-        renderResultsTable(data.items);
-        renderPagination(data);
+        renderResultsTable(data.items || []); 
+        
+        if (data.totalPages && data.totalPages > 1) {
+            renderPagination(data);
+        } else {
+            document.getElementById('pagination-controls').innerHTML = '';
+        }
         
         if(resultsSection) resultsSection.style.display = 'block';
 
     } catch (error) {
-        if(typeof showErrorModal === 'function') {
-        } else {
+        console.error("Erro na busca:", error);
+        updateSummary({ items: [], totalItems: 0 });
+        renderResultsTable([]);
+        document.getElementById('pagination-controls').innerHTML = '';
+
+        const tableBody = document.getElementById('resultsTableBody');
+        if (tableBody) {
+             tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: red;">Falha ao carregar dados. Tente novamente.</td></tr>`;
         }
+
+        if(resultsSection) resultsSection.style.display = 'block';
     } finally {
         if(loadingDiv) loadingDiv.style.display = 'none';
     }
@@ -99,23 +115,36 @@ function updateSummary(data) {
 
 function renderResultsTable(items) {
     const tableBody = document.getElementById('resultsTableBody');
-    if (!tableBody) return;
-    tableBody.innerHTML = '';
-    if (!items || items.length === 0) return;
+    const noResultsDiv = document.getElementById('noResults');
+    const table = document.querySelector('.results-table'); // Pega a referência da tabela inteira
 
-    items.forEach(item => {
-        const formattedDate = new Date(item.dataRetirada).toLocaleString('pt-BR');
-        
-        const row = tableBody.insertRow();
-        row.innerHTML = `
-            <td>${item.employeeName || 'N/A'}</td>
-            <td>${item.productName || 'N/A'}</td>
-            <td>${item.quantityRetirada}</td>
-            <td>${item.quantityDevolvida}</td>
-            <td>${item.quantityPendente}</td>
-            <td>${formattedDate}</td>
-        `;
-    });
+    if (!tableBody || !noResultsDiv || !table) return;
+
+    tableBody.innerHTML = ''; // Limpa resultados anteriores
+
+    // ⭐ CORREÇÃO: Lógica principal para mostrar tabela ou a mensagem
+    if (items && items.length > 0) {
+        // Se HÁ itens, mostra a tabela e esconde a mensagem
+        table.style.display = 'table'; // Garante que a tabela está visível
+        noResultsDiv.style.display = 'none';
+
+        items.forEach(item => {
+            const formattedDate = new Date(item.dataRetirada).toLocaleString('pt-BR');
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${item.employeeName || 'N/A'}</td>
+                <td>${item.productName || 'N/A'}</td>
+                <td>${item.quantityRetirada}</td>
+                <td>${item.quantityDevolvida}</td>
+                <td>${item.quantityPendente}</td>
+                <td>${formattedDate}</td>
+            `;
+        });
+    } else {
+        // Se NÃO HÁ itens, esconde a tabela e mostra a mensagem
+        table.style.display = 'none'; // Esconde a tabela (cabeçalho e corpo)
+        noResultsDiv.style.display = 'block'; // Mostra a div "Nenhum dado encontrado"
+    }
 }
 
 function renderPagination(paginationData) {
