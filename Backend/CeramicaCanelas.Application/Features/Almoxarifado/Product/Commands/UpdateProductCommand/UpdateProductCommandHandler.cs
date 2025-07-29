@@ -56,8 +56,9 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
             product.ImageUrl = url;
             product.IsReturnable = request.IsReturnable;
             product.Observation = request.Observation;
-            product.CategoryId = request.CategoryId ?? Guid.Empty;
+            product.CategoryId = request.CategoryId ?? product.CategoryId;
             product.ModifiedOn = DateTime.UtcNow;
+
 
             await _productRepository.Update(product);
             return Unit.Value;
