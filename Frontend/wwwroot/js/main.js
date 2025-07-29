@@ -35,6 +35,7 @@ const positionMap = {
     12: 'Gerente',
     13: 'Auxiliar de Estoque',
     14: 'Prestador de Serviços',
+    15: 'Pedreiro',
 };
 
 // NOVO: Mapa para traduzir os números das funções para texto
