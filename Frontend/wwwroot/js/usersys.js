@@ -1,5 +1,79 @@
 console.log('Script js/usersys.js DEFINIDO.');
 
+/**
+ * Traduz mensagens de erro da API do inglês para o português.
+ * @param {string} mensagemIngles - A mensagem original retornada pela API.
+ * @returns {string} A mensagem traduzida ou a original se não houver tradução.
+ */
+function traduzirMensagemApi(mensagemIngles) {
+    // Dicionário para erros com texto exato. É mais rápido.
+    const errosExatos = {
+        "Passwords must have at least one non alphanumeric character.": "As senhas devem ter pelo menos um caractere especial (ex: !, @, #).",
+        "Passwords must have at least one uppercase ('A'-'Z').": "As senhas devem ter pelo menos uma letra maiúscula ('A'-'Z').",
+        "O campo de confirmação de senha deve ser igual ao campo senha": "O campo de confirmação de senha deve ser igual ao campo Senha."
+    };
+
+    // 1. Verifica se há uma tradução exata e a retorna imediatamente.
+    if (errosExatos[mensagemIngles]) {
+        return errosExatos[mensagemIngles];
+    }
+
+    // Dicionário para erros com padrões dinâmicos (regex)
+    const errosPadrao = {
+        [/^Username '(.+)' is already taken\.$/]: (valor) => `O nome de usuário '${valor}' já está em uso.`,
+        [/^User with email (.+) already exists\.$/]: (valor) => `O e-mail '${valor}' já foi cadastrado.`
+    };
+
+    // 2. Se não encontrou um erro exato, itera sobre os padrões.
+    for (const padrao in errosPadrao) {
+        const regex = new RegExp(padrao.slice(1, -1)); // Converte a chave para Regex
+        const match = mensagemIngles.match(regex);
+        
+        if (match) {
+            const valorDinamico = match[1];
+            const tradutor = errosPadrao[padrao];
+            return tradutor(valorDinamico);
+        }
+    }
+
+    // 3. Se nenhuma tradução foi encontrada, retorna a mensagem original.
+    return mensagemIngles;
+}
+
+
+/**
+ * Transforma a resposta de erro da API em um formato amigável para exibição no modal.
+ */
+function parseApiError(errorData) {
+    if (errorData && typeof errorData.message === 'string') {
+        const mensagemTraduzida = traduzirMensagemApi(errorData.message);
+        
+        return {
+            title: "Falha na Requisição",
+            detail: mensagemTraduzida
+        };
+    }
+    if (errorData && typeof errorData.errors === 'object' && errorData.errors !== null) {
+        let detailsHtml = '<ul style="text-align: left; padding-left: 20px;">';
+        for (const key in errorData.errors) {
+            const messages = errorData.errors[key];
+            if (Array.isArray(messages)) {
+                messages.forEach(msg => {
+                    detailsHtml += `<li>${traduzirMensagemApi(msg)}</li>`;
+                });
+            }
+        }
+        detailsHtml += '</ul>';
+        return {
+            title: "Falha na Validação",
+            detail: detailsHtml
+        };
+    }
+    return {
+        title: "Erro Desconhecido",
+        detail: "A operação não pôde ser concluída."
+    };
+}
 
 
 function initDynamicForm() {
@@ -19,41 +93,32 @@ function initializeUserForm(userForm) {
 
 async function processUserData(form) {
     const formData = new FormData(form);
-    const password = formData.get('Password');
-    const passwordConfirmation = formData.get('PasswordConfirmation');
+    const password = formData.get('Password')?.trim() || '';
+    const passwordConfirmation = formData.get('PasswordConfirmation')?.trim() || '';
+
     if (password !== passwordConfirmation) {
         showErrorModal({ title: "Validação Falhou", detail: "As senhas não coincidem."});
         return;
     }
+
     const requiredFields = ['UserName', 'Name', 'Email', 'Password', 'Role'];
     for (const field of requiredFields) {
         if (!formData.get(field)) {
-            showErrorModal({ title: "Validação Falhou", detail: "Por favor, preencha todos os campos obrigatórios."});
+            showErrorModal({ title: "Validação Falhou", detail: `O campo obrigatório '${field}' não foi preenchido.`});
             return;
         }
     }
     await sendUserData(formData, form);
 }
 
-/**
- * Envia os dados para a API para criar um novo usuário.
- * VERSÃO COM DEBUG DETALHADO.
- */
-// Substitua sua função sendUserData inteira por esta:
 async function sendUserData(formData, form) {
-    formData.delete('passwordConfirmation');
-
-    // 1. Encontra o botão no formulário usando a classe que adicionamos.
     const submitButton = form.querySelector('.submit-btn');
 
-    // 2. VERIFICAÇÃO DE SEGURANÇA: Se o botão não for encontrado, para aqui.
-    //    Isso evita o erro de 'innerHTML of null'.
     if (!submitButton) {
         console.error("ERRO: Botão com a classe '.submit-btn' não foi encontrado no HTML.");
         return;
     }
 
-    // 3. Guarda o texto original do botão e o desabilita mostrando o spinner.
     const originalButtonHTML = submitButton.innerHTML;
     submitButton.disabled = true;
     submitButton.innerHTML = `<span class="loading-spinner"></span> Salvando...`;
@@ -75,18 +140,24 @@ async function sendUserData(formData, form) {
             form.reset();
             fetchAndRenderUsers();
         } else {
-            const errorData = await response.json().catch(() => ({ title: `Erro ${response.status}` }));
-            showErrorModal(errorData);
+            const errorData = await response.json().catch(() => ({
+                title: `Erro ${response.status}`,
+                message: "A resposta do servidor não é um JSON válido ou está vazia."
+            }));
+            
+            console.log("🔴 CORPO DO ERRO DA API:", errorData);
+            const formattedError = parseApiError(errorData);
+            showErrorModal(formattedError);
         }
     } catch (error) {
         console.error('❌ Erro na requisição:', error);
         showErrorModal({ title: "Erro de Conexão", detail: "Falha na comunicação com o servidor." });
     } finally {
-        // 4. ESSENCIAL: Com sucesso ou com erro, o botão volta ao normal.
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonHTML;
     }
 }
+
 async function fetchAndRenderUsers() {
     const tableBody = document.querySelector('#user-list-body');
     if (!tableBody) return;
@@ -113,13 +184,8 @@ function renderUserTable(users, tableBody) {
         tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhum usuário cadastrado.</td></tr>';
         return;
     }
-
-    // A função getRoleName e o mapa userRolesMap não são mais necessários
-    // se a API já retorna os nomes dos papéis.
-
+    
     users.forEach(user => {
-        // Junta os papéis do array em uma string separada por vírgula.
-        // Se o array não existir ou estiver vazio, exibe "Nenhum papel".
         const rolesText = Array.isArray(user.roles) && user.roles.length > 0
             ? user.roles.join(', ')
             : 'Nenhum papel';
@@ -129,7 +195,8 @@ function renderUserTable(users, tableBody) {
                 <td>${user.userName}</td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
-                <td>${rolesText}</td> <td class="actions-cell">
+                <td>${rolesText}</td>
+                <td class="actions-cell">
                     <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')">Excluir</button>
                 </td>
             </tr>`;
@@ -150,7 +217,8 @@ window.deleteUser = async (userId) => {
             fetchAndRenderUsers();
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir" }));
-            showErrorModal(errorData);
+            const formattedError = parseApiError(errorData);
+            showErrorModal(formattedError);
         }
     } catch (error) {
         showErrorModal({ title: "Erro de Conexão", detail: error.message });
