@@ -152,25 +152,25 @@ async function loadForm(formName) {
     }
 }
 function showErrorModal(errorData) {
-    const modal = document.getElementById('errorModal');
-    if (!modal) {
-        // Alternativa caso a modal não exista no HTML
-        alert((errorData.title || "Erro") + "\n\n" + (errorData.detail || "Ocorreu um erro."));
-        return;
-    }
+    // const modal = document.getElementById('errorModal');
+    // if (!modal) {
+    //     // Alternativa caso a modal não exista no HTML
+    //     alert((errorData.title || "Erro") + "\n\n" + (errorData.detail || "Ocorreu um erro."));
+    //     return;
+    // }
 
-    const titleElement = document.getElementById('errorModalTitle');
-    const detailElement = document.getElementById('errorModalDetail');
-    const closeBtn = document.getElementById('errorModalCloseBtn');
+    // const titleElement = document.getElementById('errorModalTitle');
+    // const detailElement = document.getElementById('errorModalDetail');
+    // const closeBtn = document.getElementById('errorModalCloseBtn');
 
-    titleElement.textContent = errorData.title || 'Erro Inesperado';
-    detailElement.textContent = errorData.detail || 'Não foram fornecidos mais detalhes pelo servidor.';
-    modal.style.display = 'block';
+    // titleElement.textContent = errorData.title || 'Erro Inesperado';
+    // detailElement.textContent = errorData.detail || 'Não foram fornecidos mais detalhes pelo servidor.';
+    // modal.style.display = 'block';
 
-    closeBtn.onclick = () => modal.style.display = 'none';
-    window.onclick = (event) => {
-        if (event.target == modal) modal.style.display = 'none';
-    };
+    // closeBtn.onclick = () => modal.style.display = 'none';
+    // window.onclick = (event) => {
+    //     if (event.target == modal) modal.style.display = 'none';
+    // };
 }
 
 // Adicione esta função ao seu arquivo js/main.js, se ela não estiver lá
