@@ -12,8 +12,10 @@ using System.Text;
 
 namespace CeramicaCanelas.WebApi;
 
-public class Program {
-    public static void Main(string[] args) {
+public class Program
+{
+    public static void Main(string[] args)
+    {
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
@@ -59,9 +61,7 @@ public class Program {
         });
 
 
-        // JWT Configuration
-        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-        var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]!);
+
 
         //Adicionando Cors para integrações
         builder.Services.AddCors(options =>
@@ -76,6 +76,24 @@ public class Program {
         });
 
 
+        // JWT Configuration
+        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+        var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+        var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+        Console.WriteLine("JWT_SECRET: " + Environment.GetEnvironmentVariable("JWT_SECRET"));
+        Console.WriteLine("JWT_ISSUER: " + Environment.GetEnvironmentVariable("JWT_ISSUER"));
+        Console.WriteLine("JWT_AUDIENCE: " + Environment.GetEnvironmentVariable("JWT_AUDIENCE"));
+
+
+        if (string.IsNullOrEmpty(jwtSecret) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+        {
+            throw new Exception("Variáveis de ambiente JWT não configuradas corretamente.");
+        }
+
+        var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+
+
         builder.Services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,9 +106,9 @@ public class Program {
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = jwtSettings["Issuer"],
+                ValidIssuer = jwtIssuer,
                 ValidateAudience = true,
-                ValidAudience = jwtSettings["Audience"],
+                ValidAudience = jwtAudience,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateLifetime = true,
@@ -137,7 +155,7 @@ public class Program {
                 typeof(ApplicationLayer).Assembly,
                 typeof(Program).Assembly
             );
-        }); 
+        });
 
         var app = builder.Build();
 
@@ -147,7 +165,8 @@ public class Program {
         });
 
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment()) {
+        if (app.Environment.IsDevelopment())
+        {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
@@ -160,7 +179,7 @@ public class Program {
 
         app.UseHttpsRedirection();
 
-        app.UseAuthentication();  
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();
