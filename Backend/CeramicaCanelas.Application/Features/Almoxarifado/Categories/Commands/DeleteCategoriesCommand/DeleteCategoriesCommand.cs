@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Categories.Commands.DeleteCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.DeleteCategoriesCommand
 {
     public class DeleteCategoriesCommand : IRequest<Unit>
     {

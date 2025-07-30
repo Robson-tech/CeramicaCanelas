@@ -1,4 +1,4 @@
-﻿namespace CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries
+﻿namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Queries.GetAllCategoriesQueries
 {
     public class GetAllCategoriesResult
     {

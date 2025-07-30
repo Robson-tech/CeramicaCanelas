@@ -3,7 +3,6 @@ using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.DeleteP
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.UpdateProductCommand;
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.GetAllProductsQueries;
 using CeramicaCanelas.Application.Features.Almoxarifado.Product.Queries.Pages;
-using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

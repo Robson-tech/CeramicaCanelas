@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.UpdateCategoriesCommand
 {
     public class UpdateCategoriesCommand : IRequest<Unit>
     {

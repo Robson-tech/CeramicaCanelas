@@ -1,10 +1,8 @@
-﻿using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
-using CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployeesCommand;
+﻿using CeramicaCanelas.Application.Features.Employees.Command.CreatedEmployeesCommand;
 using CeramicaCanelas.Application.Features.Employees.Command.DeleteEmployeesCommand;
 using CeramicaCanelas.Application.Features.Employees.Command.UpdateEmployeesCommand;
 using CeramicaCanelas.Application.Features.Employees.Queries.GetAllEmployeesQueries;
 using CeramicaCanelas.Application.Features.Employees.Queries.Pages;
-using CeramicaCanelas.Application.Services.TokenJwt;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
