@@ -80,9 +80,6 @@ public class Program
         var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
         var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
         var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-        Console.WriteLine("JWT_SECRET: " + Environment.GetEnvironmentVariable("JWT_SECRET"));
-        Console.WriteLine("JWT_ISSUER: " + Environment.GetEnvironmentVariable("JWT_ISSUER"));
-        Console.WriteLine("JWT_AUDIENCE: " + Environment.GetEnvironmentVariable("JWT_AUDIENCE"));
 
 
         if (string.IsNullOrEmpty(jwtSecret) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
