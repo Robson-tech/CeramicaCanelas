@@ -1,15 +1,10 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.UpdateCategoriesCommand
 {
-    public class CreatedCategoriesCommandValidator :AbstractValidator<CreatedCategoriesCommand>
+    public class UpdateCategoriesCommandValidator : AbstractValidator<UpdateCategoriesCommand>
     {
-        public CreatedCategoriesCommandValidator()
+        public UpdateCategoriesCommandValidator()
         {
             RuleFor(c => c.Name)
                 .NotEmpty().WithMessage("Name is required.")
@@ -17,8 +12,6 @@ namespace CeramicaCanelas.Application.Features.Categories.Commands.CreatedCatego
             RuleFor(c => c.Description)
                 .NotEmpty().WithMessage("Description is required.")
                 .MaximumLength(500).WithMessage("Description must not exceed 500 characters.");
-
-
         }
     }
 }

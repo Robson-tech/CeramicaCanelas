@@ -1,7 +1,7 @@
-﻿using CeramicaCanelas.Application.Features.Categories.Commands.CreatedCategoriesCommand;
-using CeramicaCanelas.Application.Features.Categories.Commands.DeleteCategoriesCommand;
-using CeramicaCanelas.Application.Features.Categories.Commands.UpdateCategoriesCommand;
-using CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries;
+﻿using CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.CreatedCategoriesCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.DeleteCategoriesCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.UpdateCategoriesCommand;
+using CeramicaCanelas.Application.Features.Almoxarifado.Categories.Queries.GetAllCategoriesQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

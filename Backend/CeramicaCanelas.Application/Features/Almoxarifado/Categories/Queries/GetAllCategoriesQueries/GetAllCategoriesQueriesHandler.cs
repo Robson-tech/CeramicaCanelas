@@ -4,7 +4,7 @@ using CeramicaCanelas.Domain.Entities;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
-namespace CeramicaCanelas.Application.Features.Categories.Queries.GetAllCategoriesQueries
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Queries.GetAllCategoriesQueries
 {
     public class GetAllCategoriesQueries : IRequest<List<GetAllCategoriesResult>> { } // Mudança no retorno
 

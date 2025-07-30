@@ -4,7 +4,7 @@ using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
 
-namespace CeramicaCanelas.Application.Features.Categories.Commands.DeleteCategoriesCommand
+namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.DeleteCategoriesCommand
 {
     public class DeleteCategoriesCommandHandler : IRequestHandler<DeleteCategoriesCommand, Unit>
     {
