@@ -20,7 +20,7 @@ public static class PersistenceDependencyInjector {
         IConfiguration configuration)  // ← Adicione IConfiguration
     {
         services.AddDbContext<DefaultContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")));
+            options.UseNpgsql(Environment.GetEnvironmentVariable("POSTGRESQL_CONN")));
 
         return services;
     }
