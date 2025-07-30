@@ -20,9 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Financial\FinancialBox\Entries\" />
-    <Folder Include="Features\Financial\FinancialBox\TypesAccounts\" />
-    <Folder Include="Features\Financial\FinancialBox\Exits\" />
+    <Folder Include="Features\Financial\FinancialBox\Customers\" />
+    <Folder Include="Features\Financial\FinancialBox\LaunchCategories\" />
+    <Folder Include="Features\Financial\FinancialBox\Launches\Commands\DeleteLaunchCommand\" />
+    <Folder Include="Features\Financial\FinancialBox\Launches\Commands\UpdateLaunchCommand\" />
+    <Folder Include="Features\Financial\FinancialBox\Launches\Queries\GetPagedLaunchesQueries\" />
   </ItemGroup>
 
 </Project>
