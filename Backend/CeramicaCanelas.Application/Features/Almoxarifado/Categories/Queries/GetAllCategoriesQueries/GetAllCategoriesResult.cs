@@ -9,7 +9,7 @@
 
         public string ImageUrl { get; set; } = string.Empty;
 
-        public GetAllCategoriesResult(Domain.Entities.Categories categories)
+        public GetAllCategoriesResult(Domain.Entities.Almoxarifado.Categories categories)
         {
             if(categories == null)
             {

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using MediatR;
 using Microsoft.VisualBasic;
 
 
@@ -13,9 +14,9 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
         public float UnitPrice { get; set; }
 
 
-        public Domain.Entities.ProductEntry AssignToProductsEntry()
+        public ProductEntry AssignToProductsEntry()
         {
-            return new Domain.Entities.ProductEntry
+            return new Domain.Entities.Almoxarifado.ProductEntry
             {
                 ProductId = ProductId,
                 EntryDate = DateTime.UtcNow,

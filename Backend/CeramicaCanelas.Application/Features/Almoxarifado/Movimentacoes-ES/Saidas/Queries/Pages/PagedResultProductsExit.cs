@@ -1,4 +1,4 @@
-﻿using CeramicaCanelas.Domain.Entities;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
 
 
 namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Saidas.Queries.Pages

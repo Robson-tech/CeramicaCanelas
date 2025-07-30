@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +19,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Movimentacoes_ES.Ent
         public DateTime EntryDate { get; set; }
         public string InsertedBy { get; set; } = string.Empty;
 
-        public EntryItemResult(Domain.Entities.ProductEntry entry)
+        public EntryItemResult(ProductEntry entry)
         {
             Id = entry.Id;
             ProductName = entry.NameProduct ?? "Produto não encontrado";

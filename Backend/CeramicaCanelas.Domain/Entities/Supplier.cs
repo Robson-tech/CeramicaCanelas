@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Domain.Abstract;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 
 
 namespace CeramicaCanelas.Domain.Entities

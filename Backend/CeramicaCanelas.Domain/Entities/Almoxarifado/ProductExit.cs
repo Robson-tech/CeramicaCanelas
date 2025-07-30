@@ -1,6 +1,6 @@
 ﻿using CeramicaCanelas.Domain.Abstract;
 
-namespace CeramicaCanelas.Domain.Entities
+namespace CeramicaCanelas.Domain.Entities.Almoxarifado
 {
     public class ProductExit : BaseEntity
     {

@@ -1,8 +1,8 @@
-﻿using CeramicaCanelas.Domain.Entities;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
 
 namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
 {
-    public interface ICategoryRepository : IBaseRepository<Domain.Entities.Categories>
+    public interface ICategoryRepository : IBaseRepository<Categories>
     {
         public Task<Categories?> GetByIdAsync(Guid id);
 

@@ -19,4 +19,10 @@
     <ProjectReference Include="..\CeramicaCanelas.Domain\CeramicaCanelas.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Financial\FinancialBox\Entries\" />
+    <Folder Include="Features\Financial\FinancialBox\TypesAccounts\" />
+    <Folder Include="Features\Financial\FinancialBox\Exits\" />
+  </ItemGroup>
+
 </Project>
