@@ -9,11 +9,13 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
     {
         private readonly IProductRepository _productRepository;
         private readonly ILogged _logged;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public UpdateProductCommandHandler(IProductRepository productRepository, ILogged logged)
+        public UpdateProductCommandHandler(IProductRepository productRepository, ILogged logged, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
             _logged = logged;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -45,12 +47,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
 
                 url = $"{UrlBase}{nomeArquivo}";
             }
-            else
-            {
-                // Se não houver imagem, define uma URL padrão ou nula
-                var ImageDefault = "productDefault.jpg"; // Nome do arquivo padrão
-                url = $"{UrlBase}{ImageDefault}"; // ou defina uma URL padrão se necessário
-            }
 
             // Atualiza os dados
             product.Name = request.Name;
@@ -62,11 +58,20 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
             product.ImageUrl = url;
             product.IsReturnable = request.IsReturnable;
             product.Observation = request.Observation;
-            product.CategoryId = request.CategoryId;
+            product.CategoryId = request.CategoryId ?? product.CategoryId;
             product.ModifiedOn = DateTime.UtcNow;
+
+            // Verifica se a categoria existe, se for informada
+            if (request.CategoryId.HasValue)
+            {
+                var category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value);
+                if (category == null)
+                    throw new BadRequestException("Categoria informada não existe.");
+            }
 
             await _productRepository.Update(product);
             return Unit.Value;
+
         }
 
         private async Task<Domain.Entities.Products> ValidateUpdateProduct(UpdateProductCommand request, CancellationToken cancellationToken)

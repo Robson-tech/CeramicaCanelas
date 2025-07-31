@@ -21,7 +21,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Upd
         public IFormFile? Imagem { get; set; }
         public bool IsReturnable { get; set; }
         public string Observation { get; set; } = string.Empty;
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
     }
 }

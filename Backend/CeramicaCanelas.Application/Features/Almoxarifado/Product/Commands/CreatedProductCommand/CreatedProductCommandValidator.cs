@@ -23,8 +23,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
                 .GreaterThanOrEqualTo(0).WithMessage("O estoque inicial deve ser maior ou igual a zero.");
             RuleFor(x => x.StockMinium)
                 .GreaterThanOrEqualTo(0).WithMessage("O estoque mínimo deve ser maior ou igual a zero.");
-            RuleFor(x => x.CategoryId)
-                .NotEmpty().WithMessage("A categoria é obrigatória.");
         }
     }
 }

@@ -26,11 +26,11 @@ namespace CeramicaCanelas.Application.Services.SMTPEmail
         {
             try
             {
-                string host = _configuration.GetValue<string>("SMTP:Host")!;
-                string displayName = _configuration.GetValue<string>("SMTP:Nome")!;
-                string senderEmail = _configuration.GetValue<string>("SMTP:UserName")!;
-                string senderPassword = _configuration.GetValue<string>("SMTP:Senha")!;
-                int port = _configuration.GetValue<int>("SMTP:Porta");
+                string host = Environment.GetEnvironmentVariable("SMTP_HOST")!;
+                string displayName = Environment.GetEnvironmentVariable("SMTP_NAME")!;
+                string senderEmail = Environment.GetEnvironmentVariable("SMTP_USERNAME")!;
+                string senderPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD")!;
+                int port = int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")!);
 
                 MailMessage mail = new MailMessage
                 {
@@ -62,9 +62,9 @@ namespace CeramicaCanelas.Application.Services.SMTPEmail
             }
             catch (Exception)
             {
-                // Log detalhado para debug (em produção, opte por log sem detalhes sensíveis)
                 return false;
             }
         }
+
     }
 }

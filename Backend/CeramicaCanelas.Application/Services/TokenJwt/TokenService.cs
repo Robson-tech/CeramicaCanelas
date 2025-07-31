@@ -28,10 +28,11 @@ namespace CeramicaCanelas.Application.Services.TokenJwt
 
         public string GenerateJwtToken(Domain.Entities.User user, IList<string> roles)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
-            var issuer = jwtSettings["Issuer"];
-            var audience = jwtSettings["Audience"];
+            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+
 
             var claims = new List<Claim>
         {
@@ -66,10 +67,10 @@ namespace CeramicaCanelas.Application.Services.TokenJwt
 
         public async Task<string> GeneratePasswordResetToken(Domain.Entities.User user)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
-            var issuer = jwtSettings["Issuer"];
-            var audience = jwtSettings["Audience"];
+            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
 
             var identityToken = await _identityAbstractor.GeneratePasswordResetTokenAsync(user);
             // 2. Armazena o token do Identity no cache com expiração
@@ -108,10 +109,10 @@ namespace CeramicaCanelas.Application.Services.TokenJwt
             principal = null!;
             try
             {
-                var jwtSettings = _configuration.GetSection("JwtSettings");
-                var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
-                var issuer = jwtSettings["Issuer"];
-                var audience = jwtSettings["Audience"];
+                var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
+                var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+                var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var validationParameters = new TokenValidationParameters
