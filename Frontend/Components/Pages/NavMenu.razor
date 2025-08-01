@@ -93,7 +93,8 @@
             </div>
         </div>
         <div class="menu-section logout-section">
-            <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('usersys'); setActive(this); closeMobileMenu();">
+            <!-- Menu de Usuários do Sistema - Só aparece para Admin -->
+            <a href="#" class="menu-item admin-only" id="userSystemMenu" onclick="event.preventDefault(); loadForm('usersys'); setActive(this); closeMobileMenu();" style="display: none;">
                 <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7M12 13C13.37 13 15.14 13.5 16 14.38V11C16 9.67 12.33 9 12 9S8 9.67 8 11V14.38C8.86 13.5 10.63 13 12 13Z" /></svg>
                 <span class="menu-text">Usuários do Sistema</span>
             </a>
@@ -107,19 +108,72 @@
     </div>
 </div>
 
-
-
 <script>
-    // VERIFICAÇÃO DE TOKEN DE ACESSO (simulado para demonstração)
+    // FUNÇÃO PARA DECODIFICAR JWT TOKEN
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (error) {
+            console.error('Erro ao decodificar token:', error);
+            return null;
+        }
+    }
+
+    // FUNÇÃO PARA VERIFICAR SE O USUÁRIO É ADMIN
+    function checkUserRole() {
+        try {
+            // Pega o token do localStorage (ajuste conforme sua implementação)
+            const token = localStorage.getItem('accessToken') || 'demo-token';
+            
+            if (!token || token === 'accessToken') {
+                // Para teste, simula um token admin - remova em produção
+                console.log("Usando token de demonstração com role Admin");
+                showAdminMenu(true);
+                return;
+            }
+
+            // Decodifica o token JWT
+            const decodedToken = parseJwt(token);
+            
+            if (decodedToken && decodedToken.role) {
+                const isAdmin = decodedToken.role === 'Admin';
+                console.log(`Usuário: ${decodedToken.unique_name}, Role: ${decodedToken.role}, É Admin: ${isAdmin}`);
+                showAdminMenu(isAdmin);
+            } else {
+                console.log("Token inválido ou sem role definida");
+                showAdminMenu(false);
+            }
+        } catch (error) {
+            console.error("Erro ao verificar role do usuário:", error);
+            showAdminMenu(false);
+        }
+    }
+
+    // FUNÇÃO PARA MOSTRAR/OCULTAR MENU ADMIN
+    function showAdminMenu(isAdmin) {
+        const userSystemMenu = document.getElementById('userSystemMenu');
+        if (userSystemMenu) {
+            userSystemMenu.style.display = isAdmin ? 'flex' : 'none';
+        }
+    }
+
+    // VERIFICAÇÃO DE TOKEN DE ACESSO
     function checkToken() {
         try {
-            // Simula verificação de token - remova esta simulação em produção
-            const token = 'demo-token';
+            // Simula verificação de token - ajuste conforme sua implementação
+            const token = localStorage.getItem('accessToken') || 'demo-token';
             if (!token) {
                 console.log("Token não encontrado. Redirecionando...");
                 // window.location.replace("/");
             } else {
                 console.log("Token válido encontrado");
+                // Verifica a role do usuário após validar o token
+                checkUserRole();
             }
         } catch (error) {
             console.error("Erro na verificação do token:", error);
@@ -163,20 +217,17 @@
         overlay.classList.remove('active');
     }
 
-    // SIMULAÇÃO DE CARREGAMENTO DE FORMULÁRIOS
-
-
     function logout() {
         console.log("Fazendo logout...");
-        // Simula logout - descomente para produção
+        // Remove o token do localStorage
         localStorage.removeItem("accessToken");
         window.location.href = "/";
-        alert("Logout realizado com sucesso! (Simulação)");
+        alert("Logout realizado com sucesso! Redirecionando para a página inicial.");
     }
 
     // EVENT LISTENERS
     document.addEventListener("DOMContentLoaded", function () {
-        // Inicializa o token check
+        // Inicializa o token check (que também verifica a role)
         checkToken();
 
         // Configura o submenu como expandido por padrão
