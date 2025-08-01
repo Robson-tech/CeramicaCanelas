@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Domain.Enums;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using CeramicaCanelas.Domain.Enums.Almoxarifado;
 
 public class GetAllProductsQueriesResult
 {
@@ -16,7 +17,7 @@ public class GetAllProductsQueriesResult
     public Guid CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
 
-    public GetAllProductsQueriesResult(CeramicaCanelas.Domain.Entities.Products product)
+    public GetAllProductsQueriesResult(Products product)
     {
         Id = product.Id;
         Code = product.Code;

@@ -1,4 +1,4 @@
-﻿namespace CeramicaCanelas.Domain.Enums
+﻿namespace CeramicaCanelas.Domain.Enums.Almoxarifado
 {
     public enum UnitOfMeasure
     {

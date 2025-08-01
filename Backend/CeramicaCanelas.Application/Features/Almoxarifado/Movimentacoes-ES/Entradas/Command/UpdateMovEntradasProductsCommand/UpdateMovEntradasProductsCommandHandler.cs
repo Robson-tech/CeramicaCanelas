@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 using CeramicaCanelas.Domain.Exception;
 using CeramicaCanelas.Persistence.Repositories;
 using MediatR;
@@ -97,7 +98,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Command
         }
 
 
-        private async Task<Domain.Entities.ProductEntry> ValidateUpdateMovimentacaoES(UpdateMovEntradasProductsCommand command, CancellationToken cancellationToken)
+        private async Task<ProductEntry> ValidateUpdateMovimentacaoES(UpdateMovEntradasProductsCommand command, CancellationToken cancellationToken)
         {
             var validator = new UpdateMovEntradasProductsCommandValidator();
             var validationResult = await validator.ValidateAsync(command, cancellationToken);

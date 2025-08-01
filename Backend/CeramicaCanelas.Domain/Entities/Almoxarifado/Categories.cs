@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 
 
-namespace CeramicaCanelas.Domain.Entities
+namespace CeramicaCanelas.Domain.Entities.Almoxarifado
 {
     public class Categories : BaseEntity
     {

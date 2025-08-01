@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
 {
+    using global::CeramicaCanelas.Domain.Entities.Almoxarifado;
     using System;
 
     namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
@@ -24,7 +25,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Queries
             public string NameOperator { get; set; } = string.Empty;
             public int ReturnedQuantity { get; set; }
 
-            public GetAllProductsExitQueriesResult(Domain.Entities.ProductExit productExit)
+            public GetAllProductsExitQueriesResult(ProductExit productExit)
             {
                 Id = productExit.Id;
                 NameProduct = productExit.NameProduct ?? "Desconhecido";

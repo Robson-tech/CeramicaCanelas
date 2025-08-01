@@ -1,4 +1,4 @@
-﻿using CeramicaCanelas.Domain.Enums;
+﻿using CeramicaCanelas.Domain.Enums.Almoxarifado;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System;

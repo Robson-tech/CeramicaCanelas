@@ -1,5 +1,4 @@
-﻿using CeramicaCanelas.Domain.Entities;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 
@@ -12,9 +11,9 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.
 
         public string Description { get; set; } = string.Empty;
 
-        public Domain.Entities.Categories AssignToCategories()
+        public Domain.Entities.Almoxarifado.Categories AssignToCategories()
         {
-            return new Domain.Entities.Categories
+            return new Domain.Entities.Almoxarifado.Categories
             {
                 Name = Name,
                 Description = Description,

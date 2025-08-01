@@ -1,7 +1,7 @@
 ﻿using CeramicaCanelas.Domain.Abstract;
-using CeramicaCanelas.Domain.Enums;
+using CeramicaCanelas.Domain.Enums.Almoxarifado;
 
-namespace CeramicaCanelas.Domain.Entities
+namespace CeramicaCanelas.Domain.Entities.Almoxarifado
 {
     public class Products : BaseEntity
     {

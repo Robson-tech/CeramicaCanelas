@@ -1,5 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
-using CeramicaCanelas.Domain.Entities;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Persistence.Repositories
 {
-    public class ProductRepository(DefaultContext context) : BaseRepository<Domain.Entities.Products>(context), IProductRepository
+    public class ProductRepository(DefaultContext context) : BaseRepository<Products>(context), IProductRepository
     {
-        public async Task<IEnumerable<Domain.Entities.Products>> GetAllProductsAsync()
+        public async Task<IEnumerable<Products>> GetAllProductsAsync()
         {
             return await Context.Products
                 .Include(p => p.Category)
                 .ToListAsync();
         }
 
-        public async Task<Domain.Entities.Products> GetProductByIdAsync(Guid? id)
+        public async Task<Products> GetProductByIdAsync(Guid? id)
         {
             return await Context.Products
                 .Include(p => p.Category)
@@ -26,7 +26,7 @@ namespace CeramicaCanelas.Persistence.Repositories
                 ?? throw new KeyNotFoundException("Produto não encontrado.");
         }
 
-        public async Task<IEnumerable<Domain.Entities.Products>> GetProductsByCategoryIdAsync(Guid? categoryId)
+        public async Task<IEnumerable<Products>> GetProductsByCategoryIdAsync(Guid? categoryId)
         {
             return await Context.Products
                 .Where(p => p.CategoryId == categoryId)

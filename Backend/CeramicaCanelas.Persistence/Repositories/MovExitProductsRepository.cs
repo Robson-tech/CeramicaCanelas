@@ -1,5 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
-using CeramicaCanelas.Domain.Entities;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 using Microsoft.EntityFrameworkCore;
 
 namespace CeramicaCanelas.Persistence.Repositories
