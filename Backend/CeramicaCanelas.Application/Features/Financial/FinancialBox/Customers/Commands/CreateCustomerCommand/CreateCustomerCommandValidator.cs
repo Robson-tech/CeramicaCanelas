@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.CreateCustomerCommand
+namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.Commands.CreateCustomerCommand
 {
     public class CreateCustomerCommandValidator : AbstractValidator<CreateCustomerCommand>
     {

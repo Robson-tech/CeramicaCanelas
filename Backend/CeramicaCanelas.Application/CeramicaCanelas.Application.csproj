@@ -19,9 +19,4 @@
     <ProjectReference Include="..\CeramicaCanelas.Domain\CeramicaCanelas.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Financial\FinancialBox\Customers\UpdateCustomerCommand\" />
-    <Folder Include="Features\Financial\FinancialBox\LaunchCategories\" />
-  </ItemGroup>
-
 </Project>

@@ -19,7 +19,9 @@ namespace CeramicaCanelas.Persistence.Repositories
         /// </returns>
         public async Task<List<Customer>> GetAllAsync()
         {
-            return await Context.Customers.ToListAsync();
+            return await Context.Customers
+                .Where(c => !c.IsDeleted)
+                .ToListAsync();
         }
         /// <summary>
         /// Gets a customer by its ID
