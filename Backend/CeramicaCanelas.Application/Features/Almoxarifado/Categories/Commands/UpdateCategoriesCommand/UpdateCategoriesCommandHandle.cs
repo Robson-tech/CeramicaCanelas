@@ -34,7 +34,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.
 
         }
 
-        private async Task<Domain.Entities.Categories> ValidateCategories(UpdateCategoriesCommand request, CancellationToken cancellationToken)
+        private async Task<Domain.Entities.Almoxarifado.Categories> ValidateCategories(UpdateCategoriesCommand request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id);
 

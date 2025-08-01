@@ -34,6 +34,9 @@ public static class InfrastructureDependecyInjector {
         services.AddScoped<IMovExitProductsRepository, MovExitProductsRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<ILaunchRepository, LaunchRepository>();
+        services.AddScoped<ILaunchCategoryRepository, LaunchCategoryRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
 
         return services;

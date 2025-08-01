@@ -23,7 +23,7 @@ namespace CeramicaCanelas.Persistence.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Categories", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.Categories", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,41 +49,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Employee", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<string>("CPF")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Positiions")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Employees");
-                });
-
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.ProductEntry", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.ProductEntry", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -141,7 +107,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.ToTable("ProductEntries");
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.ProductExit", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.ProductExit", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +173,7 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.ToTable("ProductExits");
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Products", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.Products", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -260,6 +226,149 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Employee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("CPF")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Positiions")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Financial.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Document")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Financial.Launch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("LaunchDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Launches");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Financial.LaunchCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LaunchCategories");
                 });
 
             modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Supplier", b =>
@@ -503,9 +612,9 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.ProductEntry", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.ProductEntry", b =>
                 {
-                    b.HasOne("CeramicaCanelas.Domain.Entities.Products", "Product")
+                    b.HasOne("CeramicaCanelas.Domain.Entities.Almoxarifado.Products", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -527,14 +636,14 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.ProductExit", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.ProductExit", b =>
                 {
                     b.HasOne("CeramicaCanelas.Domain.Entities.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("CeramicaCanelas.Domain.Entities.Products", "Product")
+                    b.HasOne("CeramicaCanelas.Domain.Entities.Almoxarifado.Products", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -551,14 +660,31 @@ namespace CeramicaCanelas.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Products", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.Products", b =>
                 {
-                    b.HasOne("CeramicaCanelas.Domain.Entities.Categories", "Category")
+                    b.HasOne("CeramicaCanelas.Domain.Entities.Almoxarifado.Categories", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Financial.Launch", b =>
+                {
+                    b.HasOne("CeramicaCanelas.Domain.Entities.Financial.LaunchCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("CeramicaCanelas.Domain.Entities.Financial.Customer", "Customer")
+                        .WithMany("Launches")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -612,9 +738,14 @@ namespace CeramicaCanelas.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Categories", b =>
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Almoxarifado.Categories", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Financial.Customer", b =>
+                {
+                    b.Navigation("Launches");
                 });
 
             modelBuilder.Entity("CeramicaCanelas.Domain.Entities.Supplier", b =>

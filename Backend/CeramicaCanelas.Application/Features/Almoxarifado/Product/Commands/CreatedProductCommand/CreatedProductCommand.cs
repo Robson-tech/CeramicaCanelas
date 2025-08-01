@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Domain.Enums;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using CeramicaCanelas.Domain.Enums.Almoxarifado;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
@@ -18,9 +19,9 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Product.Commands.Cre
         public string Observation { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
 
-        public Domain.Entities.Products AssignToProducts()
+        public Products AssignToProducts()
         {
-            return new Domain.Entities.Products
+            return new Domain.Entities.Almoxarifado.Products
             {
                 Name = Name,
                 Code = Code,

@@ -1,5 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
-using CeramicaCanelas.Domain.Entities;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,12 +11,12 @@ namespace CeramicaCanelas.Persistence.Repositories
 {
     public class MovEntryProductsRepository(DefaultContext context) : BaseRepository<ProductEntry>(context), IMovEntryProductsRepository
     {
-        public async Task<List<Domain.Entities.ProductEntry>> GetAllAsync()
+        public async Task<List<ProductEntry>> GetAllAsync()
         {
             return await Context.ProductEntries.Include(e => e.Product).ThenInclude(e => e.Category).Include(e => e.User).ToListAsync();
 
         }
-        public async Task<Domain.Entities.ProductEntry?> GetByIdAsync(Guid? id)
+        public async Task<ProductEntry?> GetByIdAsync(Guid? id)
         {
             return await Context.ProductEntries.FindAsync(id);
 

@@ -1,5 +1,6 @@
 ﻿
 
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
 using MediatR;
 
 
@@ -12,9 +13,9 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Saidas.Command.C
         public int Quantity { get; set; }
         public bool IsReturnable { get; set; }
         public string? Observation { get; set; }
-        public Domain.Entities.ProductExit AssignToProductsExit()
+        public ProductExit AssignToProductsExit()
         {
-            return new Domain.Entities.ProductExit
+            return new Domain.Entities.Almoxarifado.ProductExit
             {
                 ExitDate = DateTime.UtcNow,
                 ProductId = ProductId,

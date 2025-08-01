@@ -1,4 +1,5 @@
-﻿using CeramicaCanelas.Domain.Enums;
+﻿using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using CeramicaCanelas.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace CeramicaCanelas.Application.Features.Movimentacoes_ES.Entradas.Queries
         public float UnitPrice { get; set; }
         public DateTime CreatedOn { get; set; }
 
-        public GetAllProductsEntryQueriesResult(CeramicaCanelas.Domain.Entities.ProductEntry productEntry)
+        public GetAllProductsEntryQueriesResult(ProductEntry productEntry)
         {
             NameProduct = productEntry.Product?.Name ?? "Produto não encontrado";
             DescriptionProduct = productEntry.Product?.Observation ?? string.Empty;

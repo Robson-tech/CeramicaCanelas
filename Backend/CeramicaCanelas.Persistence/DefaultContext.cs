@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using CeramicaCanelas.Domain.Entities;
+using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using CeramicaCanelas.Domain.Entities.Financial;
 
 namespace CeramicaCanelas.Persistence;
 
@@ -16,6 +18,11 @@ public class DefaultContext : IdentityDbContext<User>
     public DbSet<ProductExit> ProductExits { get; set; } = null!;
     public DbSet<ProductEntry> ProductEntries { get; set; } = null!;
     public DbSet<Supplier> Suppliers { get; set; } = null!;
+
+    // ---PARA O LIVRO CAIXA ---
+    public DbSet<Launch> Launches { get; set; } = null!;
+    public DbSet<LaunchCategory> LaunchCategories { get; set; } = null!;
+    public DbSet<Customer> Customers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -105,6 +112,47 @@ public class DefaultContext : IdentityDbContext<User>
             entity.Property(s => s.Id).HasDefaultValueSql("uuid_generate_v4()");
             entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
         });
+
+        // --- INÍCIO DAS NOVAS CONFIGURAÇÕES ---
+
+        // Launch
+        builder.Entity<Launch>(entity =>
+        {
+            entity.HasKey(l => l.Id);
+            entity.Property(l => l.Id).HasDefaultValueSql("uuid_generate_v4()");
+
+            // Relacionamento com LaunchCategory
+            // Se a categoria for "deletada", o campo CategoryId no lançamento vira nulo
+            entity.HasOne(l => l.Category)
+                  .WithMany() // Categoria não tem uma lista de Lançamentos
+                  .HasForeignKey(l => l.CategoryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            // Relacionamento com Customer
+            // Se o cliente for "deletado", o campo CustomerId no lançamento vira nulo
+            entity.HasOne(l => l.Customer)
+                  .WithMany(c => c.Launches)
+                  .HasForeignKey(l => l.CustomerId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // LaunchCategory
+        builder.Entity<LaunchCategory>(entity =>
+        {
+            entity.HasKey(lc => lc.Id);
+            entity.Property(lc => lc.Id).HasDefaultValueSql("uuid_generate_v4()");
+        });
+
+        // Customer
+        builder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Id).HasDefaultValueSql("uuid_generate_v4()");
+        });
+
+        // --- FIM DAS NOVAS CONFIGURAÇÕES ---
+
+
 
         base.OnModelCreating(builder);
     }
