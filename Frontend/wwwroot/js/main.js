@@ -41,8 +41,9 @@ const positionMap = {
 // NOVO: Mapa para traduzir os números das funções para texto
 const userRolesMap = {
     0: 'Admin',
-    1: 'Customer',
-    2: 'Viewer'
+    1: 'Viewer',
+    2: 'Financial',
+    3: 'Almoxarifado',
 };
 
 // Função utilitária global
