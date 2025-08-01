@@ -18,7 +18,8 @@
     </div>
 
     <div class="menu">
-        <div class="menu-section">
+        <!-- Seção Almoxarifado - Oculta por padrão, só para Admin e Almoxarifado -->
+        <div class="menu-section" id="almoxarifado-section" style="display: none;">
             <div class="menu-title expandable" onclick="toggleSubmenu(this)">
                 <svg class="expand-icon" viewBox="0 0 24 24">
                     <path d="M7,10L12,15L17,10H7Z" />
@@ -92,6 +93,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Seção de Logout -->
         <div class="menu-section logout-section">
             <!-- Menu de Usuários do Sistema - Só aparece para Admin -->
             <a href="#" class="menu-item admin-only" id="userSystemMenu" onclick="event.preventDefault(); loadForm('usersys'); setActive(this); closeMobileMenu();" style="display: none;">
@@ -124,60 +127,91 @@
         }
     }
 
-    // FUNÇÃO PARA VERIFICAR SE O USUÁRIO É ADMIN
+    // FUNÇÃO PARA VERIFICAR SE O USUÁRIO É ADMIN OU ALMOXARIFADO
     function checkUserRole() {
         try {
-            // Pega o token do localStorage (ajuste conforme sua implementação)
-            const token = localStorage.getItem('accessToken') || 'demo-token';
+            const token = localStorage.getItem('accessToken');
+            console.log("Token encontrado:", token ? "SIM" : "NÃO");
             
-            if (!token || token === 'accessToken') {
-                // Para teste, simula um token admin - remova em produção
-                console.log("Usando token de demonstração com role Admin");
-                showAdminMenu(true);
+            if (!token) {
+                console.log("Nenhum token encontrado, usando demonstração");
+                showMenusByRole(true, true); // Para demonstração - remova em produção
                 return;
             }
 
             // Decodifica o token JWT
             const decodedToken = parseJwt(token);
+            console.log("Token decodificado:", decodedToken);
             
             if (decodedToken && decodedToken.role) {
                 const isAdmin = decodedToken.role === 'Admin';
-                console.log(`Usuário: ${decodedToken.unique_name}, Role: ${decodedToken.role}, É Admin: ${isAdmin}`);
-                showAdminMenu(isAdmin);
+                const isAlmoxarifado = decodedToken.role === 'Almoxarifado';
+                const hasAlmoxarifadoAccess = isAdmin || isAlmoxarifado;
+                
+                console.log(`=== INFORMAÇÕES DO USUÁRIO ===`);
+                console.log(`Usuário: ${decodedToken.unique_name || 'Não definido'}`);
+                console.log(`Email: ${decodedToken.email || 'Não definido'}`);
+                console.log(`Role: ${decodedToken.role}`);
+                console.log(`É Admin: ${isAdmin}`);
+                console.log(`É Almoxarifado: ${isAlmoxarifado}`);
+                console.log(`Tem acesso ao Almoxarifado: ${hasAlmoxarifadoAccess}`);
+                console.log(`=== FIM DAS INFORMAÇÕES ===`);
+                
+                // Controla a exibição dos menus baseado na role
+                showMenusByRole(isAdmin, hasAlmoxarifadoAccess);
             } else {
                 console.log("Token inválido ou sem role definida");
-                showAdminMenu(false);
+                console.log("Dados do token:", decodedToken);
+                showMenusByRole(false, false);
             }
         } catch (error) {
             console.error("Erro ao verificar role do usuário:", error);
-            showAdminMenu(false);
+            showMenusByRole(false, false);
         }
     }
 
-    // FUNÇÃO PARA MOSTRAR/OCULTAR MENU ADMIN
-    function showAdminMenu(isAdmin) {
+    // FUNÇÃO PARA MOSTRAR/OCULTAR MENUS BASEADO NA ROLE
+    function showMenusByRole(isAdmin, hasAlmoxarifadoAccess) {
         const userSystemMenu = document.getElementById('userSystemMenu');
+        const almoxarifadoSection = document.getElementById('almoxarifado-section');
+        
+        console.log("=== CONTROLE DE MENUS ===");
+        console.log(`Menu Admin encontrado: ${userSystemMenu ? 'SIM' : 'NÃO'}`);
+        console.log(`Seção Almoxarifado encontrada: ${almoxarifadoSection ? 'SIM' : 'NÃO'}`);
+        console.log(`Deve mostrar menu Admin: ${isAdmin}`);
+        console.log(`Deve mostrar Almoxarifado: ${hasAlmoxarifadoAccess}`);
+        
+        // Menu "Usuários do Sistema" - só para Admin
         if (userSystemMenu) {
             userSystemMenu.style.display = isAdmin ? 'flex' : 'none';
+            console.log(`Menu Admin definido como: ${isAdmin ? 'VISÍVEL' : 'OCULTO'}`);
         }
+        
+        // Seção "Almoxarifado" - para Admin e Almoxarifado
+        if (almoxarifadoSection) {
+            almoxarifadoSection.style.display = hasAlmoxarifadoAccess ? 'block' : 'none';
+            console.log(`Seção Almoxarifado definida como: ${hasAlmoxarifadoAccess ? 'VISÍVEL' : 'OCULTA'}`);
+        } else {
+            console.error("ERRO: Seção almoxarifado-section não encontrada no DOM!");
+        }
+        
+        console.log("=== FIM CONTROLE DE MENUS ===");
     }
 
     // VERIFICAÇÃO DE TOKEN DE ACESSO
     function checkToken() {
         try {
-            // Simula verificação de token - ajuste conforme sua implementação
-            const token = localStorage.getItem('accessToken') || 'demo-token';
+            const token = localStorage.getItem('accessToken');
             if (!token) {
-                console.log("Token não encontrado. Redirecionando...");
-                // window.location.replace("/");
+                console.log("Token não encontrado. Para demonstração, mostrando menus");
+                checkUserRole(); // Chama checkUserRole que tem fallback para demonstração
             } else {
                 console.log("Token válido encontrado");
-                // Verifica a role do usuário após validar o token
                 checkUserRole();
             }
         } catch (error) {
             console.error("Erro na verificação do token:", error);
-            // window.location.replace("/");
+            showMenusByRole(false, false);
         }
     }
 
@@ -219,7 +253,6 @@
 
     function logout() {
         console.log("Fazendo logout...");
-        // Remove o token do localStorage
         localStorage.removeItem("accessToken");
         window.location.href = "/";
         alert("Logout realizado com sucesso! Redirecionando para a página inicial.");
@@ -242,8 +275,8 @@
         const hamburger = document.getElementById('hamburgerBtn');
         const overlay = document.getElementById('overlay');
 
-        hamburger.addEventListener('click', toggleMobileMenu);
-        overlay.addEventListener('click', closeMobileMenu);
+        if (hamburger) hamburger.addEventListener('click', toggleMobileMenu);
+        if (overlay) overlay.addEventListener('click', closeMobileMenu);
 
         // Fecha o menu ao pressionar ESC
         document.addEventListener('keydown', function(e) {
@@ -259,10 +292,12 @@
             }
         });
 
-        // Define o primeiro item como ativo por padrão
-        const firstMenuItem = document.querySelector('.menu-item');
-        if (firstMenuItem) {
-            firstMenuItem.classList.add('active');
-        }
+        // Define o primeiro item visível como ativo por padrão (após carregar os menus)
+        setTimeout(() => {
+            const firstVisibleMenuItem = document.querySelector('.menu-item:not([style*="display: none"])');
+            if (firstVisibleMenuItem) {
+                firstVisibleMenuItem.classList.add('active');
+            }
+        }, 100);
     });
 </script>
