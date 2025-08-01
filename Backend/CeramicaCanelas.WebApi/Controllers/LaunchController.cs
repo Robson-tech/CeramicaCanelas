@@ -1,6 +1,7 @@
 ﻿using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.CreatedLaunchCommand;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.DeleteLaunchCommand;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.UpdateLaunchCommand;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Queries.GetPagedLaunchesQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -47,6 +48,17 @@ namespace CeramicaCanelas.WebApi.Controllers
             var command = new DeleteLaunchCommand { Id = id };
             await _mediator.Send(command);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpGet("paged")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPagedLaunches([FromQuery] PagedRequestLaunch query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+
         }
     }
 }

@@ -11,8 +11,8 @@ namespace CeramicaCanelas.Application.Features.Suppliers.Queries.Pages
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-        public string? Search { get; set; } // Filtro por nome
-        public string? OrderBy { get; set; } // Ex: "name", "email"
+        public string? Search { get; set; } 
+        public string? OrderBy { get; set; } 
         public bool Ascending { get; set; } = true;
     }
 }

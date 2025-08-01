@@ -18,7 +18,10 @@ namespace CeramicaCanelas.Persistence.Repositories
 
         public async Task<List<Launch>> GetAllAsync()
         {
-            return await Context.Launches.ToListAsync();
+            return await Context.Launches
+                .Include(l => l.Category)
+                .Include(l => l.Customer)
+                .ToListAsync();
         }
     }
 }
