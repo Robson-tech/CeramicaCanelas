@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Features\Financial\FinancialBox\Customers\UpdateCustomerCommand\" />
     <Folder Include="Features\Financial\FinancialBox\LaunchCategories\" />
   </ItemGroup>
 
