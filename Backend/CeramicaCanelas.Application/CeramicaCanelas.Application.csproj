@@ -22,8 +22,6 @@
   <ItemGroup>
     <Folder Include="Features\Financial\FinancialBox\Customers\" />
     <Folder Include="Features\Financial\FinancialBox\LaunchCategories\" />
-    <Folder Include="Features\Financial\FinancialBox\Launches\Commands\DeleteLaunchCommand\" />
-    <Folder Include="Features\Financial\FinancialBox\Launches\Commands\UpdateLaunchCommand\" />
     <Folder Include="Features\Financial\FinancialBox\Launches\Queries\GetPagedLaunchesQueries\" />
   </ItemGroup>
 

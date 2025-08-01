@@ -1,4 +1,6 @@
 ﻿using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.CreatedLaunchCommand;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.DeleteLaunchCommand;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.UpdateLaunchCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,5 +27,26 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateLaunch([FromForm] UpdateLaunchCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)] // Adicionado para indicar que o item pode não ser encontrado
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteLaunch(Guid id)
+        {
+            var command = new DeleteLaunchCommand { Id = id };
+            await _mediator.Send(command);
+            return NoContent();
+        }
     }
 }
