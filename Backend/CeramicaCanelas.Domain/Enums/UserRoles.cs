@@ -8,4 +8,9 @@ public enum UserRoles {
     Customer = 1,
     [Description("Viewer")]
     Viewer = 2,
+    [Description("Financial")]
+    Financial = 3,
+    [Description("Almoxarifado")]
+    Almoxarifado = 4,
+
 }
