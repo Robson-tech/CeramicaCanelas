@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -23,14 +24,22 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
             var filtered = launches.AsQueryable();
 
+            // Filtro por tipo (se não for "All")
+            if (request.type == LaunchType.Income)
+                filtered = filtered.Where(l => l.Type == LaunchType.Income);
+            else if (request.type == LaunchType.Expense)
+                filtered = filtered.Where(l => l.Type == LaunchType.Expense);
+
+            // Filtro por período
             if (request.StartDate.HasValue)
                 filtered = filtered.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
                 filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            var totalEntradas = filtered.Where(l => l.Type == Domain.Enums.Financial.LaunchType.Income).Sum(l => l.Amount);
-            var totalSaidas = filtered.Where(l => l.Type == Domain.Enums.Financial.LaunchType.Expense).Sum(l => l.Amount);
+            // Totais
+            var totalEntradas = filtered.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount);
+            var totalSaidas = filtered.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount);
 
             var totalItems = filtered.Count();
 
@@ -38,7 +47,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 .OrderByDescending(l => l.LaunchDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .ToList() // executa LINQ na memória
+                .ToList()
                 .Select(l => new CashFlowReportItem
                 {
                     LaunchDate = l.LaunchDate,
@@ -49,6 +58,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                     CustomerName = l.Customer?.Name ?? "Sem cliente",
                     PaymentMethod = l.PaymentMethod.ToString()
                 }).ToList();
+
 
 
             return new PagedResultCashFlowReport
