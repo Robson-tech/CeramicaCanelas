@@ -20,7 +20,7 @@ namespace CeramicaCanelas.WebApi.Controllers
         private readonly IMediator _mediator = mediator;
 
         [Authorize(Roles = "Custoumer,Admin")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("stock")]
         public async Task<IActionResult> GetStockPanel([FromQuery]GetInventoryStatusQuery request)
@@ -29,7 +29,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
         [Authorize(Roles = "Custoumer,Admin")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("reports/employees")]
         public async Task<IActionResult> GetReportsEmployees([FromQuery] GetEmployeeMovementsQuery request)
