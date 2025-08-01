@@ -19,7 +19,7 @@ namespace CeramicaCanelas.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("stock")]
@@ -28,7 +28,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             var result = await _mediator.Send(request);
             return Ok(result);
         }
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("reports/employees")]
@@ -38,7 +38,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("reports/products/periods")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -48,7 +48,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("reports/products/most-used")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -58,7 +58,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("reports/products/stock-outof")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -68,7 +68,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("reports/products/unreturned-products")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,7 +78,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("financial/monthly-cost-category")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,7 +88,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("primary")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

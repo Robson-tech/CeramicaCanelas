@@ -18,7 +18,7 @@ namespace CeramicaCanelas.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -28,7 +28,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -38,7 +38,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -49,7 +49,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,7 +61,7 @@ namespace CeramicaCanelas.WebApi.Controllers
 
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Almoxarifado,Admin")]
         [HttpGet("pages")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
