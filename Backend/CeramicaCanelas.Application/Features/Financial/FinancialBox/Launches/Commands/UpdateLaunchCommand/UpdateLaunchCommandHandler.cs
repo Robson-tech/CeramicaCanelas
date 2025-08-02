@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Contracts.Application.Services;
 using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Entities.Financial;
 using CeramicaCanelas.Domain.Exception;
 using MediatR;
 
@@ -44,6 +45,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
 
             // 3. Mapeia os novos dados para a entidade existente
             request.MapToLaunch(launchToUpdate);
+
+            launchToUpdate.OperatorName = user.Name;
 
             // 4. Chama o método de atualização do repositório
             await _launchRepository.Update(launchToUpdate);
