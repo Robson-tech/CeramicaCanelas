@@ -10,7 +10,7 @@ using NSwag.Annotations;
 
 namespace CeramicaCanelas.WebApi.Controllers
 {
-    [Route("api/launch")]
+    [Route("api/financial/launch")]
     [OpenApiTags("Launch")]
 
     [ApiController]
