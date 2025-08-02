@@ -18,7 +18,7 @@ namespace CeramicaCanelas.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Financial,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("flow-report")]
@@ -28,7 +28,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Financial,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("balance-expense")]
@@ -38,7 +38,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Financial,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("balance-income")]
@@ -48,7 +48,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Custoumer,Admin")]
+        [Authorize(Roles = "Financial,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpGet("launches-by-client")]
