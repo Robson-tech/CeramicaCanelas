@@ -1,14 +1,11 @@
-﻿<!-- Menu Hambúrguer -->
-<button class="hamburger" id="hamburgerBtn">
+﻿<button class="hamburger" id="hamburgerBtn">
     <span></span>
     <span></span>
     <span></span>
 </button>
 
-<!-- Overlay -->
 <div class="overlay" id="overlay"></div>
 
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="logo-container">
         <div class="logo">
@@ -18,7 +15,6 @@
     </div>
 
     <div class="menu">
-        <!-- Seção Almoxarifado - Oculta por padrão, só para Admin e Almoxarifado -->
         <div class="menu-section" id="almoxarifado-section" style="display: none;">
             <div class="menu-title expandable" onclick="toggleSubmenu(this)">
                 <svg class="expand-icon" viewBox="0 0 24 24">
@@ -94,9 +90,33 @@
             </div>
         </div>
 
-        <!-- Seção de Logout -->
+        <div class="menu-section" id="financeiro-section" style="display: none;">
+          <div class="menu-title expandable" onclick="toggleSubmenu(this)">
+            <svg class="expand-icon" viewBox="0 0 24 24">
+              <path d="M7,10L12,15L17,10H7Z" />
+            </svg>
+            <span>Financeiro</span>
+          </div>
+  
+          <div class="submenu-container expanded" id="financeiro-submenu">
+            <div class="menu-subsection">
+              <div class="menu-subtitle">Relatórios</div>
+              <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('fluxo-caixa'); setActive(this); closeMobileMenu();">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M3,16H10V14H3M3,12H13V10H3M3,8H13V6H3M15,10V6H17V10H15M19,10V6H21V10H19M15,14V12H17V14H15M19,14V12H21V14H19M15,18V16H17V18H15M19,18V16H21V18H19M15,22V20H17V22H15M19,22V20H21V22H19Z" /></svg>
+                <span class="menu-text">Fluxo de Caixa</span>
+              </a>
+              <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('contas-pagar'); setActive(this); closeMobileMenu();">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M11,3L12,2L13,3H15A1,1 0 0,1 16,4V6H8V4A1,1 0 0,1 9,3H11M19,18H5V8H19V18M11,10H13V12H11V10M11,14H13V16H11V14M5,20H19A2,2 0 0,0 21,18V8A2,2 0 0,0 19,6H17V4A2,2 0 0,0 15,2H9A2,2 0 0,0 7,4V6H5A2,2 0 0,0 3,8V18A2,2 0 0,0 5,20Z" /></svg>
+                <span class="menu-text">Contas a Pagar</span>
+              </a>
+               <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('contas-receber'); setActive(this); closeMobileMenu();">
+                <svg class="menu-icon" viewBox="0 0 24 24"><path d="M14,10H16V12H14V10M14,14H16V16H14V14M10,10H12V12H10V10M10,14H12V16H10V14M20,6H18V4A2,2 0 0,0 16,2H8A2,2 0 0,0 6,4V6H4A2,2 0 0,0 2,8V20A2,2 0 0,0 4,22H20A2,2 0 0,0 22,20V8A2,2 0 0,0 20,6M20,20H4V8H20V20Z" /></svg>
+                <span class="menu-text">Contas a Receber</span>
+              </a>
+            </div>
+          </div>
+        </div>
         <div class="menu-section logout-section">
-            <!-- Menu de Usuários do Sistema - Só aparece para Admin -->
             <a href="#" class="menu-item admin-only" id="userSystemMenu" onclick="event.preventDefault(); loadForm('usersys'); setActive(this); closeMobileMenu();" style="display: none;">
                 <svg class="menu-icon" viewBox="0 0 24 24"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M12 7C13.1 7 14 7.9 14 9C14 10.1 13.1 11 12 11C10.9 11 10 10.1 10 9C10 7.9 10.9 7 12 7M12 13C13.37 13 15.14 13.5 16 14.38V11C16 9.67 12.33 9 12 9S8 9.67 8 11V14.38C8.86 13.5 10.63 13 12 13Z" /></svg>
                 <span class="menu-text">Usuários do Sistema</span>
@@ -110,6 +130,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     // FUNÇÃO PARA DECODIFICAR JWT TOKEN
@@ -127,26 +148,28 @@
         }
     }
 
-    // FUNÇÃO PARA VERIFICAR SE O USUÁRIO É ADMIN OU ALMOXARIFADO
+    // FUNÇÃO PARA VERIFICAR AS PERMISSÕES DO USUÁRIO
     function checkUserRole() {
         try {
             const token = localStorage.getItem('accessToken');
             console.log("Token encontrado:", token ? "SIM" : "NÃO");
             
             if (!token) {
-                console.log("Nenhum token encontrado, usando demonstração");
-                showMenusByRole(true, true); // Para demonstração - remova em produção
+                console.log("Nenhum token encontrado, usando modo demonstração");
+                showMenusByRole(true, true, true); // Para demonstração, mostra tudo
                 return;
             }
 
-            // Decodifica o token JWT
             const decodedToken = parseJwt(token);
             console.log("Token decodificado:", decodedToken);
             
             if (decodedToken && decodedToken.role) {
                 const isAdmin = decodedToken.role === 'Admin';
                 const isAlmoxarifado = decodedToken.role === 'Almoxarifado';
+                const isFinancial = decodedToken.role === 'Financial'; // <-- Adicionado
+
                 const hasAlmoxarifadoAccess = isAdmin || isAlmoxarifado;
+                const hasFinancialAccess = isAdmin || isFinancial; // <-- Adicionado
                 
                 console.log(`=== INFORMAÇÕES DO USUÁRIO ===`);
                 console.log(`Usuário: ${decodedToken.unique_name || 'Não definido'}`);
@@ -154,32 +177,34 @@
                 console.log(`Role: ${decodedToken.role}`);
                 console.log(`É Admin: ${isAdmin}`);
                 console.log(`É Almoxarifado: ${isAlmoxarifado}`);
+                console.log(`É Financeiro: ${isFinancial}`); // <-- Adicionado
                 console.log(`Tem acesso ao Almoxarifado: ${hasAlmoxarifadoAccess}`);
+                console.log(`Tem acesso ao Financeiro: ${hasFinancialAccess}`); // <-- Adicionado
                 console.log(`=== FIM DAS INFORMAÇÕES ===`);
                 
-                // Controla a exibição dos menus baseado na role
-                showMenusByRole(isAdmin, hasAlmoxarifadoAccess);
+                // Controla a exibição dos menus baseado nas permissões
+                showMenusByRole(isAdmin, hasAlmoxarifadoAccess, hasFinancialAccess); // <-- Atualizado
             } else {
                 console.log("Token inválido ou sem role definida");
                 console.log("Dados do token:", decodedToken);
-                showMenusByRole(false, false);
+                showMenusByRole(false, false, false); // <-- Atualizado
             }
         } catch (error) {
             console.error("Erro ao verificar role do usuário:", error);
-            showMenusByRole(false, false);
+            showMenusByRole(false, false, false); // <-- Atualizado
         }
     }
 
-    // FUNÇÃO PARA MOSTRAR/OCULTAR MENUS BASEADO NA ROLE
-    function showMenusByRole(isAdmin, hasAlmoxarifadoAccess) {
+    // FUNÇÃO PARA MOSTRAR/OCULTAR MENUS BASEADO NA PERMISSÃO
+    function showMenusByRole(isAdmin, hasAlmoxarifadoAccess, hasFinancialAccess) { // <-- Assinatura atualizada
         const userSystemMenu = document.getElementById('userSystemMenu');
         const almoxarifadoSection = document.getElementById('almoxarifado-section');
-        
+        const financeiroSection = document.getElementById('financeiro-section'); // <-- Adicionado
+
         console.log("=== CONTROLE DE MENUS ===");
-        console.log(`Menu Admin encontrado: ${userSystemMenu ? 'SIM' : 'NÃO'}`);
-        console.log(`Seção Almoxarifado encontrada: ${almoxarifadoSection ? 'SIM' : 'NÃO'}`);
         console.log(`Deve mostrar menu Admin: ${isAdmin}`);
         console.log(`Deve mostrar Almoxarifado: ${hasAlmoxarifadoAccess}`);
+        console.log(`Deve mostrar Financeiro: ${hasFinancialAccess}`); // <-- Adicionado
         
         // Menu "Usuários do Sistema" - só para Admin
         if (userSystemMenu) {
@@ -191,8 +216,12 @@
         if (almoxarifadoSection) {
             almoxarifadoSection.style.display = hasAlmoxarifadoAccess ? 'block' : 'none';
             console.log(`Seção Almoxarifado definida como: ${hasAlmoxarifadoAccess ? 'VISÍVEL' : 'OCULTA'}`);
-        } else {
-            console.error("ERRO: Seção almoxarifado-section não encontrada no DOM!");
+        }
+        
+        // Seção "Financeiro" - para Admin e Financial (NOVA LÓGICA)
+        if (financeiroSection) {
+            financeiroSection.style.display = hasFinancialAccess ? 'block' : 'none';
+            console.log(`Seção Financeiro definida como: ${hasFinancialAccess ? 'VISÍVEL' : 'OCULTA'}`);
         }
         
         console.log("=== FIM CONTROLE DE MENUS ===");
@@ -203,15 +232,15 @@
         try {
             const token = localStorage.getItem('accessToken');
             if (!token) {
-                console.log("Token não encontrado. Para demonstração, mostrando menus");
-                checkUserRole(); // Chama checkUserRole que tem fallback para demonstração
+                console.log("Token não encontrado. Iniciando verificação de permissões (modo demo).");
+                checkUserRole();
             } else {
-                console.log("Token válido encontrado");
+                console.log("Token válido encontrado. Iniciando verificação de permissões.");
                 checkUserRole();
             }
         } catch (error) {
             console.error("Erro na verificação do token:", error);
-            showMenusByRole(false, false);
+            showMenusByRole(false, false, false); // <-- Atualizado
         }
     }
 
@@ -260,16 +289,16 @@
 
     // EVENT LISTENERS
     document.addEventListener("DOMContentLoaded", function () {
-        // Inicializa o token check (que também verifica a role)
+        // Inicializa a verificação de token e permissões
         checkToken();
 
-        // Configura o submenu como expandido por padrão
-        const submenu = document.getElementById("almoxarifado-submenu");
-        const icon = document.querySelector(".expand-icon");
-        if (submenu && icon) {
-            submenu.classList.add("expanded");
-            icon.classList.add("rotated");
-        }
+        // Configura os submenus como expandidos por padrão
+        document.querySelectorAll('.submenu-container').forEach(submenu => {
+            submenu.classList.add('expanded');
+        });
+        document.querySelectorAll('.expand-icon').forEach(icon => {
+            icon.classList.add('rotated');
+        });
 
         // Event listeners para o menu hambúrguer
         const hamburger = document.getElementById('hamburgerBtn');
@@ -300,4 +329,5 @@
             }
         }, 100);
     });
+
 </script>
