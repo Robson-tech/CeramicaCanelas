@@ -1,6 +1,9 @@
 console.log('Script js/lancamento.js DEFINIDO.');
 
 
+
+// =======================================================
+// INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de lancamento.js foi chamada.');
@@ -38,8 +41,17 @@ function updateFormVisibility(type) {
 function populateEnumSelects() {
     const paymentSelect = document.getElementById('paymentMethod');
     const statusSelect = document.getElementById('status');
-    for (const [key, value] of Object.entries(paymentMethodMap)) paymentSelect.appendChild(new Option(value, key));
-    for (const [key, value] of Object.entries(statusMap)) statusSelect.appendChild(new Option(value, key));
+    for (const [key, value] of Object.entries(paymentMethodMap)) {
+        paymentSelect.appendChild(new Option(value, key));
+    }
+    for (const [key, value] of Object.entries(statusMap)) {
+        const option = new Option(value, key);
+        // Define 'Pago' (valor 1) como padrão
+        if (key === '1') {
+            option.selected = true;
+        }
+        statusSelect.appendChild(option);
+    }
 }
 
 async function handleLaunchSubmit(event) {
@@ -62,6 +74,7 @@ async function handleLaunchSubmit(event) {
         if (response.ok) {
             alert('Lançamento salvo com sucesso!');
             form.reset();
+            populateEnumSelects(); // Repopula o select para restaurar o padrão
             document.getElementById('selectedCategoryName').textContent = 'Nenhuma categoria selecionada';
             document.getElementById('selectedCustomerName').textContent = 'Nenhum cliente selecionado';
             selectedType.checked = false;
@@ -79,17 +92,172 @@ async function handleLaunchSubmit(event) {
 // =======================================================
 // LÓGICA DAS MODAIS
 // =======================================================
-function initializeLaunchCategoryModal() { /* ...código da resposta anterior... */ }
-function initializeCustomerModal() { /* ...código da resposta anterior... */ }
-async function fetchAndRenderLaunchCategoriesInModal(page = 1) { /* ...código da resposta anterior... */ }
-function renderLaunchCategoryModalResults(categories, container) { /* ...código da resposta anterior... */ }
-function renderLaunchCategoryModalPagination(paginationData) { /* ...código da resposta anterior... */ }
-async function fetchAndRenderCustomersInModal(page = 1) { /* ...código da resposta anterior... */ }
-function renderCustomerModalResults(customers, container) { /* ...código da resposta anterior... */ }
-function renderCustomerModalPagination(paginationData) { /* ...código da resposta anterior... */ }
+function initializeLaunchCategoryModal() {
+    const modal = document.getElementById('categorySearchModal');
+    const openBtn = document.getElementById('openCategoryModalBtn');
+    if (!modal || !openBtn) return;
+    const closeBtn = modal.querySelector('.modal-close-btn');
+    const filterBtn = modal.querySelector('#modalCategoryFilterBtn');
+    openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'block';
+        fetchAndRenderLaunchCategoriesInModal(1);
+    });
+    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderLaunchCategoriesInModal(1));
+    modal.querySelector('#modalCategoryResultsContainer').addEventListener('click', (event) => {
+        if (event.target.classList.contains('select-category-btn')) {
+            document.getElementById('selectedCategoryName').textContent = event.target.dataset.name;
+            document.getElementById('categoryId').value = event.target.dataset.id;
+            modal.style.display = 'none';
+        }
+    });
+}
+
+function initializeCustomerModal() {
+    const modal = document.getElementById('customerSearchModal');
+    const openBtn = document.getElementById('openCustomerModalBtn');
+    if (!modal || !openBtn) return;
+    const closeBtn = modal.querySelector('.modal-close-btn');
+    const filterBtn = modal.querySelector('#modalCustomerFilterBtn');
+    openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'block';
+        fetchAndRenderCustomersInModal(1);
+    });
+    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderCustomersInModal(1));
+    modal.querySelector('#modalCustomerResultsContainer').addEventListener('click', (event) => {
+        if (event.target.classList.contains('select-customer-btn')) {
+            document.getElementById('selectedCustomerName').textContent = event.target.dataset.name;
+            document.getElementById('customerId').value = event.target.dataset.id;
+            modal.style.display = 'none';
+        }
+    });
+}
+
+async function fetchAndRenderLaunchCategoriesInModal(page = 1) {
+    currentCategoryModalPage = page;
+    const resultsContainer = document.getElementById('modalCategoryResultsContainer');
+    if (!resultsContainer) return;
+    resultsContainer.innerHTML = '<p>Buscando categorias...</p>';
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const search = document.getElementById('modalCategorySearchInput').value;
+        const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
+        if (search) params.append('Search', search);
+        const url = `${API_BASE_URL}/financial/launch-categories/paged?${params.toString()}`;
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error(`Falha na requisição: ${response.status}`);
+        const paginatedData = await response.json();
+        renderLaunchCategoryModalResults(paginatedData.items, resultsContainer);
+        renderLaunchCategoryModalPagination(paginatedData);
+    } catch (error) {
+        resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        document.getElementById('modalCategoryPaginationControls').innerHTML = '';
+    }
+}
+
+function renderLaunchCategoryModalResults(categories, container) {
+    if (!categories || categories.length === 0) {
+        container.innerHTML = '<p>Nenhuma categoria encontrada.</p>';
+        return;
+    }
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    table.innerHTML = `<thead><tr><th>Nome</th><th>Ação</th></tr></thead><tbody>
+        ${categories.map(cat => `<tr><td>${cat.name}</td><td><button type="button" class="select-category-btn" data-id="${cat.id}" data-name="${cat.name}">Selecionar</button></td></tr>`).join('')}
+    </tbody>`;
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+function renderLaunchCategoryModalPagination(paginationData) {
+    const controlsContainer = document.getElementById('modalCategoryPaginationControls');
+    if (!controlsContainer) return;
+    controlsContainer.innerHTML = '';
+    if (paginationData.totalPages <= 1) return;
+    const { page, totalPages } = paginationData;
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Anterior';
+    prevButton.className = 'pagination-btn';
+    prevButton.disabled = page <= 1;
+    prevButton.onclick = () => fetchAndRenderLaunchCategoriesInModal(page - 1);
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Página ${page} de ${totalPages}`;
+    pageInfo.className = 'pagination-info';
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Próxima';
+    nextButton.className = 'pagination-btn';
+    nextButton.disabled = page >= totalPages;
+    nextButton.onclick = () => fetchAndRenderLaunchCategoriesInModal(page + 1);
+    controlsContainer.appendChild(prevButton);
+    controlsContainer.appendChild(pageInfo);
+    controlsContainer.appendChild(nextButton);
+}
+
+async function fetchAndRenderCustomersInModal(page = 1) {
+    currentCustomerModalPage = page;
+    const resultsContainer = document.getElementById('modalCustomerResultsContainer');
+    if (!resultsContainer) return;
+    resultsContainer.innerHTML = '<p>Buscando clientes...</p>';
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const search = document.getElementById('modalCustomerSearchInput').value;
+        const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'Name' });
+        if (search) params.append('Search', search);
+        const url = `${API_BASE_URL}/financial/customer/paged?${params.toString()}`;
+        const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error(`Falha na requisição: ${response.status}`);
+        const paginatedData = await response.json();
+        renderCustomerModalResults(paginatedData.items, resultsContainer);
+        renderCustomerModalPagination(paginatedData);
+    } catch (error) {
+        resultsContainer.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        document.getElementById('modalCustomerPaginationControls').innerHTML = '';
+    }
+}
+
+function renderCustomerModalResults(customers, container) {
+    if (!customers || customers.length === 0) {
+        container.innerHTML = '<p>Nenhum cliente encontrado.</p>';
+        return;
+    }
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    table.innerHTML = `<thead><tr><th>Nome</th><th>Documento</th><th>Ação</th></tr></thead><tbody>
+        ${customers.map(c => `<tr><td>${c.name}</td><td>${c.document || 'N/A'}</td><td><button type="button" class="select-customer-btn" data-id="${c.id}" data-name="${c.name}">Selecionar</button></td></tr>`).join('')}
+    </tbody>`;
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+function renderCustomerModalPagination(paginationData) {
+    const controlsContainer = document.getElementById('modalCustomerPaginationControls');
+    if (!controlsContainer) return;
+    controlsContainer.innerHTML = '';
+    if (paginationData.totalPages <= 1) return;
+    const { page, totalPages } = paginationData;
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Anterior';
+    prevButton.className = 'pagination-btn';
+    prevButton.disabled = page <= 1;
+    prevButton.onclick = () => fetchAndRenderCustomersInModal(page - 1);
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Página ${page} de ${totalPages}`;
+    pageInfo.className = 'pagination-info';
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Próxima';
+    nextButton.className = 'pagination-btn';
+    nextButton.disabled = page >= totalPages;
+    nextButton.onclick = () => fetchAndRenderCustomersInModal(page + 1);
+    controlsContainer.appendChild(prevButton);
+    controlsContainer.appendChild(pageInfo);
+    controlsContainer.appendChild(nextButton);
+}
 
 // =======================================================
-// LÓGICA DA TABELA DE HISTÓRICO (COM CRUD)
+// LÓGICA DA TABELA DE HISTÓRICO
 // =======================================================
 function initializeHistoryFilters() {
     const filterBtn = document.getElementById('historyFilterBtn');
