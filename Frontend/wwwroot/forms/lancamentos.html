@@ -6,7 +6,6 @@
             <div class="type-selection">
                 <input type="radio" id="typeIncome" name="Type" value="1">
                 <label for="typeIncome" class="type-button">Entrada</label>
-                
                 <input type="radio" id="typeExpense" name="Type" value="2">
                 <label for="typeExpense" class="type-button">Saída</label>
             </div>
@@ -17,7 +16,6 @@
                 <label class="form-label" for="description">Descrição</label>
                 <textarea id="description" name="Description" class="form-input" rows="3" required></textarea>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" for="amount">Valor (R$)</label>
@@ -29,14 +27,22 @@
                 </div>
             </div>
             
-            <div class="form-group" id="group-categoryId">
-                <label class="form-label" for="categoryId">Categoria (Opcional)</label>
-                <select id="categoryId" name="CategoryId" class="form-input"></select>
+            <div class="form-group" id="group-categoryId" style="display: none;">
+                <label class="form-label">Categoria (Opcional)</label>
+                <div class="selection-box">
+                    <span id="selectedCategoryName">Nenhuma categoria selecionada</span>
+                    <button type="button" id="openCategoryModalBtn" class="search-btn">Buscar Categoria...</button>
+                </div>
+                <input type="hidden" id="categoryId" name="CategoryId">
             </div>
 
-            <div class="form-group" id="group-customerId">
-                <label class="form-label" for="customerId">Cliente (Opcional - ID)</label>
-                <input type="text" id="customerId" name="CustomerId" class="form-input" placeholder="Cole o ID do cliente aqui">
+            <div class="form-group" id="group-customerId" style="display: none;">
+                <label class="form-label">Cliente (Opcional)</label>
+                <div class="selection-box">
+                    <span id="selectedCustomerName">Nenhum cliente selecionado</span>
+                    <button type="button" id="openCustomerModalBtn" class="search-btn">Buscar Cliente...</button>
+                </div>
+                <input type="hidden" id="customerId" name="CustomerId">
             </div>
 
             <div class="form-row">
@@ -49,13 +55,65 @@
                     <select id="status" name="Status" class="form-input" required></select>
                 </div>
             </div>
-
             <div class="form-group" id="group-dueDate" style="display: none;">
                 <label class="form-label" for="dueDate">Data de Vencimento (Opcional)</label>
                 <input type="date" id="dueDate" name="DueDate" class="form-input">
             </div>
-
             <button type="submit" class="submit-btn">Salvar Lançamento</button>
         </form>
+    </div>
+    
+    <hr class="section-divider">
+    <h2>Lançamentos Registrados</h2>
+    <div class="filter-bar">
+        <div class="filter-group large"><label for="historySearch">Busca por Descrição:</label><input type="text" id="historySearch" class="form-input"></div>
+        <div class="filter-group"><label for="historyType">Tipo:</label><select id="historyType" class="form-input"></select></div>
+        <div class="filter-group"><label for="historyStatus">Status:</label><select id="historyStatus" class="form-input"></select></div>
+        <div class="filter-group-buttons">
+            <button type="button" id="historyFilterBtn" class="search-btn">Filtrar</button>
+            <button type="button" id="historyClearBtn" class="btn-cancel">Limpar</button>
+        </div>
+    </div>
+    <div class="table-container">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="launch-history-body"></tbody>
+        </table>
+    </div>
+    <div id="pagination-controls" class="pagination-controls"></div>
+</div>
+
+<div id="categorySearchModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close-btn">&times;</span>
+        <h3>Selecione uma Categoria de Lançamento</h3>
+        <div class="filter-bar modal-filter-bar">
+            <div class="filter-group large"><label for="modalCategorySearchInput">Buscar por Nome:</label><input type="text" id="modalCategorySearchInput" class="form-input"></div>
+            <div class="filter-group-buttons"><button type="button" id="modalCategoryFilterBtn" class="search-btn">Buscar</button></div>
+        </div>
+        <div id="modalCategoryResultsContainer" class="table-container"></div>
+        <div id="modalCategoryPaginationControls" class="pagination-controls"></div>
+    </div>
+</div>
+
+<div id="customerSearchModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close-btn">&times;</span>
+        <h3>Selecione um Cliente</h3>
+        <div class="filter-bar modal-filter-bar">
+            <div class="filter-group large"><label for="modalCustomerSearchInput">Buscar por Nome/Documento:</label><input type="text" id="modalCustomerSearchInput" class="form-input"></div>
+            <div class="filter-group-buttons"><button type="button" id="modalCustomerFilterBtn" class="search-btn">Buscar</button></div>
+        </div>
+        <div id="modalCustomerResultsContainer" class="table-container"></div>
+        <div id="modalCustomerPaginationControls" class="pagination-controls"></div>
     </div>
 </div>

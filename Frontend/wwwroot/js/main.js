@@ -9,10 +9,13 @@ const originalRowHTML_Product = {};
 const originalRowHTML_Employee = {};
 const originalRowHTML_Category = {};
 const originalRowHTML_Supplier = {};
+const originalRowHTML_Customer = {};
+
 // Utiliza as variáveis globais de main.js
 const originalHistoryRowHTML = {}; // Objeto para a edição na tabela de histórico
 let currentPage = 1;
 let currentEmployeePage = 1;
+let currentCategoryModalPage = 1;
 const originalEntryRowHTML = {}; 
 // Variável para controlar a paginação da tabela atual
 let currentTablePage = 1;
@@ -37,6 +40,7 @@ const positionMap = {
     14: 'Prestador de Serviços',
     15: 'Pedreiro',
 };
+const originalRowHTML_LaunchCategory = {};
 
 // NOVO: Mapa para traduzir os números das funções para texto
 const userRolesMap = {
@@ -60,6 +64,11 @@ let allEmployees = [];
 
 let currentHistoryPage = 1;
 let currentProductModalPage = 1;
+
+const originalRowHTML_Launch = {};
+const launchTypeMap = { 1: 'Entrada', 2: 'Saída' };
+const paymentMethodMap = { 0: 'Cash', 1: 'CXPJ', 2: 'BBJ', 3: 'BBJS', 4: 'CHECK' };
+const statusMap = { 0: 'Pendente', 1: 'Pago' };
 // =======================================================
 // FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS
 // =======================================================
