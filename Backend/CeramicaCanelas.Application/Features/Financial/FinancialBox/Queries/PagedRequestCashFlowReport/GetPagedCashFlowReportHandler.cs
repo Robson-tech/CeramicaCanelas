@@ -25,6 +25,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             var filtered = launches.AsQueryable();
 
             // Filtro por tipo (se não for "All")
+
             if (request.type == LaunchType.Income)
                 filtered = filtered.Where(l => l.Type == LaunchType.Income);
             else if (request.type == LaunchType.Expense)

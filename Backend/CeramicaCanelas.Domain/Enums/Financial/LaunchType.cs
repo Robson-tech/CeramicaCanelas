@@ -8,8 +8,7 @@ namespace CeramicaCanelas.Domain.Enums.Financial
 {
     public enum LaunchType // "EntryType" foi trocado para "LaunchType"
     {
-        All,
-        Income,
-        Expense
+        Income = 1,
+        Expense = 2,
     }
 }
