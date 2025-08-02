@@ -268,3 +268,47 @@ async function loadProductCategories(selectElement, defaultOptionText = 'Selecio
         // Não relançamos o erro para não quebrar a inicialização de outras partes da página
     } 
 }
+/**
+ * Busca as categorias de lançamento financeiro da API e popula um elemento <select>.
+ * @param {HTMLElement} selectElement - O elemento <select> a ser preenchido.
+ * @param {string} defaultOptionText - O texto para a primeira opção (ex: "Todas as Categorias").
+ */
+async function loadLaunchCategories(selectElement, defaultOptionText = 'Selecione uma categoria') { 
+    if (!selectElement) return; 
+    
+    try { 
+        const accessToken = localStorage.getItem('accessToken'); 
+        const response = await fetch(`${API_BASE_URL}/financial/launch-categories/paged`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); 
+        
+        if (!response.ok) {
+            // Trata o caso específico de não haver categorias cadastradas (erro 400 ou 500)
+            if (response.status === 400 || response.status === 500) {
+                 const errorData = await response.json().catch(() => null);
+                 if (errorData && errorData.message && errorData.message.includes("Não há categórias cadastradas")) {
+                    selectElement.innerHTML = `<option value="">Nenhuma categoria cadastrada</option>`;
+                    selectElement.disabled = true;
+                    return;
+                 }
+            }
+            throw new Error(`Falha ao carregar categorias (Status: ${response.status})`);
+        }
+        
+        const categories = await response.json(); 
+        
+        if (!categories || categories.length === 0) {
+            selectElement.innerHTML = `<option value="">Nenhuma categoria cadastrada</option>`;
+            selectElement.disabled = true;
+        } else {
+            selectElement.disabled = false;
+            selectElement.innerHTML = `<option value="">${defaultOptionText}</option>`; 
+            categories.forEach(category => { 
+                const option = new Option(category.name, category.id); 
+                selectElement.appendChild(option); 
+            }); 
+        }
+    } catch (error) { 
+        console.error('Erro ao carregar categorias de lançamento:', error); 
+        selectElement.innerHTML = '<option value="">Erro ao carregar categorias</option>'; 
+        selectElement.disabled = true;
+    } 
+}
