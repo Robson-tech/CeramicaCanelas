@@ -71,5 +71,6 @@ namespace CeramicaCanelas.Domain.Entities.Financial
         /// O status do lançamento, definido pelo Enum PaymentStatus (Pending ou Paid).
         /// </summary>
         public PaymentStatus Status { get; set; }
+        public string OperatorName { get; set; } = string.Empty;
     }
 }
