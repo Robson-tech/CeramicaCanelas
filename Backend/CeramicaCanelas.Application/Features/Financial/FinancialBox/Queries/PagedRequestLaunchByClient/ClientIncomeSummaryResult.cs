@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PagedRequestLaunchByClient
 {
-    public class LaunchByClientResult
+    public class ClientIncomeSummaryResult
     {
+        public Guid CustomerId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public LaunchType Type { get; set; }
-        public PaymentStatus Status { get; set; }
-        public DateTime LaunchDate { get; set; }
+        public decimal TotalAmount { get; set; }
     }
 }

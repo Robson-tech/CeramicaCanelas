@@ -66,6 +66,15 @@ namespace CeramicaCanelas.WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpGet("clients-balance")]
+        // Correção: agora usa o objeto de REQUISIÇÃO como parâmetro
+        public async Task<IActionResult> GetClientsBalance([FromQuery] PagedClientIncomeRequest query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
 
     }
 }
