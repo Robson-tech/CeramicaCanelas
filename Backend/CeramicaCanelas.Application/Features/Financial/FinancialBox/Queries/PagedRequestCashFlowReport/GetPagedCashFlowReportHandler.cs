@@ -24,8 +24,10 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
             var filtered = launches.AsQueryable();
 
-            // Filtro por tipo (se não for "All")
+            // Apenas lançamentos pagos devem ser considerados
+            filtered = filtered.Where(l => l.Status == PaymentStatus.Paid);
 
+            // Filtro por tipo
             if (request.type == LaunchType.Income)
                 filtered = filtered.Where(l => l.Type == LaunchType.Income);
             else if (request.type == LaunchType.Expense)
@@ -38,9 +40,14 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             if (request.EndDate.HasValue)
                 filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            // Totais
-            var totalEntradas = filtered.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount);
-            var totalSaidas = filtered.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount);
+            // Totais apenas de lançamentos pagos
+            var totalEntradas = filtered
+                .Where(l => l.Type == LaunchType.Income)
+                .Sum(l => l.Amount);
+
+            var totalSaidas = filtered
+                .Where(l => l.Type == LaunchType.Expense)
+                .Sum(l => l.Amount);
 
             var totalItems = filtered.Count();
 
@@ -58,9 +65,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                     CategoryName = l.Category?.Name ?? "Sem categoria",
                     CustomerName = l.Customer?.Name ?? "Sem cliente",
                     PaymentMethod = l.PaymentMethod.ToString()
-                }).ToList();
-
-
+                })
+                .ToList();
 
             return new PagedResultCashFlowReport
             {
@@ -72,6 +78,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 Items = items
             };
         }
+
     }
 
 }

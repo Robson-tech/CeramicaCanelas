@@ -23,7 +23,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
         public async Task<PagedClientIncomeResult> Handle(PagedClientIncomeRequest request, CancellationToken cancellationToken)
         {
             var query = _launchRepository.QueryAllWithIncludes()
-                .Where(l => l.Type == LaunchType.Income && l.CustomerId != null);
+                .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid && l.CustomerId != null);
 
             if (request.StartDate.HasValue)
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value.ToUniversalTime());
@@ -31,7 +31,6 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             if (request.EndDate.HasValue)
                 query = query.Where(l => l.LaunchDate <= request.EndDate.Value.ToUniversalTime());
 
-            // Agrupamento e projeção com todos os novos campos calculados
             var groupedQuery = query.GroupBy(
                 l => new
                 {
@@ -42,12 +41,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 {
                     CustomerId = key.Id,
                     CustomerName = key.Name,
-                    // --- NOVOS CÁLCULOS ---
                     TotalAmount = group.Sum(l => l.Amount),
-                    QuantidadeDeCompras = group.Count(), // 🔥 NOVO: Conta o número de lançamentos no grupo
-                    DataDaUltimaCompra = group.Max(l => l.LaunchDate), // 🔥 NOVO: Pega a data mais recente do grupo
-                    ValorPendente = group.Where(l => l.Status == PaymentStatus.Pending).Sum(l => l.Amount), // 🔥 NOVO: Soma apenas os pendentes
-                    TicketMedio = group.Average(l => l.Amount) // 🔥 NOVO: Calcula a média de valor por compra
+                    QuantidadeDeCompras = group.Count(),
+                    DataDaUltimaCompra = group.Max(l => l.LaunchDate),
+                    ValorPendente = _launchRepository.QueryAllWithIncludes() // <-- separada para somar pendentes
+                        .Where(p => p.CustomerId == key.Id && p.Status == PaymentStatus.Pending)
+                        .Sum(p => p.Amount),
+                    TicketMedio = group.Average(l => l.Amount)
                 });
 
             if (!string.IsNullOrWhiteSpace(request.Search))
@@ -55,16 +55,15 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 groupedQuery = groupedQuery.Where(c => c.CustomerName.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Adicionando as novas opções de ordenação
             groupedQuery = request.OrderBy.ToLower() switch
             {
                 "total" => request.Ascending
                                 ? groupedQuery.OrderBy(c => c.TotalAmount)
                                 : groupedQuery.OrderByDescending(c => c.TotalAmount),
-                "ticket" => request.Ascending // 🔥 NOVO
+                "ticket" => request.Ascending
                                 ? groupedQuery.OrderBy(c => c.TicketMedio)
                                 : groupedQuery.OrderByDescending(c => c.TicketMedio),
-                "lastpurchase" => request.Ascending // 🔥 NOVO
+                "lastpurchase" => request.Ascending
                                 ? groupedQuery.OrderBy(c => c.DataDaUltimaCompra)
                                 : groupedQuery.OrderByDescending(c => c.DataDaUltimaCompra),
                 _ => request.Ascending
@@ -87,6 +86,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 Items = pagedItems
             };
         }
+
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.BalanceByCategoryRequest
 {
@@ -15,33 +16,34 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
 
         public async Task<PagedResultBalanceExpense> Handle(PagedRequestBalanceExpense request, CancellationToken cancellationToken)
         {
-            var launches = _launchRepository.QueryAllWithIncludes();
+            var query = _launchRepository.QueryAllWithIncludes()
+                .Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid);
 
-            var filtered = launches
-                .Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid)
-                .AsQueryable();
+            var groupedQuery = query;
 
             if (request.StartDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate >= request.StartDate.Value);
+                groupedQuery = groupedQuery.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
+                groupedQuery = groupedQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            var grouped = filtered
-                .ToList()
-                .GroupBy(l => l.Category?.Name ?? "Sem categoria")
+            var grouped = await groupedQuery
+                .GroupBy(l => l.Category!.Name ?? "Sem categoria")
                 .Select(g => new BalanceExpenseResult
                 {
                     CategoryName = g.Key,
                     TotalExpense = g.Sum(l => l.Amount)
-                });
+                })
+                .ToListAsync(cancellationToken);
 
-
+            // Filtro textual após trazer os dados agrupados (na memória)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 grouped = grouped
-                    .Where(g => g.CategoryName.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
+                    .Where(g => g.CategoryName.Contains(request.Search, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
+
 
             var totalItems = grouped.Count();
 

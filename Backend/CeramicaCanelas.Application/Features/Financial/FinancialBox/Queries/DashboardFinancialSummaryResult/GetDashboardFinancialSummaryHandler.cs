@@ -34,24 +34,26 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
                 .GroupBy(l => 1) // Agrupa tudo em um único resultado
                 .Select(g => new
                 {
-                    // Totais do Ano
-                    IncomeYear = g.Where(l => l.Type == LaunchType.Income && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
-                    ExpenseYear = g.Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
+                    // Totais do Ano (apenas pagos)
+                    IncomeYear = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
+                    ExpenseYear = g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
 
-                    // Totais 30 dias
-                    Income30 = g.Where(l => l.Type == LaunchType.Income && l.LaunchDate >= last30Days).Sum(l => l.Amount),
-                    Expense30 = g.Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= last30Days).Sum(l => l.Amount),
+                    // Totais 30 dias (apenas pagos)
+                    Income30 = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid && l.LaunchDate >= last30Days).Sum(l => l.Amount),
+                    Expense30 = g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid && l.LaunchDate >= last30Days).Sum(l => l.Amount),
 
-                    // Pendentes
+                    // Pendentes (mantém como está)
                     PendingReceivables = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Pending).Sum(l => l.Amount),
                     PendingPayments = g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Pending).Sum(l => l.Amount),
 
-                    // Saldo Geral
-                    CurrentBalance = g.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount) - g.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount),
+                    // Saldo real (apenas pagos)
+                    CurrentBalance = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid).Sum(l => l.Amount)
+                                   - g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid).Sum(l => l.Amount),
 
                     // Clientes
                     CustomersWithLaunches = g.Where(l => l.CustomerId != null).Select(l => l.CustomerId).Distinct().Count()
                 })
+
                 .FirstOrDefaultAsync(cancellationToken); // Executa a consulta de forma assíncrona
 
             // Consultas que precisam ser separadas
@@ -65,13 +67,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
 
             var monthlyChartData = await launches
                 .Where(l => l.LaunchDate >= firstDayOf12MonthsAgo)
-                .GroupBy(l => new { l.LaunchDate.Year, l.LaunchDate.Month }) // Agrupa por ano/mês
+                .GroupBy(l => new { l.LaunchDate.Year, l.LaunchDate.Month })
                 .Select(g => new
                 {
                     Year = g.Key.Year,
                     Month = g.Key.Month,
-                    TotalIncome = g.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount),
-                    TotalExpense = g.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount)
+                    TotalIncome = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid).Sum(l => l.Amount),
+                    TotalExpense = g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid).Sum(l => l.Amount)
                 })
                 .ToListAsync(cancellationToken);
 
@@ -79,7 +81,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
             var monthlyChart = Enumerable.Range(0, 12)
                 .Select(i => new DateTime(nowUtc.Year, nowUtc.Month, 1).AddMonths(-i))
                 .OrderBy(m => m)
-                .Select(month => {
+                .Select(month =>
+                {
                     var data = monthlyChartData.FirstOrDefault(d => d.Year == month.Year && d.Month == month.Month);
                     return new MonthlyCashFlowChartItem
                     {
