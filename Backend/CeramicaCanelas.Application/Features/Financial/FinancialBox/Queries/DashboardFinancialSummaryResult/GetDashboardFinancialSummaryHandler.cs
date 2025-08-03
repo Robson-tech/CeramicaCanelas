@@ -1,10 +1,12 @@
-﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+﻿// GetDashboardFinancialSummaryHandler.cs - VERSÃO CORRIGIDA E OTIMIZADA
+
+using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
+using Microsoft.EntityFrameworkCore; // PRECISA DESTE USING
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.DashboardFinancialSummaryResult
@@ -22,85 +24,85 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
         {
             var launches = _launchRepository.QueryAllWithIncludes();
 
-            var now = DateTime.Now;
-            var firstDayOfYear = new DateTime(now.Year, 1, 1);
-            var last30Days = now.AddDays(-30);
+            // 🔥 CORREÇÃO 1: Usar UTC para todas as operações de data.
+            var nowUtc = DateTime.UtcNow;
+            var firstDayOfYear = new DateTime(nowUtc.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var last30Days = nowUtc.AddDays(-30);
 
-            var incomeYear = launches
-                .Where(l => l.Type == LaunchType.Income && l.LaunchDate >= firstDayOfYear)
-                .Sum(l => l.Amount);
+            // 🔥 CORREÇÃO 2: Calcular a maioria das métricas em UMA ÚNICA CONSULTA.
+            var summaryData = await launches
+                .GroupBy(l => 1) // Agrupa tudo em um único resultado
+                .Select(g => new
+                {
+                    // Totais do Ano
+                    IncomeYear = g.Where(l => l.Type == LaunchType.Income && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
+                    ExpenseYear = g.Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= firstDayOfYear).Sum(l => l.Amount),
 
-            var expenseYear = launches
-                .Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= firstDayOfYear)
-                .Sum(l => l.Amount);
+                    // Totais 30 dias
+                    Income30 = g.Where(l => l.Type == LaunchType.Income && l.LaunchDate >= last30Days).Sum(l => l.Amount),
+                    Expense30 = g.Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= last30Days).Sum(l => l.Amount),
 
-            var income30 = launches
-                .Where(l => l.Type == LaunchType.Income && l.LaunchDate >= last30Days)
-                .Sum(l => l.Amount);
+                    // Pendentes
+                    PendingReceivables = g.Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Pending).Sum(l => l.Amount),
+                    PendingPayments = g.Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Pending).Sum(l => l.Amount),
 
-            var expense30 = launches
-                .Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= last30Days)
-                .Sum(l => l.Amount);
+                    // Saldo Geral
+                    CurrentBalance = g.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount) - g.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount),
 
-            var pendingReceivables = launches
-                .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Pending)
-                .Sum(l => l.Amount);
+                    // Clientes
+                    CustomersWithLaunches = g.Where(l => l.CustomerId != null).Select(l => l.CustomerId).Distinct().Count()
+                })
+                .FirstOrDefaultAsync(cancellationToken); // Executa a consulta de forma assíncrona
 
-            var pendingPayments = launches
-                .Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Pending)
-                .Sum(l => l.Amount);
-
-            var currentBalance = launches
-                .Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount)
-                -
-                launches
-                .Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount);
-
-            var lastLaunchDate = launches
+            // Consultas que precisam ser separadas
+            var lastLaunchDate = await launches
                 .OrderByDescending(l => l.LaunchDate)
                 .Select(l => (DateTime?)l.LaunchDate)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(cancellationToken);
 
-            var customersWithLaunches = launches
-                .Where(l => l.CustomerId != null)
-                .Select(l => l.CustomerId)
-                .Distinct()
-                .Count();
+            // 🔥 CORREÇÃO 3: Otimizar e corrigir a consulta do gráfico mensal
+            var firstDayOf12MonthsAgo = new DateTime(nowUtc.Year, nowUtc.Month, 1, 0, 0, 0, DateTimeKind.Utc).AddMonths(-11);
 
-            // Agrupamento mensal (últimos 12 meses)
-            var last12Months = Enumerable.Range(0, 12)
-                .Select(i => new DateTime(now.Year, now.Month, 1).AddMonths(-i))
-                .OrderBy(m => m)
-                .ToList();
-
-            var monthlyChart = last12Months.Select(month =>
-            {
-                var start = month;
-                var end = month.AddMonths(1).AddSeconds(-1);
-
-                return new MonthlyCashFlowChartItem
+            var monthlyChartData = await launches
+                .Where(l => l.LaunchDate >= firstDayOf12MonthsAgo)
+                .GroupBy(l => new { l.LaunchDate.Year, l.LaunchDate.Month }) // Agrupa por ano/mês
+                .Select(g => new
                 {
-                    Month = month.ToString("yyyy-MM"),
-                    TotalIncome = launches.Where(l => l.Type == LaunchType.Income && l.LaunchDate >= start && l.LaunchDate <= end).Sum(l => l.Amount),
-                    TotalExpense = launches.Where(l => l.Type == LaunchType.Expense && l.LaunchDate >= start && l.LaunchDate <= end).Sum(l => l.Amount)
-                };
-            }).ToList();
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    TotalIncome = g.Where(l => l.Type == LaunchType.Income).Sum(l => l.Amount),
+                    TotalExpense = g.Where(l => l.Type == LaunchType.Expense).Sum(l => l.Amount)
+                })
+                .ToListAsync(cancellationToken);
+
+            // Monta o resultado final do gráfico no lado do cliente (rápido)
+            var monthlyChart = Enumerable.Range(0, 12)
+                .Select(i => new DateTime(nowUtc.Year, nowUtc.Month, 1).AddMonths(-i))
+                .OrderBy(m => m)
+                .Select(month => {
+                    var data = monthlyChartData.FirstOrDefault(d => d.Year == month.Year && d.Month == month.Month);
+                    return new MonthlyCashFlowChartItem
+                    {
+                        Month = month.ToString("yyyy-MM"),
+                        TotalIncome = data?.TotalIncome ?? 0,
+                        TotalExpense = data?.TotalExpense ?? 0
+                    };
+                }).ToList();
 
 
             return new DashboardFinancialSummaryResult
             {
-                TotalIncomeYear = incomeYear,
-                TotalExpenseYear = expenseYear,
-                TotalIncome30Days = income30,
-                TotalExpense30Days = expense30,
-                PendingReceivables = pendingReceivables,
-                PendingPayments = pendingPayments,
-                CurrentBalance = currentBalance,
+                TotalIncomeYear = summaryData?.IncomeYear ?? 0,
+                TotalExpenseYear = summaryData?.ExpenseYear ?? 0,
+                TotalIncome30Days = summaryData?.Income30 ?? 0,
+                TotalExpense30Days = summaryData?.Expense30 ?? 0,
+                PendingReceivables = summaryData?.PendingReceivables ?? 0,
+                PendingPayments = summaryData?.PendingPayments ?? 0,
+                CurrentBalance = summaryData?.CurrentBalance ?? 0,
+                CustomersWithLaunches = summaryData?.CustomersWithLaunches ?? 0,
                 LastLaunchDate = lastLaunchDate,
-                CustomersWithLaunches = customersWithLaunches,
                 MonthlyChart = monthlyChart
             };
-
         }
     }
 }
