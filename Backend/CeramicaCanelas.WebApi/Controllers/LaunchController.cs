@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.CreatedLaunchCommand;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.DeleteLaunchCommand;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.MarkLaunchAsPaidCommand;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.UpdateLaunchCommand;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Queries.GetPagedLaunchesQueries;
 using MediatR;
@@ -38,6 +39,15 @@ namespace CeramicaCanelas.WebApi.Controllers
             return NoContent();
         }
 
+
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpPut("{id}/mark-paid")]
+        public async Task<IActionResult> MarkAsPaid(Guid id)
+        {
+            var result = await _mediator.Send(new MarkLaunchAsPaidCommand { LaunchId = id });
+            return result ? Ok() : NotFound("Lançamento não encontrado ou já pago.");
+        }
+
         [Authorize(Roles = "Financial,Admin")]
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -49,6 +59,7 @@ namespace CeramicaCanelas.WebApi.Controllers
             await _mediator.Send(command);
             return NoContent();
         }
+
 
         [Authorize(Roles = "Financial,Admin")]
         [HttpGet("paged")]

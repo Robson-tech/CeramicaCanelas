@@ -1,7 +1,9 @@
 ﻿using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.BalanceByAccountsPayReport;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.BalanceByCategoryRequest;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.DashboardFinancialSummaryResult;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PagedRequestCashFlowReport;
 using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PagedRequestLaunchByClient;
+using CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PendingLaunchQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -49,10 +51,16 @@ namespace CeramicaCanelas.WebApi.Controllers
         }
 
         [Authorize(Roles = "Financial,Admin")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [HttpGet("launches-by-client")]
-        public async Task<IActionResult> GetLaunchesByClient([FromQuery] PagedRequestLaunchByClient query)
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            var result = await _mediator.Send(new DashboardFinancialSummaryQuery());
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Financial,Admin")]
+        [HttpGet("summary/pending")]
+        public async Task<IActionResult> GetPendingLaunches([FromQuery] PendingLaunchQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
