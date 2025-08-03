@@ -44,8 +44,8 @@ namespace CeramicaCanelas.WebApi.Controllers
         [HttpPut("{id}/mark-paid")]
         public async Task<IActionResult> MarkAsPaid(Guid id)
         {
-            var result = await _mediator.Send(new MarkLaunchAsPaidCommand { LaunchId = id });
-            return result ? Ok() : NotFound("Lançamento não encontrado ou já pago.");
+            await _mediator.Send(new MarkLaunchAsPaidCommand { LaunchId = id });
+            return NoContent();
         }
 
         [Authorize(Roles = "Financial,Admin")]
