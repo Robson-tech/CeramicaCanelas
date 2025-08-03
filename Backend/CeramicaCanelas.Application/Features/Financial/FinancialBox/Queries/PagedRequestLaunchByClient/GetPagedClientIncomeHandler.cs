@@ -22,57 +22,63 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
         public async Task<PagedClientIncomeResult> Handle(PagedClientIncomeRequest request, CancellationToken cancellationToken)
         {
-            // 1. Inicia a consulta, incluindo o Cliente para podermos usar o nome.
-            //    Filtra apenas por entradas (Income) e lançamentos que tenham cliente.
-            var query = _launchRepository.QueryAllWithIncludes() // ESSENCIAL que isso faça .Include(l => l.Customer)
+            var query = _launchRepository.QueryAllWithIncludes()
                 .Where(l => l.Type == LaunchType.Income && l.CustomerId != null);
 
-            // 2. Aplica filtro de data, se fornecido.
-            //    Lembre-se de garantir que as datas sejam UTC para evitar erros!
             if (request.StartDate.HasValue)
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value.ToUniversalTime());
 
             if (request.EndDate.HasValue)
                 query = query.Where(l => l.LaunchDate <= request.EndDate.Value.ToUniversalTime());
 
-            // 3. A MÁGICA ACONTECE AQUI: Agrupamento por Cliente
-            //    Agrupamos todos os lançamentos por ID e Nome do Cliente.
+            // Agrupamento e projeção com todos os novos campos calculados
             var groupedQuery = query.GroupBy(
-                l => new { l.CustomerId, l.Customer!.Name }, // Chave de agrupamento
-                (key, group) => new ClientIncomeSummaryResult // Projeta o resultado do grupo
+                l => new
                 {
-                    CustomerId = key.CustomerId!.Value,
+                    Id = l.CustomerId.Value,
+                    Name = l.Customer.Name ?? "Cliente Desconhecido"
+                },
+                (key, group) => new ClientIncomeSummaryResult
+                {
+                    CustomerId = key.Id,
                     CustomerName = key.Name,
-                    TotalAmount = group.Sum(l => l.Amount) // Soma os valores do grupo
+                    // --- NOVOS CÁLCULOS ---
+                    TotalAmount = group.Sum(l => l.Amount),
+                    QuantidadeDeCompras = group.Count(), // 🔥 NOVO: Conta o número de lançamentos no grupo
+                    DataDaUltimaCompra = group.Max(l => l.LaunchDate), // 🔥 NOVO: Pega a data mais recente do grupo
+                    ValorPendente = group.Where(l => l.Status == PaymentStatus.Pending).Sum(l => l.Amount), // 🔥 NOVO: Soma apenas os pendentes
+                    TicketMedio = group.Average(l => l.Amount) // 🔥 NOVO: Calcula a média de valor por compra
                 });
 
-            // 4. Aplica filtro de busca por nome DEPOIS de agrupar.
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 groupedQuery = groupedQuery.Where(c => c.CustomerName.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 5. Ordenação do resultado agrupado.
+            // Adicionando as novas opções de ordenação
             groupedQuery = request.OrderBy.ToLower() switch
             {
                 "total" => request.Ascending
                                 ? groupedQuery.OrderBy(c => c.TotalAmount)
                                 : groupedQuery.OrderByDescending(c => c.TotalAmount),
+                "ticket" => request.Ascending // 🔥 NOVO
+                                ? groupedQuery.OrderBy(c => c.TicketMedio)
+                                : groupedQuery.OrderByDescending(c => c.TicketMedio),
+                "lastpurchase" => request.Ascending // 🔥 NOVO
+                                ? groupedQuery.OrderBy(c => c.DataDaUltimaCompra)
+                                : groupedQuery.OrderByDescending(c => c.DataDaUltimaCompra),
                 _ => request.Ascending
                                 ? groupedQuery.OrderBy(c => c.CustomerName)
                                 : groupedQuery.OrderByDescending(c => c.CustomerName),
             };
 
-            // 6. Calcula o total de itens (clientes únicos) para a paginação.
             var totalItems = await groupedQuery.CountAsync(cancellationToken);
 
-            // 7. Aplica a paginação e executa a consulta, trazendo os dados para a memória.
             var pagedItems = await groupedQuery
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync(cancellationToken);
 
-            // 8. Retorna o resultado final e paginado.
             return new PagedClientIncomeResult
             {
                 Page = request.Page,
@@ -82,5 +88,5 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             };
         }
     }
-}
 
+}
