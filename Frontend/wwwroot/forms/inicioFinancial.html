@@ -1,0 +1,72 @@
+<div class="container">
+    <div class="header">
+        <h1>Dashboard Financeiro</h1>
+        <p>Visão geral das finanças - Cerâmica Canelas</p>
+    </div>
+
+    <div class="card grid-large">
+        <div class="card-header">
+            <div class="card-icon">📈</div>
+            <div class="card-title">Movimentação Mensal (Últimos 12 meses)</div>
+        </div>
+        <div class="chart-container">
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🏦</div>
+                <div class="card-title">Saldo Atual</div>
+            </div>
+            <div id="current-balance" class="metric-value">...</div>
+            <div class="metric-label">Balanço total de caixa</div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">⬆️</div>
+                <div class="card-title">Entradas (30 dias)</div>
+            </div>
+            <div id="income-30-days" class="metric-value income-color">...</div>
+            <div class="metric-label">Receita nos últimos 30 dias</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">⬇️</div>
+                <div class="card-title">Saídas (30 dias)</div>
+            </div>
+            <div id="expense-30-days" class="metric-value expense-color">...</div>
+            <div class="metric-label">Despesas nos últimos 30 dias</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🧾</div>
+                <div class="card-title">Contas a Receber</div>
+            </div>
+            <div id="pending-receivables" class="metric-value">...</div>
+            <div class="metric-label">Valores pendentes de entrada</div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">💳</div>
+                <div class="card-title">Contas a Pagar</div>
+            </div>
+            <div id="pending-payments" class="metric-value">...</div>
+            <div class="metric-label">Valores pendentes de saída</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">👥</div>
+                <div class="card-title">Clientes com Lançamentos</div>
+            </div>
+            <div id="customers-with-launches" class="metric-value">...</div>
+            <div class="metric-label">Clientes movimentados no período</div>
+        </div>
+    </div>
+</div>

@@ -1,10 +1,12 @@
-console.log('Script js/pendentes.js DEFINIDO.');
+console.log('Script js/relatorio-clientes.js DEFINIDO.');
+
+
 
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
-    console.log('▶️ initDynamicForm() de pendentes.js foi chamada.');
+    console.log('▶️ initDynamicForm() de relatorio-clientes.js foi chamada.');
     initializeFilters();
     fetchReportData(1);
 }
@@ -12,18 +14,10 @@ function initDynamicForm() {
 function initializeFilters() {
     document.getElementById('searchButton')?.addEventListener('click', () => fetchReportData(1));
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
-    
-    const typeSelect = document.getElementById('type-filter');
-    if (typeSelect && typeof launchTypeMap !== 'undefined') {
-        typeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
-        for (const [key, value] of Object.entries(launchTypeMap)) {
-            typeSelect.appendChild(new Option(value, key));
-        }
-    }
 }
 
 function clearFilters() {
-    document.getElementById('type-filter').value = '';
+    document.getElementById('search-input').value = '';
     document.getElementById('start-date').value = '';
     document.getElementById('end-date').value = '';
     fetchReportData(1);
@@ -44,16 +38,18 @@ async function fetchReportData(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
-        const type = document.getElementById('type-filter')?.value;
+        const params = new URLSearchParams({ Page: currentPage, PageSize: 10, OrderBy: 'CustomerName' });
+        const search = document.getElementById('search-input')?.value;
         const startDate = document.getElementById('start-date')?.value;
         const endDate = document.getElementById('end-date')?.value;
-        
-        if (type) params.append('Type', type);
+
+        if (search) params.append('Search', search);
         if (startDate) params.append('StartDate', new Date(startDate).toISOString());
         if (endDate) params.append('EndDate', new Date(endDate).toISOString());
 
-        const url = `${API_BASE_URL}/financial/dashboard-financial/summary/pending?${params.toString()}`;
+        // IMPORTANTE: Endpoint presumido. Ajuste se necessário.
+        const url = `${API_BASE_URL}/financial/dashboard-financial/clients-balance`;
+        
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
@@ -63,6 +59,7 @@ async function fetchReportData(page = 1) {
         renderPagination(data);
         
         if(resultsSection) resultsSection.style.display = 'block';
+
     } catch (error) {
         if(typeof showErrorModal === 'function') {
             showErrorModal({ title: "Erro na Pesquisa", detail: error.message });
@@ -78,33 +75,25 @@ function renderReportTable(items) {
     const tableBody = document.getElementById('report-table-body');
     const noResultsDiv = document.getElementById('noResults');
     if(!tableBody || !noResultsDiv) return;
-
     tableBody.innerHTML = '';
-
     if (!items || items.length === 0) {
         noResultsDiv.style.display = 'block';
         return;
     }
-    
     noResultsDiv.style.display = 'none';
 
-    items.forEach(item => {
-        const formattedDate = new Date(item.launchDate).toLocaleDateString('pt-BR');
-        const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const typeText = (typeof launchTypeMap !== 'undefined' && launchTypeMap[item.type]) ? launchTypeMap[item.type] : 'N/A';
-        const amountClass = item.type === 1 ? 'income' : 'expense';
-        const relatedEntity = item.type === 1 ? (item.customerName || 'N/A') : (item.categoryName || 'N/A');
+    const formatCurrency = (value) => (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+    items.forEach(item => {
+        const formattedDate = item.dataDaUltimaCompra ? new Date(item.dataDaUltimaCompra).toLocaleDateString('pt-BR') : 'N/A';
         const row = tableBody.insertRow();
         row.innerHTML = `
-            <td>${item.description || 'N/A'}</td>
+            <td>${item.customerName || 'N/A'}</td>
+            <td class="income">${formatCurrency(item.totalAmount)}</td>
+            <td>${formatCurrency(item.ticketMedio)}</td>
+            <td class="expense">${formatCurrency(item.valorPendente)}</td>
+            <td>${item.quantidadeDeCompras}</td>
             <td>${formattedDate}</td>
-            <td>${typeText}</td>
-            <td>${relatedEntity}</td>
-            <td class="${amountClass}">${formattedAmount}</td>
-            <td class="actions-cell">
-                <button class="btn-action btn-success" onclick="markAsPaid('${item.id}')">Marcar como Pago</button>
-            </td>
         `;
     });
 }
@@ -113,12 +102,9 @@ function renderPagination(paginationData) {
     const controlsContainer = document.getElementById('pagination-controls');
     if (!controlsContainer) return;
     controlsContainer.innerHTML = '';
-    
     if (!paginationData || !paginationData.totalPages || paginationData.totalPages <= 1) return;
     
-    const page = paginationData.page;
-    const totalPages = paginationData.totalPages;
-    
+    const { page, totalPages } = paginationData;
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';
     prevButton.className = 'pagination-btn';
@@ -139,31 +125,3 @@ function renderPagination(paginationData) {
     controlsContainer.appendChild(pageInfo);
     controlsContainer.appendChild(nextButton);
 }
-
-// =======================================================
-// NOVA FUNÇÃO PARA MARCAR COMO PAGO
-// =======================================================
-window.markAsPaid = async (launchId) => {
-    if (!confirm('Tem certeza que deseja marcar este lançamento como pago?')) return;
-
-    try {
-        const accessToken = localStorage.getItem('accessToken');
-        const url = `${API_BASE_URL}/financial/launch/${launchId}/mark-paid`;
-        
-        const response = await fetch(url, {
-            method: 'PUT', // ou POST, dependendo da sua API
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
-
-        if (response.ok) {
-            alert('Lançamento atualizado para "Pago" com sucesso!');
-            // Atualiza a tabela para remover o item da lista de pendentes
-            fetchReportData(currentPage);
-        } else {
-            const errorData = await response.json().catch(() => ({ title: "Erro" }));
-            showErrorModal({ title: "Falha ao Atualizar", detail: errorData.message || "Não foi possível marcar como pago."});
-        }
-    } catch (error) {
-        showErrorModal({ title: "Erro de Conexão", detail: error.message });
-    }
-};

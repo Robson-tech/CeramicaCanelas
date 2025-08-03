@@ -1,7 +1,7 @@
 <div class="container">
     <div class="header">
-        <h1>Relatório de Lançamentos Pendentes</h1>
-        <p>Acompanhe todos os lançamentos financeiros com status "Pendente"</p>
+        <h1>Relatório Financeiro por Cliente</h1>
+        <p>Análise de compras, valores pendentes e ticket médio por cliente</p>
     </div>
 
     <div class="search-section">
@@ -9,30 +9,37 @@
             <div class="search-icon">🔍</div>
             Filtros de Pesquisa
         </div>
+        
         <div class="filters-grid">
             <div class="filter-group">
-                <label class="filter-label" for="type-filter">Tipo de Lançamento</label>
-                <select id="type-filter" class="filter-input">
-                    <option value="">Todos</option>
-                </select>
+                <label class="filter-label" for="search-input">Buscar por Nome</label>
+                <input type="text" id="search-input" class="filter-input" placeholder="Nome do cliente...">
             </div>
             <div class="filter-group">
-                <label class="filter-label" for="start-date">Data Inicial</label>
+                <label class="filter-label" for="start-date">Data Inicial (Última Compra)</label>
                 <input type="date" id="start-date" class="filter-input">
             </div>
             <div class="filter-group">
-                <label class="filter-label" for="end-date">Data Final</label>
+                <label class="filter-label" for="end-date">Data Final (Última Compra)</label>
                 <input type="date" id="end-date" class="filter-input">
             </div>
         </div>
+        
         <div class="search-actions">
             <button id="searchButton" class="search-button">
-                <span>📊</span> Filtrar
+                <span>📊</span>
+                Gerar Relatório
             </button>
             <button id="clearButton" class="clear-button">
-                <span>🗑️</span> Limpar Filtros
+                <span>🗑️</span>
+                Limpar Filtros
             </button>
         </div>
+    </div>
+
+    <div class="loading" id="loading" style="display: none;">
+        <div class="spinner"></div>
+        Carregando relatório...
     </div>
 
     <div class="results-section" id="resultsSection" style="display: none;">
@@ -40,26 +47,20 @@
             <table class="results-table" id="resultsTable">
                 <thead>
                     <tr>
-                        <th>Descrição</th>
-                        <th>Data</th>
-                        <th>Tipo</th>
-                        <th>Cliente/Categoria</th>
-                        <th>Valor</th>
-                        <th>Ações</th> </tr>
+                        <th>Nome do Cliente</th>
+                        <th>Total Comprado</th>
+                        <th>Ticket Médio</th>
+                        <th>Valor Pendente</th>
+                        <th>Qtd. Compras</th>
+                        <th>Última Compra</th>
+                    </tr>
                 </thead>
                 <tbody id="report-table-body"></tbody>
             </table>
         </div>
-        
         <div class="no-results" id="noResults" style="display: none;">
-            <p>🎉 Nenhum lançamento pendente encontrado.</p>
+            <p>Nenhum cliente encontrado para os filtros aplicados.</p>
         </div>
-        
         <div id="pagination-controls" class="pagination-controls"></div>
-    </div>
-
-    <div class="loading" id="loading" style="display: none;">
-        <div class="spinner"></div>
-        Carregando relatório...
     </div>
 </div>
