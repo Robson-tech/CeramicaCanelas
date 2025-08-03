@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
+using CeramicaCanelas.Domain.Exception;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Commands.MarkLaunchAsPaidCommand
 {
-    public class MarkLaunchAsPaidHandler : IRequestHandler<MarkLaunchAsPaidCommand, bool>
+    public class MarkLaunchAsPaidHandler : IRequestHandler<MarkLaunchAsPaidCommand, Unit>
     {
         private readonly ILaunchRepository _launchRepository;
 
@@ -18,15 +19,17 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
             _launchRepository = launchRepository;
         }
 
-        public async Task<bool> Handle(MarkLaunchAsPaidCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(MarkLaunchAsPaidCommand request, CancellationToken cancellationToken)
         {
             var launch = await _launchRepository.GetByIdAsync(request.LaunchId);
             if (launch == null || launch.Status == PaymentStatus.Paid)
-                return false;
+            {
+                throw new BadRequestException("Lançamento não encontrado ou já pago");
+            }
 
             launch.Status = PaymentStatus.Paid;
-            await _launchRepository.SaveChangesAsync();
-            return true;
+            await _launchRepository.Update(launch);
+            return Unit.Value;
         }
     }
 }
