@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PendingLaunchQuery
 {
-    public class PendingLaunchQuery : IRequest<List<PendingLaunchResult>>
+    public class PendingLaunchQuery : IRequest<PagedResultPendingLaunch>
     {
-        public LaunchType? Type { get; set; } // Filtro opcional
+        public LaunchType? Type { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
     }
 }

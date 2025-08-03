@@ -20,7 +20,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
         public async Task<PagedResultCashFlowReport> Handle(PagedRequestCashFlowReport request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
+            var launches = _launchRepository.QueryAllWithIncludes();
 
             var filtered = launches.AsQueryable();
 

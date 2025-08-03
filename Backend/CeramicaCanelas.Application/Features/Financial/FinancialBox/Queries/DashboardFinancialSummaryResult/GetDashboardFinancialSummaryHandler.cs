@@ -20,7 +20,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
 
         public async Task<DashboardFinancialSummaryResult> Handle(DashboardFinancialSummaryQuery request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
+            var launches = _launchRepository.QueryAllWithIncludes();
 
             var now = DateTime.Now;
             var firstDayOfYear = new DateTime(now.Year, 1, 1);

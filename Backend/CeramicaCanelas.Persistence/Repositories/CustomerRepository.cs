@@ -23,6 +23,14 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
         }
+
+        public IQueryable<Customer> QueryAllWithIncludes()
+        {
+            return Context.Customers
+                .AsQueryable();
+        }
+
+
         /// <summary>
         /// Gets a customer by its ID
         /// </summary>

@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PendingLaunchQuery
 {
-    public class GetPendingLaunchesHandler : IRequestHandler<PendingLaunchQuery, List<PendingLaunchResult>>
+    public class GetPagedPendingLaunchesHandler : IRequestHandler<PendingLaunchQuery, PagedResultPendingLaunch>
     {
         private readonly ILaunchRepository _launchRepository;
 
-        public GetPendingLaunchesHandler(ILaunchRepository launchRepository)
+        public GetPagedPendingLaunchesHandler(ILaunchRepository launchRepository)
         {
             _launchRepository = launchRepository;
         }
 
-        public async Task<List<PendingLaunchResult>> Handle(PendingLaunchQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResultPendingLaunch> Handle(PendingLaunchQuery request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
+            var launches = _launchRepository.QueryAllWithIncludes();
 
             var pending = launches
                 .Where(l => l.Status == PaymentStatus.Pending)
@@ -35,8 +35,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
             if (request.EndDate.HasValue)
                 pending = pending.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            return pending
+            var totalItems = pending.Count();
+
+            var pagedItems = pending
                 .OrderBy(l => l.LaunchDate)
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList()
                 .Select(l => new PendingLaunchResult
                 {
                     Id = l.Id,
@@ -46,7 +51,16 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
                     Type = l.Type,
                     CustomerName = l.Customer?.Name,
                     CategoryName = l.Category?.Name
-                }).ToList();
+                })
+                .ToList();
+
+            return new PagedResultPendingLaunch
+            {
+                Page = request.Page,
+                PageSize = request.PageSize,
+                TotalItems = totalItems,
+                Items = pagedItems
+            };
         }
     }
 }

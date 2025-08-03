@@ -23,5 +23,14 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .Include(l => l.Customer)
                 .ToListAsync();
         }
+
+        public IQueryable<Launch> QueryAllWithIncludes()
+        {
+            return Context.Launches
+                .Include(l => l.Category)
+                .Include(l => l.Customer)
+                .AsQueryable();
+        }
+
     }
 }

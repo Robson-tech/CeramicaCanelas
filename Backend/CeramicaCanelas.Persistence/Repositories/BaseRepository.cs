@@ -76,4 +76,5 @@ public class BaseRepository<T>(DefaultContext defaultContext) : IBaseRepository<
         return baseQuery;
     }
 
+
 }

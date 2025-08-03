@@ -20,7 +20,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
         public async Task<PagedResultLaunchByClient> Handle(PagedRequestLaunchByClient request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
+            var launches = _launchRepository.QueryAllWithIncludes();
 
             // Apenas lançamentos do tipo Entrada e com cliente associado
             var filtered = launches
