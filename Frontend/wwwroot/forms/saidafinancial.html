@@ -1,6 +1,6 @@
 <div class="container">
     <div class="header">
-        <h1>Relatório de Saídas</h1>
+        <h1>Relatório de Saídas por Categoria</h1>
         <p>Análise detalhada das movimentações de saída</p>
     </div>
 
@@ -12,14 +12,8 @@
         
         <div class="filters-grid">
             <div class="filter-group">
-                <label class="filter-label" for="search-input">Busca por Descrição</label>
-                <input type="text" id="search-input" class="filter-input" placeholder="Ex: Compra de material...">
-            </div>
-            <div class="filter-group">
-                <label class="filter-label" for="category-filter">Categoria</label>
-                <select id="category-filter" class="filter-input">
-                    <option value="">Todas as Categorias</option>
-                    </select>
+                <label class="filter-label" for="search-input">Busca por Nome</label>
+                <input type="text" id="search-input" class="filter-input" placeholder="Nome da categoria...">
             </div>
             <div class="filter-group">
                 <label class="filter-label" for="start-date">Data Inicial</label>
@@ -53,11 +47,8 @@
             <table class="results-table" id="resultsTable">
                 <thead>
                     <tr>
-                        <th>Descrição</th>
-                        <th>Categoria</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                        <th>Valor</th>
+                        <th>Nome da Categoria</th>
+                        <th>Total Gasto (R$)</th>
                     </tr>
                 </thead>
                 <tbody id="report-table-body"></tbody>

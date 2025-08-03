@@ -1,23 +1,13 @@
 console.log('Script js/relatorio-saidas.js DEFINIDO.');
 
 
-
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
     console.log('▶️ initDynamicForm() de relatorio-saidas.js foi chamada.');
     initializeFilters();
-    // Usa a função genérica para carregar as categorias de lançamento financeiro
-    if (typeof loadLaunchCategories === 'function') {
-        loadLaunchCategories(document.getElementById('category-filter'), 'Todas as Categorias')
-            .then(() => {
-                fetchReportData(1);
-            });
-    } else {
-        console.warn("Função 'loadLaunchCategories' não encontrada. O filtro de categoria não será populado.");
-        fetchReportData(1);
-    }
+    fetchReportData(1);
 }
 
 function initializeFilters() {
@@ -27,7 +17,6 @@ function initializeFilters() {
 
 function clearFilters() {
     document.getElementById('search-input').value = '';
-    document.getElementById('category-filter').value = '';
     document.getElementById('start-date').value = '';
     document.getElementById('end-date').value = '';
     fetchReportData(1);
@@ -50,12 +39,10 @@ async function fetchReportData(page = 1) {
 
         const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
         const search = document.getElementById('search-input')?.value;
-        const categoryId = document.getElementById('category-filter')?.value;
         const startDate = document.getElementById('start-date')?.value;
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        if (categoryId) params.append('CategoryId', categoryId);
         if (startDate) params.append('StartDate', new Date(startDate).toISOString());
         if (endDate) params.append('EndDate', new Date(endDate).toISOString());
 
@@ -66,6 +53,10 @@ async function fetchReportData(page = 1) {
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
         const data = await response.json();
+        
+        if (!data.items || !data.hasOwnProperty('totalPages')) {
+             throw new Error("A resposta da API não tem o formato paginado esperado.");
+        }
         
         renderReportTable(data.items);
         renderPagination(data);
@@ -98,16 +89,11 @@ function renderReportTable(items) {
     noResultsDiv.style.display = 'none';
 
     items.forEach(item => {
-        const formattedDate = new Date(item.launchDate).toLocaleDateString('pt-BR');
-        const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const statusText = (typeof statusMap !== 'undefined' && statusMap[item.status]) ? statusMap[item.status] : 'N/A';
+        const formattedAmount = (item.totalExpense || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         
         const row = tableBody.insertRow();
         row.innerHTML = `
-            <td>${item.description || 'N/A'}</td>
             <td>${item.categoryName || 'N/A'}</td>
-            <td>${formattedDate}</td>
-            <td>${statusText}</td>
             <td class="expense">${formattedAmount}</td>
         `;
     });
