@@ -19,7 +19,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.
 
         public async Task<PagedResultCustomer> Handle(PagedRequestCustomer request, CancellationToken cancellationToken)
         {
-            var all = await _customerRepository.GetAllAsync();
+            var all = _customerRepository.QueryAllWithIncludes();
             var filtered = all.Where(c => !c.IsDeleted);
 
             // Filtro de busca

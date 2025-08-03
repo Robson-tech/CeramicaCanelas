@@ -11,6 +11,8 @@ namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
     {
         public Task<Launch?> GetByIdAsync(Guid id);
 
+        public IQueryable<Launch> QueryAllWithIncludes();
+
         public Task<List<Launch>> GetAllAsync();
     }
 }

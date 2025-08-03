@@ -19,7 +19,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.LaunchCate
 
         public async Task<PagedResultLaunchCategory> Handle(PagedRequestLaunchCategory request, CancellationToken cancellationToken)
         {
-            var all = await _categoryRepository.GetAllAsync();
+            var all = _categoryRepository.QueryAllWithIncludes();
 
             var filtered = all.Where(c => !c.IsDeleted);
 

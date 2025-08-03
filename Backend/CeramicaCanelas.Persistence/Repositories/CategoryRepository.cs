@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Entities.Almoxarifado;
+using CeramicaCanelas.Domain.Entities.Financial;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -30,5 +31,6 @@ namespace CeramicaCanelas.Persistence.Repositories
         {
             return await Context.Categories.FindAsync(id);
         }
+
     }
 }

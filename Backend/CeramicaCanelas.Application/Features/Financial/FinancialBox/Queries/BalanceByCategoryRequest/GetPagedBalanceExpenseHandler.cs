@@ -15,10 +15,10 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
 
         public async Task<PagedResultBalanceExpense> Handle(PagedRequestBalanceExpense request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
+            var launches = _launchRepository.QueryAllWithIncludes();
 
             var filtered = launches
-                .Where(l => l.Type == LaunchType.Expense)
+                .Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid)
                 .AsQueryable();
 
             if (request.StartDate.HasValue)

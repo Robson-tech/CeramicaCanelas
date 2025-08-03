@@ -1,11 +1,7 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.BalanceByAccountsPayReport
 {
@@ -20,34 +16,34 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
 
         public async Task<PagedResultBalanceIncome> Handle(PagedRequestBalanceIncome request, CancellationToken cancellationToken)
         {
-            var launches = await _launchRepository.GetAllAsync();
-
-            var filtered = launches
-                .Where(l => l.Type == LaunchType.Income)
-                .AsQueryable();
+            var query = _launchRepository.QueryAllWithIncludes()
+                .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid);
 
             if (request.StartDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate >= request.StartDate.Value);
+                query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
+                query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            var grouped = filtered
-                .ToList() // LINQ in-memory para permitir uso de .ToString()
-                .GroupBy(l => l.PaymentMethod.ToString())
+            // Agrupamento por método de pagamento
+            var grouped = await query
+                .GroupBy(l => l.PaymentMethod)
                 .Select(g => new BalanceIncomeResult
                 {
-                    PaymentMethod = g.Key,
+                    PaymentMethod = g.Key.ToString(),
                     TotalIncome = g.Sum(l => l.Amount)
-                });
+                })
+                .ToListAsync(cancellationToken);
 
+            // Filtro por texto (aplicado depois do agrupamento, pois não pode ser feito diretamente em enum no banco)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 grouped = grouped
-                    .Where(g => g.PaymentMethod.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
+                    .Where(g => g.PaymentMethod.Contains(request.Search, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
 
-            var totalItems = grouped.Count();
+            var totalItems = grouped.Count;
 
             var pagedItems = grouped
                 .OrderBy(g => g.PaymentMethod)

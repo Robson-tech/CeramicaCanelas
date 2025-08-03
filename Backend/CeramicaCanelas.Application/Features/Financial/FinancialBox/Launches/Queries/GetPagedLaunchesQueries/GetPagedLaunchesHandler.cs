@@ -16,7 +16,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
 
         public async Task<PagedResultLaunch> Handle(PagedRequestLaunch request, CancellationToken cancellationToken)
         {
-            IEnumerable<Launch> launches = await _launchRepository.GetAllAsync();
+            IEnumerable<Launch> launches = _launchRepository.QueryAllWithIncludes();
 
             // Filtro por descrição
             if (!string.IsNullOrWhiteSpace(request.Search))

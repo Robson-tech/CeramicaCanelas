@@ -36,5 +36,11 @@ namespace CeramicaCanelas.Persistence.Repositories
         {
             return await Context.LaunchCategories.FindAsync(id);
         }
+
+        public IQueryable<LaunchCategory> QueryAllWithIncludes()
+        {
+            return Context.LaunchCategories
+                .AsQueryable();
+        }
     }
 }
