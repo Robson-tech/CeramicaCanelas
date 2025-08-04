@@ -44,11 +44,16 @@ async function fetchReportData(page = 1) {
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        if (startDate) params.append('StartDate', new Date(startDate).toISOString());
-        if (endDate) params.append('EndDate', new Date(endDate).toISOString());
+        
+        // --- CORREÇÃO DE DATA APLICADA AQUI ---
+        // Enviamos a data como string 'YYYY-MM-DD' para evitar problemas de fuso horário.
+        // O backend deve ser capaz de interpretar este formato.
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
+        // ------------------------------------
 
         // IMPORTANTE: Endpoint presumido. Ajuste se necessário.
-        const url = `${API_BASE_URL}/financial/dashboard-financial/clients-balance`;
+        const url = `${API_BASE_URL}/financial/dashboard-financial/clients-balance?${params.toString()}`;
         
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
@@ -85,7 +90,10 @@ function renderReportTable(items) {
     const formatCurrency = (value) => (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     items.forEach(item => {
-        const formattedDate = item.dataDaUltimaCompra ? new Date(item.dataDaUltimaCompra).toLocaleDateString('pt-BR') : 'N/A';
+        // CORREÇÃO DE DATA: Trata a data recebida como UTC para exibir o dia correto.
+        const date = new Date(item.dataDaUltimaCompra);
+        const formattedDate = item.dataDaUltimaCompra ? new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR') : 'N/A';
+
         const row = tableBody.insertRow();
         row.innerHTML = `
             <td>${item.customerName || 'N/A'}</td>
