@@ -12,7 +12,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
         public Guid Id { get; set; }
         public string Description { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public DateTime LaunchDate { get; set; }
+        public DateOnly LaunchDate { get; set; }
         public LaunchType Type { get; set; }
         public string? CustomerName { get; set; }
         public string? CategoryName { get; set; }

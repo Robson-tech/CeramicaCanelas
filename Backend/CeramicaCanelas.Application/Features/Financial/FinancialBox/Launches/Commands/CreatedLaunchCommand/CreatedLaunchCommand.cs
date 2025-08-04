@@ -15,13 +15,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
     {
         public string Description { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public DateTime LaunchDate { get; set; }
+        public DateOnly LaunchDate { get; set; }
         public LaunchType Type { get; set; }
         public Guid? CategoryId { get; set; }
         public Guid? CustomerId { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }
-        public DateTime? DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
         /// <summary>
         /// Método responsável por mapear os dados deste comando para uma nova entidade Launch.

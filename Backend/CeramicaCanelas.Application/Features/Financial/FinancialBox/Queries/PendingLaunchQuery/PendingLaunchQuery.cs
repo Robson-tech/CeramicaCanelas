@@ -11,8 +11,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
     public class PendingLaunchQuery : IRequest<PagedResultPendingLaunch>
     {
         public LaunchType? Type { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateOnly? StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
 
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;

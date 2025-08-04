@@ -24,7 +24,7 @@ namespace CeramicaCanelas.Domain.Entities.Financial
         /// <summary>
         /// A data em que a transação efetivamente ocorreu.
         /// </summary>
-        public DateTime LaunchDate { get; set; }
+        public DateOnly LaunchDate { get; set; }
 
         /// <summary>
         /// O tipo do lançamento, definido pelo Enum LaunchType (Income ou Expense).
@@ -64,7 +64,7 @@ namespace CeramicaCanelas.Domain.Entities.Financial
         /// Data de vencimento, usada para contas a pagar ou a receber.
         /// O '?' indica que é um campo opcional.
         /// </summary>
-        public DateTime? DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
         /// <summary>
         /// 

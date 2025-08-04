@@ -1,6 +1,7 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
                 pending = pending.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                pending = pending.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1));
+                pending = pending.Where(l => l.LaunchDate < request.EndDate.Value);
 
             var totalItems = pending.Count();
 

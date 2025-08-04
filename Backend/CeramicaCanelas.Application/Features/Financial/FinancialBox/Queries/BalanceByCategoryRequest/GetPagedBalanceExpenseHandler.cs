@@ -25,7 +25,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 groupedQuery = groupedQuery.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                groupedQuery = groupedQuery.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1));
+                groupedQuery = groupedQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
             var grouped = await groupedQuery
                 .GroupBy(l => l.Category!.Name ?? "Sem categoria")

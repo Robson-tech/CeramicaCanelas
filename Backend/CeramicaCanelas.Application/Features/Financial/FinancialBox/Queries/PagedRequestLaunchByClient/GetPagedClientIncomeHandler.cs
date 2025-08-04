@@ -29,7 +29,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                query = query.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1).ToUniversalTime());
+                query = query.Where(l => l.LaunchDate < request.EndDate.Value);
 
             var groupedQuery = query.GroupBy(
                 l => new
