@@ -25,6 +25,19 @@ public class Program
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ceramica Canelas API", Version = "v1" });
 
+            c.MapType<DateOnly>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Format = "date"
+            });
+
+            c.MapType<DateOnly?>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Format = "date"
+            });
+
+
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = "JWT Authorization header using the Bearer scheme.\r\n\r\n" +
