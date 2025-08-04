@@ -20,10 +20,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid);
 
             if (request.StartDate.HasValue)
+                // Perfeito: A data do lançamento deve ser maior ou igual à data de início.
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                query = query.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1));
+                // Forma correta e mais legível para DateOnly:
+                // A data do lançamento deve ser menor ou igual à data final.
+                query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
 
             // Agrupamento por método de pagamento
             var grouped = await query

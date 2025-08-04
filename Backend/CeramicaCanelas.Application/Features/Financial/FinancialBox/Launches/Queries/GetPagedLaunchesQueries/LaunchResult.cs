@@ -13,13 +13,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
         public Guid Id { get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
-        public DateTime LaunchDate { get; set; }
+        public DateOnly? LaunchDate { get; set; }
         public LaunchType Type { get; set; }
         public string? CategoryName { get; set; }
         public string? CustomerName { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }
-        public DateTime? DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
         // Construtor que mapeia a Entidade para o DTO
         public LaunchResult(Launch launch)

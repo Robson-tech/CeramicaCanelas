@@ -9,7 +9,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 {
     public class CashFlowReportItem
     {
-        public DateTime LaunchDate { get; set; }
+        public DateOnly LaunchDate { get; set; }
         public string Description { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public LaunchType Type { get; set; }

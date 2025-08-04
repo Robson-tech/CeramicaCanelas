@@ -10,8 +10,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
     public class PagedClientIncomeRequest : IRequest<PagedClientIncomeResult>
     {
         // Filtros
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateOnly? StartDate { get; set; }
+        public DateOnly? EndDate { get; set; }
         public string? Search { get; set; } // Para buscar por nome de cliente
 
         // Paginação

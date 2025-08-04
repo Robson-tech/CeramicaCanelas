@@ -26,7 +26,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Da
         public decimal PendingPayments { get; set; }
 
         public decimal CurrentBalance { get; set; }
-        public DateTime? LastLaunchDate { get; set; }
+        public DateOnly? LastLaunchDate { get; set; }
 
         public int CustomersWithLaunches { get; set; }
 

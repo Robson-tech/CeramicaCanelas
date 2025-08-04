@@ -38,6 +38,6 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
         /// <summary>
         /// A data da compra mais recente do cliente.
         /// </summary>
-        public DateTime DataDaUltimaCompra { get; set; }
+        public DateOnly DataDaUltimaCompra { get; set; }
     }
 }
