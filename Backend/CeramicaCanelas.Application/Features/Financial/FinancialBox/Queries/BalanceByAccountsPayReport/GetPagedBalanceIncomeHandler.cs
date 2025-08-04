@@ -23,7 +23,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
+                query = query.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1));
 
             // Agrupamento por método de pagamento
             var grouped = await query
