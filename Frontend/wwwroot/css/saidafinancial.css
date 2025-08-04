@@ -348,3 +348,59 @@
 .clear-button{
     justify-content: center;
 }
+
+/* Adicione estas classes ao seu CSS existente */
+
+.search-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.search-button,
+.clear-button {
+    background: linear-gradient(135deg, #ff7b3d, #e85d04);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.search-button:hover,
+.clear-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 123, 61, 0.3);
+}
+
+.clear-button {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+}
+
+.clear-button:hover {
+    box-shadow: 0 8px 20px rgba(107, 114, 128, 0.3);
+}
+
+/* Para dispositivos móveis */
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .search-button,
+    .clear-button {
+        width: 100%;
+        justify-content: center;
+    }
+}

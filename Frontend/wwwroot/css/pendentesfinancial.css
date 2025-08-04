@@ -360,4 +360,10 @@
     letter-spacing: 0.3px;
     background: linear-gradient(45deg, #2ecc71, #27ae60);
     box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}.search-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
 }
