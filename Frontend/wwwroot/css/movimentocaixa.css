@@ -347,3 +347,10 @@
 .clear-button{
     justify-content: center;
 }
+.search-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
