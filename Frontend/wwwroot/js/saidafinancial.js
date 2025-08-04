@@ -1,11 +1,12 @@
-console.log('Script js/relatorio-saidas.js DEFINIDO.');
+console.log('Script js/relatorio-saidas-categoria.js DEFINIDO.');
+
 
 
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
-    console.log('▶️ initDynamicForm() de relatorio-saidas.js foi chamada.');
+    console.log('▶️ initDynamicForm() de relatorio-saidas-categoria.js foi chamada.');
     initializeFilters();
     fetchReportData(1);
 }
@@ -37,14 +38,18 @@ async function fetchReportData(page = 1) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) throw new Error("Não autenticado.");
 
-        const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
+        const params = new URLSearchParams({ Page: currentPage, PageSize: 10, OrderBy: 'CategoryName' });
         const search = document.getElementById('search-input')?.value;
         const startDate = document.getElementById('start-date')?.value;
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        if (startDate) params.append('StartDate', new Date(startDate).toISOString());
-        if (endDate) params.append('EndDate', new Date(endDate).toISOString());
+        
+        // --- CORREÇÃO APLICADA AQUI ---
+        // A API espera a data como uma string 'YYYY-MM-DD', então enviamos o valor direto do input.
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
+        // ------------------------------------
 
         const url = `${API_BASE_URL}/financial/dashboard-financial/balance-expense?${params.toString()}`;
         console.log("📡 Buscando dados em:", url);

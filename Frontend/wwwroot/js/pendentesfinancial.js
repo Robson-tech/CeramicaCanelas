@@ -1,5 +1,6 @@
 console.log('Script js/pendentes.js DEFINIDO.');
 
+
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
@@ -13,6 +14,7 @@ function initializeFilters() {
     document.getElementById('searchButton')?.addEventListener('click', () => fetchReportData(1));
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
     
+    // Popula o select de filtro de tipo
     const typeSelect = document.getElementById('type-filter');
     if (typeSelect && typeof launchTypeMap !== 'undefined') {
         typeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
@@ -45,15 +47,21 @@ async function fetchReportData(page = 1) {
         if (!accessToken) throw new Error("Não autenticado.");
 
         const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
+        
         const type = document.getElementById('type-filter')?.value;
         const startDate = document.getElementById('start-date')?.value;
         const endDate = document.getElementById('end-date')?.value;
         
         if (type) params.append('Type', type);
-        if (startDate) params.append('StartDate', new Date(startDate).toISOString());
-        if (endDate) params.append('EndDate', new Date(endDate).toISOString());
+
+        // --- CORREÇÃO DE DATA APLICADA AQUI ---
+        // Enviamos a data como string 'YYYY-MM-DD' para evitar problemas de fuso horário.
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
+        // ------------------------------------
 
         const url = `${API_BASE_URL}/financial/dashboard-financial/summary/pending?${params.toString()}`;
+        
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
@@ -63,6 +71,7 @@ async function fetchReportData(page = 1) {
         renderPagination(data);
         
         if(resultsSection) resultsSection.style.display = 'block';
+
     } catch (error) {
         if(typeof showErrorModal === 'function') {
             showErrorModal({ title: "Erro na Pesquisa", detail: error.message });
@@ -89,7 +98,10 @@ function renderReportTable(items) {
     noResultsDiv.style.display = 'none';
 
     items.forEach(item => {
-        const formattedDate = new Date(item.launchDate).toLocaleDateString('pt-BR');
+        // CORREÇÃO DE DATA: Trata a data recebida como UTC para exibir o dia correto.
+        const date = new Date(item.launchDate);
+        const formattedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
+
         const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const typeText = (typeof launchTypeMap !== 'undefined' && launchTypeMap[item.type]) ? launchTypeMap[item.type] : 'N/A';
         const amountClass = item.type === 1 ? 'income' : 'expense';
@@ -140,24 +152,19 @@ function renderPagination(paginationData) {
     controlsContainer.appendChild(nextButton);
 }
 
-// =======================================================
-// NOVA FUNÇÃO PARA MARCAR COMO PAGO
-// =======================================================
 window.markAsPaid = async (launchId) => {
     if (!confirm('Tem certeza que deseja marcar este lançamento como pago?')) return;
-
     try {
         const accessToken = localStorage.getItem('accessToken');
         const url = `${API_BASE_URL}/financial/launch/${launchId}/mark-paid`;
         
         const response = await fetch(url, {
-            method: 'PUT', // ou POST, dependendo da sua API
+            method: 'PUT',
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
 
         if (response.ok) {
             alert('Lançamento atualizado para "Pago" com sucesso!');
-            // Atualiza a tabela para remover o item da lista de pendentes
             fetchReportData(currentPage);
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro" }));
