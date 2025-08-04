@@ -23,23 +23,6 @@ function clearFilters() {
     fetchReportData(1);
 }
 
-/**
- * Função auxiliar para adicionar os parâmetros de data no formato que a API espera.
- */
-function appendDateParams(params, prefix, dateString) {
-    if (!dateString) return;
-    const date = new Date(dateString);
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1;
-    const day = date.getUTCDate();
-    
-    // Adiciona os parâmetros como a API espera (ex: StartDate.Year, StartDate.Month, etc.)
-    params.append(`${prefix}.Year`, year);
-    params.append(`${prefix}.Month`, month);
-    params.append(`${prefix}.Day`, day);
-}
-
-
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
 // =======================================================
@@ -61,8 +44,12 @@ async function fetchReportData(page = 1) {
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        appendDateParams(params, 'StartDate', startDate);
-        appendDateParams(params, 'EndDate', endDate);
+        
+        // --- CORREÇÃO APLICADA AQUI ---
+        // A API espera a data como uma string 'YYYY-MM-DD', então enviamos o valor direto do input.
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
+        // ------------------------------------
 
         const url = `${API_BASE_URL}/financial/dashboard-financial/balance-income?${params.toString()}`;
         console.log("📡 Buscando dados em:", url);
