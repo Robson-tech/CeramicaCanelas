@@ -318,7 +318,14 @@ function renderHistoryTable(items, tableBody) {
     }
     items.forEach(item => {
         const itemJsonString = JSON.stringify(item).replace(/'/g, "&apos;");
-        const formattedDate = new Date(item.launchDate).toLocaleDateString('pt-BR');
+
+        // ✅ ALTERAÇÃO AQUI: Substituímos a conversão de 'new Date()' pela manipulação da string.
+        let formattedDate = 'N/A';
+        if (item.launchDate) {
+            const partes = item.launchDate.split('-');
+            formattedDate = `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
         const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const typeText = launchTypeMap[item.type] || 'N/A';
         const statusText = statusMap[item.status] || 'N/A';
@@ -387,15 +394,16 @@ window.editLaunch = (item) => {
     const row = document.getElementById(`row-launch-${item.id}`);
     if (!row) return;
     originalRowHTML_Launch[item.id] = row.innerHTML;
-    
+
     row.querySelector('[data-field="description"]').innerHTML = `<textarea name="Description" class="edit-input">${item.description}</textarea>`;
     row.querySelector('[data-field="amount"]').innerHTML = `<input type="number" name="Amount" class="edit-input" value="${item.amount}" step="0.01">`;
-    
-    const isoDate = new Date(item.launchDate).toISOString().split('T')[0];
+
+    // ✅ ALTERAÇÃO AQUI: Simplificamos a lógica, pois a data já vem da API no formato correto (YYYY-MM-DD).
+    const isoDate = item.launchDate;
     row.querySelector('[data-field="launchDate"]').innerHTML = `<input type="date" name="LaunchDate" class="edit-input" value="${isoDate}">`;
 
     let statusOptions = '';
-    for(const [key, value] of Object.entries(statusMap)) {
+    for (const [key, value] of Object.entries(statusMap)) {
         const selected = key == item.status ? 'selected' : '';
         statusOptions += `<option value="${key}" ${selected}>${value}</option>`;
     }
@@ -410,20 +418,23 @@ window.editLaunch = (item) => {
 window.saveLaunchChanges = async (launchId) => {
     const row = document.getElementById(`row-launch-${launchId}`);
     if (!row) return;
-    
+
     const formData = new FormData();
     formData.append('Id', launchId);
     formData.append('Description', row.querySelector('[name="Description"]').value);
     formData.append('Amount', row.querySelector('[name="Amount"]').value);
-    formData.append('LaunchDate', new Date(row.querySelector('[name="LaunchDate"]').value).toISOString());
+
+    // ✅ ALTERAÇÃO AQUI: Enviamos para a API apenas o valor do campo, que já está no formato 'YYYY-MM-DD'.
+    formData.append('LaunchDate', row.querySelector('[name="LaunchDate"]').value);
+
     formData.append('Status', row.querySelector('[name="Status"]').value);
 
     const originalItem = historyItemsCache.find(i => i.id === launchId);
-    if(originalItem) {
+    if (originalItem) {
         formData.append('Type', originalItem.type);
-        if(originalItem.categoryId) formData.append('CategoryId', originalItem.categoryId);
-        if(originalItem.customerId) formData.append('CustomerId', originalItem.customerId);
-        if(originalItem.paymentMethod) formData.append('PaymentMethod', originalItem.paymentMethod);
+        if (originalItem.categoryId) formData.append('CategoryId', originalItem.categoryId);
+        if (originalItem.customerId) formData.append('CustomerId', originalItem.customerId);
+        if (originalItem.paymentMethod) formData.append('PaymentMethod', originalItem.paymentMethod);
     }
 
     try {
