@@ -35,7 +35,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
             // Antes
             if (request.EndDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
+                filtered = filtered.Where(l => l.LaunchDate >= request.EndDate.Value);
 
             // Depois
             if (request.EndDate.HasValue)
