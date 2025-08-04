@@ -105,7 +105,7 @@
                         <span class="menu-text">Início</span>
                     </a>
                 <div class="menu-subsection">
-                    <div class="menu-subtitle">Cadastros</div>
+                    <div class="menu-subtitle">Cadastros e Lançamentos</div>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('lancamentocategory'); setActive(this); closeMobileMenu();">
                         <svg class="menu-icon" viewBox="0 0 24 24">
                             <path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7H14A7,7 0 0,1 21,14H22A1,1 0 0,1 23,15V18A1,1 0 0,1 22,19H21A7,7 0 0,1 14,26H10A7,7 0 0,1 3,19H2A1,1 0 0,1 1,18V15A1,1 0 0,1 2,14H3A7,7 0 0,1 10,7H11V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2Z" />
@@ -118,28 +118,11 @@
                         </svg>
                         <span class="menu-text">Cadastro de Clientes</span>
                     </a>
-                </div>
-
-                <!-- SEÇÃO RELATÓRIOS -->
-                <div class="menu-subsection">
-                    <div class="menu-subtitle">Relatórios</div>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('lancamentos'); setActive(this); closeMobileMenu();">
                         <svg class="menu-icon" viewBox="0 0 24 24">
                             <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
                         </svg>
                         <span class="menu-text">Lançamentos</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('saidafinancial'); setActive(this); closeMobileMenu();">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H20A2,2 0 0,1 22,8V16A2,2 0 0,1 20,18H16V20A2,2 0 0,1 14,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H14M4,4V20H14V18H8A2,2 0 0,1 6,16V8A2,2 0 0,1 8,6H14V4H4Z" />
-                        </svg>
-                        <span class="menu-text">Relatório de Saídas</span>
-                    </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('entradafinancial'); setActive(this); closeMobileMenu();">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H20A2,2 0 0,1 22,8V16A2,2 0 0,1 20,18H16V20A2,2 0 0,1 14,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H14M4,4V20H14V18H8A2,2 0 0,1 6,16V8A2,2 0 0,1 8,6H14V4H4Z" />
-                        </svg>
-                        <span class="menu-text">Relatório de Entradas</span>
                     </a>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('pendentesfinancial'); setActive(this); closeMobileMenu();">
                         <svg class="menu-icon" viewBox="0 0 24 24">
@@ -147,22 +130,34 @@
                         </svg>
                         <span class="menu-text">Pendentes</span>
                     </a>
-                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('relatorioclientes'); setActive(this); closeMobileMenu();">
-                        <svg class="menu-icon" viewBox="0 0 24 24">
-                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1.5,1.5 0 0,1 10.5,15.5A1.5,1.5 0 0,1 12,14A1.5,1.5 0 0,1 13.5,15.5A1.5,1.5 0 0,1 12,17M12,13A1,1 0 0,1 11,12V8A1,1 0 0,1 12,7A1,1 0 0,1 13,8V12A1,1 0 0,1 12,13Z" />
-                        </svg>
-                        <span class="menu-text">Relatorio dos Clientes </span>
-                    </a>
                 </div>
 
-                <!-- SEÇÃO MOVIMENTAÇÃO -->
+                <!-- SEÇÃO RELATÓRIOS -->
                 <div class="menu-subsection">
-                    <div class="menu-subtitle">Movimentação</div>
+                    <div class="menu-subtitle">Relatórios</div>
                     <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('movimentocaixa'); setActive(this); closeMobileMenu();">
                         <svg class="menu-icon" viewBox="0 0 24 24">
                             <path d="M5,6H23V18H5V6M14,9A3,3 0 0,1 17,12A3,3 0 0,1 14,15A3,3 0 0,1 11,12A3,3 0 0,1 14,9M9,8A2,2 0 0,1 7,10V14A2,2 0 0,1 9,16H19A2,2 0 0,1 21,14V10A2,2 0 0,1 19,8H9M1,10H3V20H19V22H1V10Z" />
                         </svg>
                         <span class="menu-text">Movimento Caixa</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('saidafinancial'); setActive(this); closeMobileMenu();">
+                        <svg class="menu-icon" viewBox="0 0 24 24">
+                            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H20A2,2 0 0,1 22,8V16A2,2 0 0,1 20,18H16V20A2,2 0 0,1 14,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H14M4,4V20H14V18H8A2,2 0 0,1 6,16V8A2,2 0 0,1 8,6H14V4H4Z" />
+                        </svg>
+                        <span class="menu-text">Balancete de Saídas</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('entradafinancial'); setActive(this); closeMobileMenu();">
+                        <svg class="menu-icon" viewBox="0 0 24 24">
+                            <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H20A2,2 0 0,1 22,8V16A2,2 0 0,1 20,18H16V20A2,2 0 0,1 14,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H14M4,4V20H14V18H8A2,2 0 0,1 6,16V8A2,2 0 0,1 8,6H14V4H4Z" />
+                        </svg>
+                        <span class="menu-text">Balancete de Entradas</span>
+                    </a>
+                    <a href="#" class="menu-item" onclick="event.preventDefault(); loadForm('relatorioclientes'); setActive(this); closeMobileMenu();">
+                        <svg class="menu-icon" viewBox="0 0 24 24">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1.5,1.5 0 0,1 10.5,15.5A1.5,1.5 0 0,1 12,14A1.5,1.5 0 0,1 13.5,15.5A1.5,1.5 0 0,1 12,17M12,13A1,1 0 0,1 11,12V8A1,1 0 0,1 12,7A1,1 0 0,1 13,8V12A1,1 0 0,1 12,13Z" />
+                        </svg>
+                        <span class="menu-text">Relatorio dos Clientes </span>
                     </a>
                 </div>
             </div>
