@@ -24,13 +24,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
         {
             launchToUpdate.Description = Description;
             launchToUpdate.Amount = Amount;
-            launchToUpdate.LaunchDate = LaunchDate.ToUniversalTime();
+            launchToUpdate.LaunchDate = LaunchDate;
             launchToUpdate.Type = Type;
             launchToUpdate.CategoryId = CategoryId;
             launchToUpdate.CustomerId = CustomerId;
             launchToUpdate.PaymentMethod = PaymentMethod;
             launchToUpdate.Status = Status;
-            launchToUpdate.DueDate = DueDate?.ToUniversalTime();
+            launchToUpdate.DueDate = DueDate;
             launchToUpdate.ModifiedOn = DateTime.UtcNow;
         }
     }

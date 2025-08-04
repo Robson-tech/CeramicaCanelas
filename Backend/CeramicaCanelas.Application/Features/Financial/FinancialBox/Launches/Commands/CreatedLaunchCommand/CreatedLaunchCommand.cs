@@ -33,13 +33,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
             {
                 Description = Description,
                 Amount = Amount,
-                LaunchDate = LaunchDate.ToUniversalTime(),
+                LaunchDate = LaunchDate,
                 Type = Type,
                 CategoryId = CategoryId,
                 CustomerId = CustomerId,
                 PaymentMethod = PaymentMethod,
                 Status = Status,
-                DueDate = DueDate?.ToUniversalTime(),
+                DueDate = DueDate,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow
                 // As propriedades da BaseEntity como CreatedOn e ModifiedOn

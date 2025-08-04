@@ -26,7 +26,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid && l.CustomerId != null);
 
             if (request.StartDate.HasValue)
-                query = query.Where(l => l.LaunchDate >= request.StartDate.Value.ToUniversalTime());
+                query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
                 query = query.Where(l => l.LaunchDate < request.EndDate.Value.AddDays(1).ToUniversalTime());
