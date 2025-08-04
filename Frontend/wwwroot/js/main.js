@@ -67,7 +67,14 @@ let currentProductModalPage = 1;
 
 const originalRowHTML_Launch = {};
 const launchTypeMap = { 1: 'Entrada', 2: 'Saída' };
-const paymentMethodMap = { 0: 'Cash', 1: 'CXPJ', 2: 'BBJ', 3: 'BBJS', 4: 'CHECK' };
+const paymentMethodMap = {
+  0: 'Dinheiro',
+  1: 'Conta Corrente PJ',
+  2: 'Banco do Brasil - Conta Jurídica',
+  3: 'Banco do Brasil - Serviços',
+  4: 'Cheque'
+};
+
 const statusMap = { 0: 'Pendente', 1: 'Pago' };
 // =======================================================
 // FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS
