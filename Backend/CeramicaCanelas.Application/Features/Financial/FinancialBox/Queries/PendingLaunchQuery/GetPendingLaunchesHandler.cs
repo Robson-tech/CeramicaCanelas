@@ -34,7 +34,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
                 pending = pending.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                pending = pending.Where(l => l.LaunchDate < request.EndDate.Value);
+                pending = pending.Where(l => l.LaunchDate <= request.EndDate.Value);
 
             var totalItems = pending.Count();
 
