@@ -1,4 +1,4 @@
-console.log('Script js/movimento-caixa.js DEFINIDO.');
+console.log('Script js/relatorio-entradas.js DEFINIDO.');
 
 
 
@@ -6,7 +6,7 @@ console.log('Script js/movimento-caixa.js DEFINIDO.');
 // INICIALIZAÇÃO
 // =======================================================
 function initDynamicForm() {
-    console.log('▶️ initDynamicForm() de movimento-caixa.js foi chamada.');
+    console.log('▶️ initDynamicForm() de relatorio-entradas.js foi chamada.');
     initializeFilters();
     fetchReportData(1);
 }
@@ -14,29 +14,31 @@ function initDynamicForm() {
 function initializeFilters() {
     document.getElementById('searchButton')?.addEventListener('click', () => fetchReportData(1));
     document.getElementById('clearButton')?.addEventListener('click', clearFilters);
-    
-    const typeSelect = document.getElementById('type-filter');
-    
-    typeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
-    
-    if (typeof launchTypeMap !== 'undefined') {
-        for (const [key, value] of Object.entries(launchTypeMap)) {
-            typeSelect.appendChild(new Option(value, key));
-        }
-    }
-     if (typeof statusMap !== 'undefined') {
-        for (const [key, value] of Object.entries(statusMap)) {
-        }
-    }
 }
 
 function clearFilters() {
     document.getElementById('search-input').value = '';
-    document.getElementById('type-filter').value = '';
     document.getElementById('start-date').value = '';
     document.getElementById('end-date').value = '';
     fetchReportData(1);
 }
+
+/**
+ * Função auxiliar para adicionar os parâmetros de data no formato que a API espera.
+ */
+function appendDateParams(params, prefix, dateString) {
+    if (!dateString) return;
+    const date = new Date(dateString);
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1;
+    const day = date.getUTCDate();
+    
+    // Adiciona os parâmetros como a API espera (ex: StartDate.Year, StartDate.Month, etc.)
+    params.append(`${prefix}.Year`, year);
+    params.append(`${prefix}.Month`, month);
+    params.append(`${prefix}.Day`, day);
+}
+
 
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
@@ -54,24 +56,15 @@ async function fetchReportData(page = 1) {
         if (!accessToken) throw new Error("Não autenticado.");
 
         const params = new URLSearchParams({ Page: currentPage, PageSize: 10 });
-
         const search = document.getElementById('search-input')?.value;
-        const type = document.getElementById('type-filter')?.value;
-        
-        // --- CORREÇÃO DE DATA APLICADA AQUI ---
-        let startDate = document.getElementById('start-date')?.value;
-        let endDate = document.getElementById('end-date')?.value;
+        const startDate = document.getElementById('start-date')?.value;
+        const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        if (type) params.append('Type', type);
-        
-        // Se a data foi selecionada, anexa a string no formato 'YYYY-MM-DD'
-        // Isso evita a conversão de fuso horário do toISOString()
-        if (startDate) params.append('StartDate', startDate);
-        if (endDate) params.append('EndDate', endDate);
-        // ------------------------------------
+        appendDateParams(params, 'StartDate', startDate);
+        appendDateParams(params, 'EndDate', endDate);
 
-        const url = `${API_BASE_URL}/financial/dashboard-financial/flow-report?${params.toString()}`;
+        const url = `${API_BASE_URL}/financial/dashboard-financial/balance-income?${params.toString()}`;
         console.log("📡 Buscando dados em:", url);
 
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
@@ -79,7 +72,10 @@ async function fetchReportData(page = 1) {
 
         const data = await response.json();
         
-        updateSummaryCards(data);
+        if (!data.items || !data.hasOwnProperty('totalPages')) {
+             throw new Error("A resposta da API não tem o formato paginado esperado.");
+        }
+        
         renderReportTable(data.items);
         renderPagination(data);
         
@@ -93,22 +89,6 @@ async function fetchReportData(page = 1) {
         }
     } finally {
         if(loadingDiv) loadingDiv.style.display = 'none';
-    }
-}
-
-function updateSummaryCards(data) {
-    const formatCurrency = (value) => (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    
-    document.getElementById('total-entradas').textContent = formatCurrency(data.totalEntradas);
-    document.getElementById('total-saidas').textContent = formatCurrency(data.totalSaidas);
-    document.getElementById('saldo-total').textContent = formatCurrency(data.saldo);
-
-    const saldoElement = document.getElementById('saldo-total');
-    saldoElement.classList.remove('saldo-positivo', 'saldo-negativo');
-    if (data.saldo > 0) {
-        saldoElement.classList.add('saldo-positivo');
-    } else if (data.saldo < 0) {
-        saldoElement.classList.add('saldo-negativo');
     }
 }
 
@@ -127,20 +107,12 @@ function renderReportTable(items) {
     noResultsDiv.style.display = 'none';
 
     items.forEach(item => {
-        // Ao exibir a data, também tratamos como UTC para evitar problemas
-        const date = new Date(item.launchDate);
-        const formattedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
-        
-        const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const typeText = (typeof launchTypeMap !== 'undefined' && launchTypeMap[item.type]) ? launchTypeMap[item.type] : 'N/A';
-        const amountClass = item.type === 1 ? 'income' : 'expense';
+        const formattedAmount = (item.totalIncome || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         
         const row = tableBody.insertRow();
         row.innerHTML = `
-            <td>${item.description || 'N/A'}</td>
-            <td>${formattedDate}</td>
-            <td>${typeText}</td>
-            <td class="${amountClass}">${formattedAmount}</td>
+            <td>${item.paymentMethod || 'N/A'}</td>
+            <td class="income">${formattedAmount}</td>
         `;
     });
 }
@@ -152,8 +124,7 @@ function renderPagination(paginationData) {
     
     if (!paginationData || !paginationData.totalPages || paginationData.totalPages <= 1) return;
     
-    const page = paginationData.page;
-    const totalPages = paginationData.totalPages;
+    const { page, totalPages } = paginationData;
     
     const prevButton = document.createElement('button');
     prevButton.textContent = 'Anterior';

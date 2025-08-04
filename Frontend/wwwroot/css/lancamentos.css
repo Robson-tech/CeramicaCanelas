@@ -1100,3 +1100,18 @@ input[id="typeExpense"]:checked + .type-button:hover::before {
             background: rgba(255, 255, 255, 0.15);
         }
 }
+
+.select-customer-btn, .select-category-btn {
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
