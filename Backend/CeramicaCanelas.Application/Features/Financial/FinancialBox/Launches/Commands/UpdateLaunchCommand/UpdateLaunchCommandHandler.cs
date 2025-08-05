@@ -46,7 +46,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
             // 3. Mapeia os novos dados para a entidade existente
             request.MapToLaunch(launchToUpdate);
 
-            launchToUpdate.OperatorName = user.Name;
+            launchToUpdate.OperatorName = user.UserName!;
 
             // 4. Chama o método de atualização do repositório
             await _launchRepository.Update(launchToUpdate);
