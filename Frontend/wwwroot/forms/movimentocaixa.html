@@ -19,7 +19,6 @@
                 <label class="filter-label" for="type-filter">Tipo de Lançamento</label>
                 <select id="type-filter" class="filter-input"></select>
             </div>
-        
             <div class="filter-group">
                 <label class="filter-label" for="start-date">Data Inicial</label>
                 <input type="date" id="start-date" class="filter-input">
@@ -42,11 +41,7 @@
         </div>
     </div>
 
-    <div class="loading" id="loading" style="display: none;">
-        <div class="spinner"></div>
-        Carregando relatório...
-    </div>
-
+    <div class="loading" id="loading" style="display: none;"></div>
     <div class="results-section" id="resultsSection" style="display: none;">
         <div class="results-summary" id="resultsSummary">
             <div class="summary-item">
@@ -62,7 +57,6 @@
                 <div class="summary-label">Saldo do Período</div>
             </div>
         </div>
-
         <div class="table-responsive">
             <table class="results-table" id="resultsTable">
                 <thead>
@@ -70,17 +64,17 @@
                         <th>Descrição</th>
                         <th>Data</th>
                         <th>Tipo</th>
+                        <th>Cliente/Categoria</th>
+                        <th>Método Pgto.</th>
                         <th>Valor</th>
                     </tr>
                 </thead>
                 <tbody id="report-table-body"></tbody>
             </table>
         </div>
-        
         <div class="no-results" id="noResults" style="display: none;">
             <p>Nenhum lançamento encontrado para os filtros aplicados.</p>
         </div>
-        
         <div id="pagination-controls" class="pagination-controls"></div>
     </div>
 </div>

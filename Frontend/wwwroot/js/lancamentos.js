@@ -38,15 +38,22 @@ function updateFormVisibility(type) {
     customerGroup.style.display = (type === '1') ? 'block' : 'none';
 }
 
+/**
+ * VERSÃO CORRIGIDA: Limpa os selects antes de popular para evitar duplicatas.
+ */
 function populateEnumSelects() {
     const paymentSelect = document.getElementById('paymentMethod');
     const statusSelect = document.getElementById('status');
+    
+    // Limpa as opções existentes
+    paymentSelect.innerHTML = '';
+    statusSelect.innerHTML = '';
+
     for (const [key, value] of Object.entries(paymentMethodMap)) {
         paymentSelect.appendChild(new Option(value, key));
     }
     for (const [key, value] of Object.entries(statusMap)) {
         const option = new Option(value, key);
-        // Define 'Pago' (valor 1) como padrão
         if (key === '1') {
             option.selected = true;
         }
@@ -74,7 +81,7 @@ async function handleLaunchSubmit(event) {
         if (response.ok) {
             alert('Lançamento salvo com sucesso!');
             form.reset();
-            populateEnumSelects(); // Repopula o select para restaurar o padrão
+            populateEnumSelects(); // Repopula os selects para restaurar o estado padrão
             document.getElementById('selectedCategoryName').textContent = 'Nenhuma categoria selecionada';
             document.getElementById('selectedCustomerName').textContent = 'Nenhum cliente selecionado';
             selectedType.checked = false;
@@ -318,14 +325,8 @@ function renderHistoryTable(items, tableBody) {
     }
     items.forEach(item => {
         const itemJsonString = JSON.stringify(item).replace(/'/g, "&apos;");
-
-        // ✅ ALTERAÇÃO AQUI: Substituímos a conversão de 'new Date()' pela manipulação da string.
-        let formattedDate = 'N/A';
-        if (item.launchDate) {
-            const partes = item.launchDate.split('-');
-            formattedDate = `${partes[2]}/${partes[1]}/${partes[0]}`;
-        }
-
+        const date = new Date(item.launchDate);
+        const formattedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
         const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const typeText = launchTypeMap[item.type] || 'N/A';
         const statusText = statusMap[item.status] || 'N/A';
@@ -371,7 +372,7 @@ function renderHistoryPagination(paginationData) {
 }
 
 window.deleteLaunch = async (launchId) => {
-    if (!confirm('Tem certeza que deseja excluir este lançamento?')) return;
+    if (!confirm('Tem certeza?')) return;
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/financial/launch/${launchId}`, {
@@ -379,7 +380,7 @@ window.deleteLaunch = async (launchId) => {
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         if (response.ok) {
-            alert('Lançamento excluído com sucesso!');
+            alert('Lançamento excluído!');
             fetchAndRenderHistory(currentHistoryPage);
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Excluir" }));
@@ -398,12 +399,11 @@ window.editLaunch = (item) => {
     row.querySelector('[data-field="description"]').innerHTML = `<textarea name="Description" class="edit-input">${item.description}</textarea>`;
     row.querySelector('[data-field="amount"]').innerHTML = `<input type="number" name="Amount" class="edit-input" value="${item.amount}" step="0.01">`;
 
-    // ✅ ALTERAÇÃO AQUI: Simplificamos a lógica, pois a data já vem da API no formato correto (YYYY-MM-DD).
-    const isoDate = item.launchDate;
+    const isoDate = new Date(item.launchDate).toISOString().split('T')[0];
     row.querySelector('[data-field="launchDate"]').innerHTML = `<input type="date" name="LaunchDate" class="edit-input" value="${isoDate}">`;
 
     let statusOptions = '';
-    for (const [key, value] of Object.entries(statusMap)) {
+    for(const [key, value] of Object.entries(statusMap)) {
         const selected = key == item.status ? 'selected' : '';
         statusOptions += `<option value="${key}" ${selected}>${value}</option>`;
     }
@@ -418,15 +418,12 @@ window.editLaunch = (item) => {
 window.saveLaunchChanges = async (launchId) => {
     const row = document.getElementById(`row-launch-${launchId}`);
     if (!row) return;
-
+    
     const formData = new FormData();
     formData.append('Id', launchId);
     formData.append('Description', row.querySelector('[name="Description"]').value);
     formData.append('Amount', row.querySelector('[name="Amount"]').value);
-
-    // ✅ ALTERAÇÃO AQUI: Enviamos para a API apenas o valor do campo, que já está no formato 'YYYY-MM-DD'.
     formData.append('LaunchDate', row.querySelector('[name="LaunchDate"]').value);
-
     formData.append('Status', row.querySelector('[name="Status"]').value);
 
     const originalItem = historyItemsCache.find(i => i.id === launchId);
@@ -445,7 +442,7 @@ window.saveLaunchChanges = async (launchId) => {
             body: formData
         });
         if (response.ok) {
-            alert('Lançamento atualizado com sucesso!');
+            alert('Lançamento atualizado!');
             fetchAndRenderHistory(currentHistoryPage);
         } else {
             const errorData = await response.json().catch(() => ({ title: "Erro ao Salvar" }));
