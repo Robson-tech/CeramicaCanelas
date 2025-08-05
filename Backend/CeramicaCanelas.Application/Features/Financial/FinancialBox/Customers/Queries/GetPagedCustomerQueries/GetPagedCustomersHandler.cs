@@ -1,5 +1,6 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,17 +23,18 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.
             var all = _customerRepository.QueryAllWithIncludes();
             var filtered = all.Where(c => !c.IsDeleted);
 
-            // Filtro de busca
+            // Filtro de busca (CORRIGIDO)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
+                var searchTerm = request.Search.ToLower();
                 filtered = filtered.Where(c =>
-                    c.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase) ||
-                    (!string.IsNullOrWhiteSpace(c.Email) && c.Email.Contains(request.Search, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace(c.Document) && c.Document.Contains(request.Search, StringComparison.OrdinalIgnoreCase))
+                    c.Name.ToLower().Contains(searchTerm) ||
+                    (c.Email != null && c.Email.ToLower().Contains(searchTerm)) ||
+                    (c.Document != null && c.Document.ToLower().Contains(searchTerm))
                 );
             }
 
-            // Ordenação
+            // Ordenação (mantida como estava)
             filtered = request.OrderBy?.ToLower() switch
             {
                 "email" => request.Ascending ? filtered.OrderBy(c => c.Email) : filtered.OrderByDescending(c => c.Email),
@@ -40,13 +42,14 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.
                 _ => request.Ascending ? filtered.OrderBy(c => c.Name) : filtered.OrderByDescending(c => c.Name)
             };
 
-            var totalItems = filtered.Count();
+            // A contagem e paginação devem ocorrer após todos os filtros
+            var totalItems = await filtered.CountAsync(cancellationToken); // Use CountAsync para operações assíncronas
 
-            var pagedItems = filtered
+            var pagedItems = await filtered
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(c => new CustomerResult(c))
-                .ToList();
+                .ToListAsync(cancellationToken); // Use ToListAsync para operações assíncronas
 
             return new PagedResultCustomer
             {
