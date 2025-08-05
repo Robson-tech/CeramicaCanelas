@@ -9,10 +9,9 @@
             <div class="search-icon">🔍</div>
             Filtros de Pesquisa
         </div>
-        
         <div class="filters-grid">
             <div class="filter-group">
-                <label class="filter-label" for="search-input">Busca por Nome</label>
+                <label class="filter-label" for="search-input">Busca por Nome da Categoria</label>
                 <input type="text" id="search-input" class="filter-input" placeholder="Nome da categoria...">
             </div>
             <div class="filter-group">
@@ -24,16 +23,9 @@
                 <input type="date" id="end-date" class="filter-input">
             </div>
         </div>
-        
         <div class="search-actions">
-            <button id="searchButton" class="search-button">
-                <span>📊</span>
-                Gerar Relatório
-            </button>
-            <button id="clearButton" class="clear-button">
-                <span>🗑️</span>
-                Limpar Filtros
-            </button>
+            <button id="searchButton" class="search-button"><span>📊</span> Gerar Relatório</button>
+            <button id="clearButton" class="clear-button"><span>🗑️</span> Limpar Filtros</button>
         </div>
     </div>
 
@@ -43,6 +35,21 @@
     </div>
 
     <div class="results-section" id="resultsSection" style="display: none;">
+        <div class="results-summary" id="resultsSummary">
+            <div class="summary-item">
+                <div class="summary-value expense-color" id="total-expense-overall">R$ 0,00</div>
+                <div class="summary-label">Gasto Total no Período</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="period-start-date">--/--/----</div>
+                <div class="summary-label">Data Inicial</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value" id="period-end-date">--/--/----</div>
+                <div class="summary-label">Data Final</div>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="results-table" id="resultsTable">
                 <thead>
