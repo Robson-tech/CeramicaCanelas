@@ -29,6 +29,9 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
 
             // Agrupamento por método de pagamento
+            var totalIncomeOverall = await query.SumAsync(l => l.Amount, cancellationToken);
+
+
             var grouped = await query
                 .GroupBy(l => l.PaymentMethod)
                 .Select(g => new BalanceIncomeResult
@@ -59,8 +62,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 Page = request.Page,
                 PageSize = request.PageSize,
                 TotalItems = totalItems,
-                Items = pagedItems
+                Items = pagedItems,
+                TotalIncomeOverall = totalIncomeOverall,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate
             };
+
+
         }
     }
 }
