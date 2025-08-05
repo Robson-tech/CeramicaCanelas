@@ -76,6 +76,12 @@ const paymentMethodMap = {
 };
 
 const statusMap = { 0: 'Pendente', 1: 'Pago' };
+
+
+
+
+let currentCustomerModalPage = 1;
+
 // =======================================================
 // FUNÇÃO PRINCIPAL DE CARREGAMENTO DE PÁGINAS
 // =======================================================
