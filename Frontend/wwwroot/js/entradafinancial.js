@@ -1,6 +1,7 @@
 console.log('Script js/relatorio-entradas.js DEFINIDO.');
 
 
+
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
@@ -21,22 +22,6 @@ function clearFilters() {
     document.getElementById('end-date').value = '';
     fetchReportData(1);
 }
-
-/**
- * FUNÇÃO ADICIONADA: Formata os parâmetros de data como a API espera.
- */
-function appendDateParams(params, prefix, dateString) {
-    if (!dateString) return;
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // getMonth() é 0-11, então somamos 1
-    const day = date.getDate();
-    
-    params.append(`${prefix}.Year`, year);
-    params.append(`${prefix}.Month`, month);
-    params.append(`${prefix}.Day`, day);
-}
-
 
 // =======================================================
 // LÓGICA DE BUSCA E RENDERIZAÇÃO
@@ -59,11 +44,11 @@ async function fetchReportData(page = 1) {
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-
+        
         // --- CORREÇÃO APLICADA AQUI ---
-        // Agora usamos a função auxiliar para formatar as datas corretamente
-        appendDateParams(params, 'StartDate', startDate);
-        appendDateParams(params, 'EndDate', endDate);
+        // A API espera a data como uma string 'YYYY-MM-DD', então enviamos o valor direto do input.
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
         // ------------------------------------
 
         const url = `${API_BASE_URL}/financial/dashboard-financial/balance-income?${params.toString()}`;
