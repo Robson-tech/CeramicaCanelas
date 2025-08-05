@@ -330,6 +330,7 @@ function renderHistoryTable(items, tableBody) {
         const formattedAmount = (item.amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const typeText = launchTypeMap[item.type] || 'N/A';
         const statusText = statusMap[item.status] || 'N/A';
+        const operator = item.operatorName || 'Desconhecido';
         const amountClass = item.type === 1 ? 'income' : 'expense';
         const rowHTML = `
             <tr id="row-launch-${item.id}">
@@ -338,6 +339,7 @@ function renderHistoryTable(items, tableBody) {
                 <td data-field="launchDate">${formattedDate}</td>
                 <td data-field="type">${typeText}</td>
                 <td data-field="status">${statusText}</td>
+                <td data-field="OperatorName">${operator}</td>
                 <td class="actions-cell" data-field="actions">
                     <button class="btn-action btn-edit" onclick='editLaunch(${itemJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteLaunch('${item.id}')">Excluir</button>
