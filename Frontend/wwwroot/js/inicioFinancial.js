@@ -48,7 +48,6 @@ function updateFinancialCards(data) {
     document.getElementById('pending-payments').textContent = formatCurrency(data.pendingPayments);
     document.getElementById('customers-with-launches').textContent = data.customersWithLaunches;
 
-    // Adiciona classe de cor para o saldo
     const saldoElement = document.getElementById('current-balance');
     saldoElement.classList.remove('income-color', 'expense-color');
     if (data.currentBalance > 0) {
@@ -58,12 +57,22 @@ function updateFinancialCards(data) {
     }
 }
 
+/**
+ * Renderiza o gráfico de movimentação financeira.
+ * VERSÃO CORRIGIDA: Trata as datas para evitar problemas de fuso horário.
+ */
 function renderFinancialChart(monthlyData) {
     const ctx = document.getElementById('financialChart');
     if (!ctx || !monthlyData) return;
 
-    // Prepara os dados para o gráfico
-    const labels = monthlyData.map(d => new Date(d.month).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+    // --- CORREÇÃO DE DATA APLICADA AQUI ---
+    // Adicionamos 'T00:00:00' à data para garantir que ela seja interpretada
+    // como meia-noite no fuso horário local, e não UTC.
+    const labels = monthlyData.map(d => 
+        new Date(d.month + 'T00:00:00').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
+    );
+    // ------------------------------------
+
     const incomeData = monthlyData.map(d => d.totalIncome);
     const expenseData = monthlyData.map(d => d.totalExpense);
 
@@ -75,7 +84,7 @@ function renderFinancialChart(monthlyData) {
                 {
                     label: 'Entradas',
                     data: incomeData,
-                    backgroundColor: 'rgba(25, 135, 84, 0.7)', // Verde
+                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
                     borderColor: 'rgba(25, 135, 84, 1)',
                     borderWidth: 1,
                     borderRadius: 5
@@ -83,7 +92,7 @@ function renderFinancialChart(monthlyData) {
                 {
                     label: 'Saídas',
                     data: expenseData,
-                    backgroundColor: 'rgba(220, 53, 69, 0.7)', // Vermelho
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
                     borderColor: 'rgba(220, 53, 69, 1)',
                     borderWidth: 1,
                     borderRadius: 5
@@ -98,7 +107,8 @@ function renderFinancialChart(monthlyData) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return 'R$ ' + (value / 1000) + 'k';
+                            if (value >= 1000) return 'R$ ' + (value / 1000) + 'k';
+                            return 'R$ ' + value;
                         }
                     }
                 }
@@ -111,9 +121,7 @@ function renderFinancialChart(monthlyData) {
                     callbacks: {
                         label: function(context) {
                             let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
+                            if (label) label += ': ';
                             if (context.parsed.y !== null) {
                                 label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
                             }
