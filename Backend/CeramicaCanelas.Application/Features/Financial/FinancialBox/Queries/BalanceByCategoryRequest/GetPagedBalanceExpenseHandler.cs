@@ -19,17 +19,22 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
             var query = _launchRepository.QueryAllWithIncludes()
                 .Where(l => l.Type == LaunchType.Expense && l.Status == PaymentStatus.Paid);
 
-            var groupedQuery = query;
-
+            // Aplica filtros somente se as datas forem fornecidas
             if (request.StartDate.HasValue)
-                groupedQuery = groupedQuery.Where(l => l.LaunchDate >= request.StartDate.Value);
+                query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                groupedQuery = groupedQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
+                query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            var totalExpenseOverall = await groupedQuery.SumAsync(l => l.Amount, cancellationToken);
+            // Obtém a menor e maior data real da consulta filtrada
+            var minDate = await query.MinAsync(l => (DateOnly?)l.LaunchDate, cancellationToken);
+            var maxDate = await query.MaxAsync(l => (DateOnly?)l.LaunchDate, cancellationToken);
 
-            var grouped = await groupedQuery
+            // Soma total de despesas
+            var totalExpenseOverall = await query.SumAsync(l => l.Amount, cancellationToken);
+
+            // Agrupamento por nome da categoria
+            var grouped = await query
                 .GroupBy(l => l.Category!.Name ?? "Sem categoria")
                 .Select(g => new BalanceExpenseResult
                 {
@@ -38,14 +43,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 })
                 .ToListAsync(cancellationToken);
 
-            // Filtro textual após trazer os dados agrupados (na memória)
+            // Filtro textual após o agrupamento
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 grouped = grouped
                     .Where(g => g.CategoryName.Contains(request.Search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
-
 
             var totalItems = grouped.Count();
 
@@ -62,10 +66,9 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 TotalItems = totalItems,
                 Items = pagedItems,
                 TotalExpenseOverall = totalExpenseOverall,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate
+                StartDate = request.StartDate ?? minDate,
+                EndDate = request.EndDate ?? maxDate
             };
-
         }
     }
 }

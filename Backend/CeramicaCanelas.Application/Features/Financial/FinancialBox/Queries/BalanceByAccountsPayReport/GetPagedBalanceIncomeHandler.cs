@@ -19,19 +19,21 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
             var query = _launchRepository.QueryAllWithIncludes()
                 .Where(l => l.Type == LaunchType.Income && l.Status == PaymentStatus.Paid);
 
+            // Aplica filtros somente se as datas forem fornecidas
             if (request.StartDate.HasValue)
-                // Perfeito: A data do lançamento deve ser maior ou igual à data de início.
                 query = query.Where(l => l.LaunchDate >= request.StartDate.Value);
 
             if (request.EndDate.HasValue)
-                // Forma correta e mais legível para DateOnly:
-                // A data do lançamento deve ser menor ou igual à data final.
                 query = query.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            // Agrupamento por método de pagamento
+            // Pega as datas mínima e máxima dos lançamentos filtrados
+            var minDate = await query.MinAsync(l => (DateOnly?)l.LaunchDate, cancellationToken);
+            var maxDate = await query.MaxAsync(l => (DateOnly?)l.LaunchDate, cancellationToken);
+
+            // Soma total de receitas no período
             var totalIncomeOverall = await query.SumAsync(l => l.Amount, cancellationToken);
 
-
+            // Agrupa por método de pagamento
             var grouped = await query
                 .GroupBy(l => l.PaymentMethod)
                 .Select(g => new BalanceIncomeResult
@@ -41,7 +43,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 })
                 .ToListAsync(cancellationToken);
 
-            // Filtro por texto (aplicado depois do agrupamento, pois não pode ser feito diretamente em enum no banco)
+            // Filtro textual pós-agrupamento
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 grouped = grouped
@@ -64,11 +66,9 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 TotalItems = totalItems,
                 Items = pagedItems,
                 TotalIncomeOverall = totalIncomeOverall,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate
+                StartDate = request.StartDate ?? minDate,
+                EndDate = request.EndDate ?? maxDate
             };
-
-
         }
     }
 }
