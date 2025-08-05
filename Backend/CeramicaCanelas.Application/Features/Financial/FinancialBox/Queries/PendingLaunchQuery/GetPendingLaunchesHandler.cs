@@ -39,7 +39,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pe
             var totalItems = pending.Count();
 
             var pagedItems = pending
-                .OrderBy(l => l.LaunchDate)
+                .OrderByDescending(l => l.LaunchDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList()

@@ -62,6 +62,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
 
             // Paginação (padrão: página 1, 10 itens por página)
             var pagedItems = launches
+                .OrderByDescending(l => l.LaunchDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(l => new LaunchResult(l))
