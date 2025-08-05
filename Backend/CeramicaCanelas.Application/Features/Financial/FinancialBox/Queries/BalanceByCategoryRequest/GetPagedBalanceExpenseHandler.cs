@@ -27,6 +27,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
             if (request.EndDate.HasValue)
                 groupedQuery = groupedQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
+            var totalExpenseOverall = await groupedQuery.SumAsync(l => l.Amount, cancellationToken);
+
             var grouped = await groupedQuery
                 .GroupBy(l => l.Category!.Name ?? "Sem categoria")
                 .Select(g => new BalanceExpenseResult
@@ -58,8 +60,12 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 Page = request.Page,
                 PageSize = request.PageSize,
                 TotalItems = totalItems,
-                Items = pagedItems
+                Items = pagedItems,
+                TotalExpenseOverall = totalExpenseOverall,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate
             };
+
         }
     }
 }
