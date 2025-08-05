@@ -20,6 +20,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }
         public DateOnly? DueDate { get; set; }
+        public string OperatorName { get; set; }
+
 
         // Construtor que mapeia a Entidade para o DTO
         public LaunchResult(Launch launch)
@@ -34,6 +36,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
             PaymentMethod = launch.PaymentMethod;
             Status = launch.Status;
             DueDate = launch.DueDate;
+            OperatorName = launch.OperatorName;
         }
     }
 }
