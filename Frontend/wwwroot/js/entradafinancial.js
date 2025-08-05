@@ -1,7 +1,6 @@
 console.log('Script js/relatorio-entradas.js DEFINIDO.');
 
 
-
 // =======================================================
 // INICIALIZAÇÃO
 // =======================================================
@@ -44,16 +43,10 @@ async function fetchReportData(page = 1) {
         const endDate = document.getElementById('end-date')?.value;
 
         if (search) params.append('Search', search);
-        
-        // --- CORREÇÃO APLICADA AQUI ---
-        // A API espera a data como uma string 'YYYY-MM-DD', então enviamos o valor direto do input.
         if (startDate) params.append('StartDate', startDate);
         if (endDate) params.append('EndDate', endDate);
-        // ------------------------------------
 
         const url = `${API_BASE_URL}/financial/dashboard-financial/balance-income?${params.toString()}`;
-        console.log("📡 Buscando dados em:", url);
-
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar dados (Status: ${response.status})`);
 
@@ -63,6 +56,7 @@ async function fetchReportData(page = 1) {
              throw new Error("A resposta da API não tem o formato paginado esperado.");
         }
         
+        updateSummary(data);
         renderReportTable(data.items);
         renderPagination(data);
         
@@ -77,6 +71,27 @@ async function fetchReportData(page = 1) {
     } finally {
         if(loadingDiv) loadingDiv.style.display = 'none';
     }
+}
+
+/**
+ * ATUALIZADO: Agora usa as datas dos filtros se a API retornar null.
+ */
+function updateSummary(data) {
+    const formatCurrency = (value) => (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const formatDate = (dateString) => {
+        if (!dateString) return '--/--/----';
+        const date = new Date(dateString);
+        return new Date(date.getTime() + date.getTimezoneOffset() * 60000).toLocaleDateString('pt-BR');
+    };
+
+    // Pega as datas dos campos de filtro como fallback
+    const startDateFromFilter = document.getElementById('start-date')?.value;
+    const endDateFromFilter = document.getElementById('end-date')?.value;
+
+    document.getElementById('total-income-overall').textContent = formatCurrency(data.totalIncomeOverall);
+    // Usa a data da API, mas se for nula, usa a data do filtro
+    document.getElementById('period-start-date').textContent = formatDate(data.startDate || startDateFromFilter);
+    document.getElementById('period-end-date').textContent = formatDate(data.endDate || endDateFromFilter);
 }
 
 function renderReportTable(items) {
