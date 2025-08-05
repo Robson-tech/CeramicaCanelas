@@ -69,9 +69,9 @@ const originalRowHTML_Launch = {};
 const launchTypeMap = { 1: 'Entrada', 2: 'Saída' };
 const paymentMethodMap = {
   0: 'Dinheiro',
-  1: 'Conta Corrente PJ',
-  2: 'Banco do Brasil - Conta Jurídica',
-  3: 'Banco do Brasil - Serviços',
+  1: 'CXPJ',
+  2: 'Banco do Brasil - J',
+  3: 'Banco do Brasil - JS',
   4: 'Cheque'
 };
 

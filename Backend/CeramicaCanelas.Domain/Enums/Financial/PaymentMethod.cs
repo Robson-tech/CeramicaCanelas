@@ -8,10 +8,10 @@ namespace CeramicaCanelas.Domain.Enums.Financial
 {
     public enum PaymentMethod
     {
-        Cash,
+        Dinheiro,
         CXPJ,
         BBJ,
         BBJS,
-        CHECK
+        CHEQUE
     }
 }
