@@ -36,7 +36,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
                 throw new BadRequestException("Erro ao criar o lançamento financeiro.");
             }
 
-            launch.OperatorName = user.Name;
+            launch.OperatorName = user.UserName!;
 
             await _launchRepository.CreateAsync(launch, cancellationToken);
 
