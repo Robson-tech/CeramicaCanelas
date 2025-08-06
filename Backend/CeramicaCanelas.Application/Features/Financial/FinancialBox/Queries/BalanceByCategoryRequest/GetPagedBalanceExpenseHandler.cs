@@ -43,13 +43,15 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Ba
                 })
                 .ToListAsync(cancellationToken);
 
-            // Filtro textual após o agrupamento
+            // Filtro textual após o agrupamento (corrigido para compatibilidade)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
+                var searchLower = request.Search.ToLower();
                 grouped = grouped
-                    .Where(g => g.CategoryName.Contains(request.Search, StringComparison.OrdinalIgnoreCase))
+                    .Where(g => g.CategoryName.ToLower().Contains(searchLower))
                     .ToList();
             }
+
 
             var totalItems = grouped.Count();
 
