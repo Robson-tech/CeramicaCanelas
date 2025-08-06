@@ -41,6 +41,10 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             if (request.EndDate.HasValue)
                 filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
 
+            // Filtro por descrição (parcial e case-insensitive)
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                filtered = filtered.Where(l => l.Description.ToLower().Contains(request.Description.ToLower()));
+
 
             // Totais apenas de lançamentos pagos
             var totalEntradas = filtered
