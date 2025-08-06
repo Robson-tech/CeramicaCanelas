@@ -34,6 +34,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Customers.
                 );
             }
 
+
             // Ordenação (mantida como estava)
             filtered = request.OrderBy?.ToLower() switch
             {
