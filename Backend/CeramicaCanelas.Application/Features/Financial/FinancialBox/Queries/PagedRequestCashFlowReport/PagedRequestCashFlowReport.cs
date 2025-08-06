@@ -10,7 +10,7 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 {
     public class PagedRequestCashFlowReport : IRequest<PagedResultCashFlowReport>
     {
-        public string Description { get; set; } = string.Empty; // Descrição do lançamento
+        public string Search { get; set; } = string.Empty; // Descrição do lançamento
         public LaunchType type { get; set; } // Tipo de lançamento (Entrada, Saída ou Todos)
         public DateOnly? StartDate { get; set; } // Período inicial
         public DateOnly? EndDate { get; set; }   // Período final
