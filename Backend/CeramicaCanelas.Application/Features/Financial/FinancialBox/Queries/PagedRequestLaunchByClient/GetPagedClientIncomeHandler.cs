@@ -5,12 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PagedRequestLaunchByClient
 {
-    // Handler para a nova requisição
     public class GetPagedClientIncomeHandler : IRequestHandler<PagedClientIncomeRequest, PagedClientIncomeResult>
     {
         private readonly ILaunchRepository _launchRepository;
@@ -44,39 +43,50 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                     TotalAmount = group.Sum(l => l.Amount),
                     QuantidadeDeCompras = group.Count(),
                     DataDaUltimaCompra = group.Max(l => l.LaunchDate),
-                    ValorPendente = _launchRepository.QueryAllWithIncludes() // <-- separada para somar pendentes
+                    ValorPendente = _launchRepository.QueryAllWithIncludes()
                         .Where(p => p.CustomerId == key.Id && p.Status == PaymentStatus.Pending)
                         .Sum(p => p.Amount),
                     TicketMedio = group.Average(l => l.Amount)
                 });
 
+            // Executa a consulta agrupada no banco
+            var groupedList = await groupedQuery.ToListAsync(cancellationToken);
+
+            // Filtro em memória com ToLower para insensibilidade a maiúsculas/minúsculas
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                groupedQuery = groupedQuery.Where(c => c.CustomerName.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
+                var searchTerm = request.Search.ToLower();
+                groupedList = groupedList
+                    .Where(c => c.CustomerName != null && c.CustomerName.ToLower().Contains(searchTerm))
+                    .ToList();
             }
 
-            groupedQuery = request.OrderBy.ToLower() switch
+            // Ordenação em memória
+            groupedList = request.OrderBy?.ToLower() switch
             {
                 "total" => request.Ascending
-                                ? groupedQuery.OrderBy(c => c.TotalAmount)
-                                : groupedQuery.OrderByDescending(c => c.TotalAmount),
+                                ? groupedList.OrderBy(c => c.TotalAmount).ToList()
+                                : groupedList.OrderByDescending(c => c.TotalAmount).ToList(),
+
                 "ticket" => request.Ascending
-                                ? groupedQuery.OrderBy(c => c.TicketMedio)
-                                : groupedQuery.OrderByDescending(c => c.TicketMedio),
+                                ? groupedList.OrderBy(c => c.TicketMedio).ToList()
+                                : groupedList.OrderByDescending(c => c.TicketMedio).ToList(),
+
                 "lastpurchase" => request.Ascending
-                                ? groupedQuery.OrderBy(c => c.DataDaUltimaCompra)
-                                : groupedQuery.OrderByDescending(c => c.DataDaUltimaCompra),
+                                ? groupedList.OrderBy(c => c.DataDaUltimaCompra).ToList()
+                                : groupedList.OrderByDescending(c => c.DataDaUltimaCompra).ToList(),
+
                 _ => request.Ascending
-                                ? groupedQuery.OrderBy(c => c.CustomerName)
-                                : groupedQuery.OrderByDescending(c => c.CustomerName),
+                                ? groupedList.OrderBy(c => c.CustomerName).ToList()
+                                : groupedList.OrderByDescending(c => c.CustomerName).ToList(),
             };
 
-            var totalItems = await groupedQuery.CountAsync(cancellationToken);
+            var totalItems = groupedList.Count;
 
-            var pagedItems = await groupedQuery
+            var pagedItems = groupedList
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .ToListAsync(cancellationToken);
+                .ToList();
 
             return new PagedClientIncomeResult
             {
@@ -86,7 +96,5 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 Items = pagedItems
             };
         }
-
     }
-
 }
