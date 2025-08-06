@@ -24,9 +24,11 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.LaunchCate
             var filtered = all.Where(c => !c.IsDeleted);
 
             // Filtro por nome
+            // Filtro por nome (corrigido para compatibilidade com EF Core)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                filtered = filtered.Where(c => c.Name.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
+                var searchLower = request.Search.ToLower();
+                filtered = filtered.Where(c => c.Name.ToLower().Contains(searchLower));
             }
 
             // Ordenação
