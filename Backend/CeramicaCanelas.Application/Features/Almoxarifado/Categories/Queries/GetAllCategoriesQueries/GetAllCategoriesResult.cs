@@ -18,7 +18,7 @@
 
             Id = categories.Id;
             Name = categories.Name;
-            Description = categories.Description;
+            Description = categories.Description ?? "Sem descrição";
             
 
         }
