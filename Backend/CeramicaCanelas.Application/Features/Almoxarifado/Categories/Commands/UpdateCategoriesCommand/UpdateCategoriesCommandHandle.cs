@@ -25,7 +25,7 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.
             var category = await ValidateCategories(request, cancellationToken);
 
             category.Name = request.Name;
-            category.Description = request.Description;
+            category.Description = request.Description ?? "Sem descrição";
             category.ModifiedOn = DateTime.UtcNow;
 
             await _categoryRepository.Update(category);
