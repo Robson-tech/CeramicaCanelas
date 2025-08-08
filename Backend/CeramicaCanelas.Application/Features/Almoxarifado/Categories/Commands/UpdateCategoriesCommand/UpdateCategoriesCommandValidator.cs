@@ -10,7 +10,6 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.
                 .NotEmpty().WithMessage("Name is required.")
                 .MaximumLength(100).WithMessage("Name must not exceed 100 characters.");
             RuleFor(c => c.Description)
-                .NotEmpty().WithMessage("Description is required.")
                 .MaximumLength(500).WithMessage("Description must not exceed 500 characters.");
         }
     }
