@@ -9,14 +9,14 @@ namespace CeramicaCanelas.Application.Features.Almoxarifado.Categories.Commands.
     {
         public string Name { get; set; } = string.Empty;
 
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } = string.Empty;
 
         public Domain.Entities.Almoxarifado.Categories AssignToCategories()
         {
             return new Domain.Entities.Almoxarifado.Categories
             {
                 Name = Name,
-                Description = Description,
+                Description = Description ?? "Sem descrição",
                 CreatedOn = DateTime.UtcNow,
             };
         }
