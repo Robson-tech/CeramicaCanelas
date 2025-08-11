@@ -1,15 +1,16 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.PagedRequestCashFlowReport
 {
-    public class GetPagedCashFlowReportHandler : IRequestHandler<PagedRequestCashFlowReport, PagedResultCashFlowReport>
+    public class GetPagedCashFlowReportHandler
+        : IRequestHandler<PagedRequestCashFlowReport, PagedResultCashFlowReport>
     {
         private readonly ILaunchRepository _launchRepository;
 
@@ -18,61 +19,83 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             _launchRepository = launchRepository;
         }
 
-        public async Task<PagedResultCashFlowReport> Handle(PagedRequestCashFlowReport request, CancellationToken cancellationToken)
+        public async Task<PagedResultCashFlowReport> Handle(
+            PagedRequestCashFlowReport request,
+            CancellationToken ct)
         {
-            var launches = _launchRepository.QueryAllWithIncludes();
+            // Base SEM includes (projeção resolve Category/Customer)
+            var baseQuery = _launchRepository.QueryAll()
+                .AsNoTracking()
+                .Where(l => l.Status == PaymentStatus.Paid);
 
-            var filtered = launches.AsQueryable();
+            // Período
+            if (request.StartDate.HasValue)
+                baseQuery = baseQuery.Where(l => l.LaunchDate >= request.StartDate.Value);
 
-            // Apenas lançamentos pagos devem ser considerados
-            filtered = filtered.Where(l => l.Status == PaymentStatus.Paid);
+            if (request.EndDate.HasValue)
+                baseQuery = baseQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
+
+            // Busca por descrição (PostgreSQL: ILIKE)
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var s = request.Search;
+                baseQuery = baseQuery.Where(l => l.Description != null && l.Description.Contains(s));
+            }
 
             // Filtro por tipo
+            var filteredQuery = baseQuery;
             if (request.type == LaunchType.Income)
-                filtered = filtered.Where(l => l.Type == LaunchType.Income);
+                filteredQuery = filteredQuery.Where(l => l.Type == LaunchType.Income);
             else if (request.type == LaunchType.Expense)
-                filtered = filtered.Where(l => l.Type == LaunchType.Expense);
+                filteredQuery = filteredQuery.Where(l => l.Type == LaunchType.Expense);
 
-            // Filtro por data de início
-            if (request.StartDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate >= request.StartDate.Value);
+            // ===== Totais (um registro por Id) =====
+            var distinctBase = baseQuery
+                .Select(l => new { l.Id, l.Amount, l.Type })
+                .GroupBy(x => x.Id)
+                .Select(g => g.First());
 
-            // Filtro por data de fim
-            if (request.EndDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
+            var totalEntradas = await distinctBase
+                .Where(x => x.Type == LaunchType.Income)
+                .SumAsync(x => x.Amount, ct);
 
-            // Filtro por descrição (parcial e case-insensitive)
-            if (!string.IsNullOrWhiteSpace(request.Search))
-                filtered = filtered.Where(l => l.Description.ToLower().Contains(request.Search.ToLower()));
+            var totalSaidas = await distinctBase
+                .Where(x => x.Type == LaunchType.Expense)
+                .SumAsync(x => x.Amount, ct);
 
+            // Total de itens respeitando o filtro de tipo (Ids distintos)
+            var totalItems = await filteredQuery
+                .Select(l => l.Id)
+                .Distinct()
+                .CountAsync(ct);
 
-            // Totais apenas de lançamentos pagos
-            var totalEntradas = filtered
-                .Where(l => l.Type == LaunchType.Income)
-                .Sum(l => l.Amount);
-
-            var totalSaidas = filtered
-                .Where(l => l.Type == LaunchType.Expense)
-                .Sum(l => l.Amount);
-
-            var totalItems = filtered.Count();
-
-            var items = filtered
-                .OrderByDescending(l => l.LaunchDate)
+            // ===== Paginação por Id com ordenação estável =====
+            // Ordena por LaunchDate “por lançamento” (caso haja múltiplas linhas por Id)
+            var pageIds = await filteredQuery
+                .Select(l => new { l.Id, l.LaunchDate })
+                .GroupBy(x => x.Id)
+                .Select(g => new { Id = g.Key, LastDate = g.Max(x => x.LaunchDate) })
+                .OrderByDescending(x => x.LastDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .ToList()
+                .Select(x => x.Id)
+                .ToListAsync(ct);
+
+            // ===== Itens da página =====
+            var items = await baseQuery
+                .Where(l => pageIds.Contains(l.Id))
                 .Select(l => new CashFlowReportItem
                 {
                     LaunchDate = l.LaunchDate,
-                    Description = l.Description,
+                    Description = l.Description ?? string.Empty,
                     Amount = l.Amount,
                     Type = l.Type,
-                    CategoryName = l.Category?.Name ?? "Sem categoria",
-                    CustomerName = l.Customer?.Name ?? "Sem cliente",
+                    CategoryName = l.Category != null ? l.Category.Name : "Sem categoria",
+                    CustomerName = l.Customer != null ? l.Customer.Name : "Sem cliente",
                     PaymentMethod = l.PaymentMethod.ToString()
                 })
-                .ToList();
+                .OrderByDescending(i => i.LaunchDate)
+                .ToListAsync(ct);
 
             return new PagedResultCashFlowReport
             {
@@ -84,7 +107,5 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 Items = items
             };
         }
-
     }
-
 }
