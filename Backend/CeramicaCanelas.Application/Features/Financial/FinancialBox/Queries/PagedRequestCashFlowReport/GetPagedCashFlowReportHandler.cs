@@ -36,14 +36,16 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             if (request.EndDate.HasValue)
                 baseQuery = baseQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            // Busca por descrição
+            // Busca por descrição (case-insensitive via LOWER)
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
-                var s = request.Search;
-                baseQuery = baseQuery.Where(l => l.Description != null && l.Description.Contains(s));
-                // Postgres case-insensitive (opcional):
-                // baseQuery = baseQuery.Where(l => EF.Functions.ILike(l.Description ?? "", $"%{s}%"));
+                var s = request.Search.Trim().ToLowerInvariant();
+
+                baseQuery = baseQuery.Where(l =>
+                    (l.Description ?? string.Empty).ToLower()  // traduz para LOWER(...) no PostgreSQL
+                        .Contains(s));
             }
+
 
             // Filtro por tipo (para a lista/contagem)
             var filteredQuery = baseQuery;
