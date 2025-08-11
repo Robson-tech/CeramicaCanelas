@@ -34,14 +34,20 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Products>> GetPagedAsync(int page, int pageSize, string? orderBy, bool ascending, string? search, float? minPrice, float? maxPrice, Guid? categoryId)
+        public async Task<List<Products>> GetPagedAsync(
+            int page, int pageSize, string? orderBy, bool ascending,
+            string? search, float? minPrice, float? maxPrice, Guid? categoryId)
         {
             var query = Context.Products
-                .Include(p => p.Category) 
+                .Include(p => p.Category)
                 .AsQueryable();
 
+            // 🔎 Busca case-insensitive com ToLower()
             if (!string.IsNullOrWhiteSpace(search))
-                query = query.Where(p => p.Name.Contains(search));
+            {
+                var s = search.Trim().ToLower();
+                query = query.Where(p => (p.Name ?? string.Empty).ToLower().Contains(s));
+            }
 
             if (minPrice.HasValue)
                 query = query.Where(p => p.ValueTotal >= minPrice.Value);
@@ -64,7 +70,6 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
-
 
         public async Task<int> GetTotalCountAsync(string? search, float? minPrice, float? maxPrice, Guid? categoryId)
         {
