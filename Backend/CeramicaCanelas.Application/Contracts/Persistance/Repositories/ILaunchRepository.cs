@@ -14,5 +14,8 @@ namespace CeramicaCanelas.Application.Contracts.Persistance.Repositories
         public IQueryable<Launch> QueryAllWithIncludes();
 
         public Task<List<Launch>> GetAllAsync();
+
+        public IQueryable<Launch> QueryAll();
+
     }
 }

@@ -33,5 +33,12 @@ namespace CeramicaCanelas.Persistence.Repositories
                 .AsNoTracking() // Importante para queries de leitura
                 .AsQueryable();
         }
+
+        public IQueryable<Launch> QueryAll()
+        {
+            return Context.Launches
+                .AsNoTracking()
+                .AsQueryable();
+        }
     }
 }
