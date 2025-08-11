@@ -23,6 +23,10 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             PagedRequestCashFlowReport request,
             CancellationToken ct)
         {
+            // Sanitiza paginação
+            var page = request.Page <= 0 ? 1 : request.Page;
+            var size = request.PageSize <= 0 ? 10 : request.PageSize;
+
             // Base SEM includes (projeção resolve Category/Customer)
             var baseQuery = _launchRepository.QueryAll()
                 .AsNoTracking()
@@ -35,11 +39,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             if (request.EndDate.HasValue)
                 baseQuery = baseQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            // Busca por descrição (PostgreSQL: ILIKE)
+            // Busca por descrição
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var s = request.Search;
                 baseQuery = baseQuery.Where(l => l.Description != null && l.Description.Contains(s));
+                // Postgres case-insensitive (opcional):
+                // baseQuery = baseQuery.Where(l => EF.Functions.ILike(l.Description ?? "", $"%{s}%"));
             }
 
             // Filtro por tipo
@@ -49,35 +55,39 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
             else if (request.type == LaunchType.Expense)
                 filteredQuery = filteredQuery.Where(l => l.Type == LaunchType.Expense);
 
-            // ===== Totais (um registro por Id) =====
+            // ===== Totais (sem duplicar) =====
+            // Distinct na projeção evita multiplicação de linhas por joins
             var distinctBase = baseQuery
                 .Select(l => new { l.Id, l.Amount, l.Type })
-                .GroupBy(x => x.Id)
-                .Select(g => g.First());
+                .Distinct();
 
             var totalEntradas = await distinctBase
                 .Where(x => x.Type == LaunchType.Income)
-                .SumAsync(x => x.Amount, ct);
+                .Select(x => x.Amount)
+                .DefaultIfEmpty(0m)
+                .SumAsync(ct);
 
             var totalSaidas = await distinctBase
                 .Where(x => x.Type == LaunchType.Expense)
-                .SumAsync(x => x.Amount, ct);
+                .Select(x => x.Amount)
+                .DefaultIfEmpty(0m)
+                .SumAsync(ct);
 
-            // Total de itens respeitando o filtro de tipo (Ids distintos)
+            // Total de itens (Ids distintos) respeitando o filtro de tipo
             var totalItems = await filteredQuery
                 .Select(l => l.Id)
                 .Distinct()
                 .CountAsync(ct);
 
             // ===== Paginação por Id com ordenação estável =====
-            // Ordena por LaunchDate “por lançamento” (caso haja múltiplas linhas por Id)
             var pageIds = await filteredQuery
                 .Select(l => new { l.Id, l.LaunchDate })
                 .GroupBy(x => x.Id)
                 .Select(g => new { Id = g.Key, LastDate = g.Max(x => x.LaunchDate) })
                 .OrderByDescending(x => x.LastDate)
-                .Skip((request.Page - 1) * request.PageSize)
-                .Take(request.PageSize)
+                .ThenByDescending(x => x.Id) // desempate estável
+                .Skip((page - 1) * size)
+                .Take(size)
                 .Select(x => x.Id)
                 .ToListAsync(ct);
 
@@ -95,12 +105,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                     PaymentMethod = l.PaymentMethod.ToString()
                 })
                 .OrderByDescending(i => i.LaunchDate)
+                .ThenByDescending(i => i.Description) // opcional: estabilidade visual
                 .ToListAsync(ct);
 
             return new PagedResultCashFlowReport
             {
-                Page = request.Page,
-                PageSize = request.PageSize,
+                Page = page,
+                PageSize = size,
                 TotalItems = totalItems,
                 TotalEntradas = totalEntradas,
                 TotalSaidas = totalSaidas,
