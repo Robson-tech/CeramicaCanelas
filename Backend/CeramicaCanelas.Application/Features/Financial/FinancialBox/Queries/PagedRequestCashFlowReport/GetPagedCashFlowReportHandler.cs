@@ -1,6 +1,7 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,59 +21,73 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
 
         public async Task<PagedResultCashFlowReport> Handle(PagedRequestCashFlowReport request, CancellationToken cancellationToken)
         {
+            // Buscar dados com includes
             var launches = _launchRepository.QueryAllWithIncludes();
 
-            var filtered = launches.AsQueryable();
+            // Aplicar filtros base
+            var baseQuery = launches
+                .Where(l => l.Status == PaymentStatus.Paid);
 
-            // Apenas lançamentos pagos devem ser considerados
-            filtered = filtered.Where(l => l.Status == PaymentStatus.Paid);
-
-            // Filtro por tipo
-            if (request.type == LaunchType.Income)
-                filtered = filtered.Where(l => l.Type == LaunchType.Income);
-            else if (request.type == LaunchType.Expense)
-                filtered = filtered.Where(l => l.Type == LaunchType.Expense);
-
-            // Filtro por data de início
+            // Filtros de data
             if (request.StartDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate >= request.StartDate.Value);
+                baseQuery = baseQuery.Where(l => l.LaunchDate >= request.StartDate.Value);
 
-            // Filtro por data de fim
             if (request.EndDate.HasValue)
-                filtered = filtered.Where(l => l.LaunchDate <= request.EndDate.Value);
+                baseQuery = baseQuery.Where(l => l.LaunchDate <= request.EndDate.Value);
 
-            // Filtro por descrição (parcial e case-insensitive)
+            // Filtro por descrição
             if (!string.IsNullOrWhiteSpace(request.Search))
-                filtered = filtered.Where(l => l.Description.ToLower().Contains(request.Search.ToLower()));
+                baseQuery = baseQuery.Where(l => l.Description.ToLower().Contains(request.Search.ToLower()));
 
+            // Query com filtro de tipo
+            var filteredQuery = baseQuery;
+            if (request.type == LaunchType.Income)
+                filteredQuery = baseQuery.Where(l => l.Type == LaunchType.Income);
+            else if (request.type == LaunchType.Expense)
+                filteredQuery = baseQuery.Where(l => l.Type == LaunchType.Expense);
 
-            // Totais apenas de lançamentos pagos
-            var totalEntradas = filtered
+            // Executar queries com Select para evitar duplicações
+            var totalEntradas = await baseQuery
                 .Where(l => l.Type == LaunchType.Income)
-                .Sum(l => l.Amount);
+                .Select(l => l.Amount)
+                .SumAsync(cancellationToken);
 
-            var totalSaidas = filtered
+            var totalSaidas = await baseQuery
                 .Where(l => l.Type == LaunchType.Expense)
-                .Sum(l => l.Amount);
+                .Select(l => l.Amount)
+                .SumAsync(cancellationToken);
 
-            var totalItems = filtered.Count();
+            var totalItems = await filteredQuery
+                .Select(l => l.Id) // Select apenas o ID para contagem
+                .CountAsync(cancellationToken);
 
-            var items = filtered
+            var rawCount = await baseQuery.CountAsync(cancellationToken);
+            var processedCount = totalItems;
+
+            // Log para verificar se há diferença (use seu sistema de log ou Console)
+            Console.WriteLine($"Debug - Raw count: {rawCount}, Processed count: {processedCount}");
+
+            if (rawCount != processedCount)
+            {
+                Console.WriteLine("⚠️ ATENÇÃO: Ainda há duplicações detectadas!");
+            }
+
+            // Buscar items com projeção direta - isso evita duplicações
+            var items = await filteredQuery
                 .OrderByDescending(l => l.LaunchDate)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .ToList()
                 .Select(l => new CashFlowReportItem
                 {
                     LaunchDate = l.LaunchDate,
                     Description = l.Description,
                     Amount = l.Amount,
                     Type = l.Type,
-                    CategoryName = l.Category?.Name ?? "Sem categoria",
-                    CustomerName = l.Customer?.Name ?? "Sem cliente",
+                    CategoryName = l.Category != null ? l.Category.Name : "Sem categoria",
+                    CustomerName = l.Customer != null ? l.Customer.Name : "Sem cliente",
                     PaymentMethod = l.PaymentMethod.ToString()
                 })
-                .ToList();
+                .ToListAsync(cancellationToken);
 
             return new PagedResultCashFlowReport
             {
@@ -84,7 +99,5 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                 Items = items
             };
         }
-
     }
-
 }

@@ -21,6 +21,7 @@ namespace CeramicaCanelas.Persistence.Repositories
             return await Context.Launches
                 .Include(l => l.Category)
                 .Include(l => l.Customer)
+                .AsNoTracking() // Melhora performance para leitura
                 .ToListAsync();
         }
 
@@ -29,8 +30,8 @@ namespace CeramicaCanelas.Persistence.Repositories
             return Context.Launches
                 .Include(l => l.Category)
                 .Include(l => l.Customer)
+                .AsNoTracking() // Importante para queries de leitura
                 .AsQueryable();
         }
-
     }
 }
