@@ -65,15 +65,34 @@
     
     <hr class="section-divider">
     <h2>Lançamentos Registrados</h2>
+
     <div class="filter-bar">
-        <div class="filter-group large"><label for="historySearch">Busca por Descrição:</label><input type="text" id="historySearch" class="form-input"></div>
-        <div class="filter-group"><label for="historyType">Tipo:</label><select id="historyType" class="form-input"></select></div>
-        <div class="filter-group"><label for="historyStatus">Status:</label><select id="historyStatus" class="form-input"></select></div>
+        <div class="filter-group large">
+            <label for="historySearch">Busca por Descrição:</label>
+            <input type="text" id="historySearch" class="form-input">
+        </div>
+        <div class="filter-group">
+            <label for="historyType">Tipo:</label>
+            <select id="historyType" class="form-input"></select>
+        </div>
+        <div class="filter-group">
+            <label for="historyStatus">Status:</label>
+            <select id="historyStatus" class="form-input"></select>
+        </div>
+        <div class="filter-group">
+            <label for="historyStartDate">Data Inicial:</label>
+            <input type="date" id="historyStartDate" class="form-input">
+        </div>
+        <div class="filter-group">
+            <label for="historyEndDate">Data Final:</label>
+            <input type="date" id="historyEndDate" class="form-input">
+        </div>
         <div class="filter-group-buttons">
             <button type="button" id="historyFilterBtn" class="search-btn">Filtrar</button>
             <button type="button" id="historyClearBtn" class="btn-cancel">Limpar</button>
         </div>
     </div>
+
     <div class="table-container">
         <table class="results-table">
             <thead>
@@ -92,20 +111,6 @@
     </div>
     <div id="pagination-controls" class="pagination-controls"></div>
 </div>
-
-<div id="categorySearchModal" class="modal">
-    <div class="modal-content">
-        <span class="modal-close-btn">&times;</span>
-        <h3>Selecione uma Categoria de Lançamento</h3>
-        <div class="filter-bar modal-filter-bar">
-            <div class="filter-group large"><label for="modalCategorySearchInput">Buscar por Nome:</label><input type="text" id="modalCategorySearchInput" class="form-input"></div>
-            <div class="filter-group-buttons"><button type="button" id="modalCategoryFilterBtn" class="search-btn">Buscar</button></div>
-        </div>
-        <div id="modalCategoryResultsContainer" class="table-container"></div>
-        <div id="modalCategoryPaginationControls" class="pagination-controls"></div>
-    </div>
-</div>
-
 <div id="customerSearchModal" class="modal">
     <div class="modal-content">
         <span class="modal-close-btn">&times;</span>

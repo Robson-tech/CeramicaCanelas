@@ -6,42 +6,7 @@
     <title>Home - Cerâmica Canelas</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script>
-        // BLOQUEIO DE ACESSO E VERIFICAÇÃO DE EXPIRAÇÃO DO TOKEN
-        try {
-            const token = localStorage.getItem('accessToken');
-            console.log('Verificando token:', token);
-
-            // 1. Se não existir token, redireciona para o login
-            if (!token) {
-                console.log("Token não encontrado. Redirecionando...");
-                // Usar replace para não deixar a página home no histórico do navegador
-                window.location.replace("/");
-            } else {
-                // 2. Se o token existir, decodifica o payload para verificar a expiração
-                // Um JWT é composto por header.payload.signature
-                const payloadBase64 = token.split('.')[1];
-                const decodedPayload = atob(payloadBase64); // Decodifica de Base64
-                const payload = JSON.parse(decodedPayload); // Converte a string JSON para um objeto
-
-                // 3. Verifica a data de expiração (o campo 'exp' é um timestamp em segundos)
-                const expirationTime = payload.exp;
-                const currentTime = Math.floor(Date.now() / 1000); // Tempo atual em segundos
-
-                if (expirationTime < currentTime) {
-                    console.log("Token expirado. Redirecionando...");
-                    // É uma boa prática remover o token expirado
-                    localStorage.removeItem('accessToken');
-                    window.location.replace("/");
-                } else {
-                    console.log("Token válido.");
-                }
-            }
-        } catch (error) {
-            // Se houver qualquer erro ao decodificar, o token é inválido ou malformado.
-            console.error("Erro ao processar o token, redirecionando:", error);
-            localStorage.removeItem('accessToken'); // Limpa o token inválido
-            window.location.replace("/");
-        }
+   
     </script>
     <script src="/js/main.js"></script>
 </head>
