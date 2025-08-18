@@ -26,7 +26,7 @@
                     <input type="date" id="launchDate" name="LaunchDate" class="form-input" required>
                 </div>
             </div>
-            
+
             <div class="form-group" id="group-categoryId" style="display: none;">
                 <label class="form-label">Categoria (Opcional)</label>
                 <div class="selection-box">
@@ -62,18 +62,46 @@
             <button type="submit" class="submit-btn">Salvar Lançamento</button>
         </form>
     </div>
-    
+
     <hr class="section-divider">
     <h2>Lançamentos Registrados</h2>
     <div class="filter-bar">
-        <div class="filter-group large"><label for="historySearch">Busca por Descrição:</label><input type="text" id="historySearch" class="form-input"></div>
-        <div class="filter-group"><label for="historyType">Tipo:</label><select id="historyType" class="form-input"></select></div>
-        <div class="filter-group"><label for="historyStatus">Status:</label><select id="historyStatus" class="form-input"></select></div>
+        <div class="filter-group large">
+            <label for="historySearch">Busca por Descrição:</label>
+            <input type="text" id="historySearch" class="form-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="historyStartDate">Data Inicial:</label>
+            <input type="date" id="historyStartDate" class="form-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="historyEndDate">Data Final:</label>
+            <input type="date" id="historyEndDate" class="form-input" />
+        </div>
+
+        <div class="filter-group">
+            <label for="historyCategoryOrCustomer">Categoria ou Cliente:</label>
+            <input type="text" id="historyCategoryOrCustomer" class="form-input" placeholder="ex.: Vendas / João Silva" />
+        </div>
+
+        <div class="filter-group">
+            <label for="historyType">Tipo:</label>
+            <select id="historyType" class="form-input"></select>
+        </div>
+
+        <div class="filter-group">
+            <label for="historyStatus">Status:</label>
+            <select id="historyStatus" class="form-input"></select>
+        </div>
+
         <div class="filter-group-buttons">
             <button type="button" id="historyFilterBtn" class="search-btn">Filtrar</button>
             <button type="button" id="historyClearBtn" class="btn-cancel">Limpar</button>
         </div>
     </div>
+
     <div class="table-container">
         <table class="results-table">
             <thead>
