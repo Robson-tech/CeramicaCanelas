@@ -1,4 +1,5 @@
 ﻿using CeramicaCanelas.Application.Contracts.Persistance.Repositories;
+using CeramicaCanelas.Domain.Entities.Financial;
 using CeramicaCanelas.Domain.Enums.Financial;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,13 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Queries.Pa
                         .Contains(s));
             }
 
+            if (!string.IsNullOrWhiteSpace(request.SearchCategoryOrCustomer))
+            {
+                var search = request.SearchCategoryOrCustomer.Trim().ToLowerInvariant();
+                baseQuery = baseQuery.Where(l =>
+                    (l.Category != null && (l.Category.Name ?? string.Empty).ToLower().Contains(search)) ||
+                    (l.Customer != null && (l.Customer.Name ?? string.Empty).ToLower().Contains(search)));
+            }
 
             // Filtro por tipo (para a lista/contagem)
             var filteredQuery = baseQuery;
