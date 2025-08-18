@@ -476,10 +476,14 @@ function initializeHistoryFilters() {
     if (filterBtn) filterBtn.onclick = () => fetchAndRenderHistory(1);
     if (clearBtn) clearBtn.onclick = () => {
         document.getElementById('historySearch').value = '';
+        document.getElementById('historyStartDate').value = '';
+        document.getElementById('historyEndDate').value = '';
+        document.getElementById('historyCategoryOrCustomer').value = '';
         typeSelect.value = '';
         statusSelect.value = '';
         fetchAndRenderHistory(1);
     };
+
 }
 
 async function fetchAndRenderHistory(page = 1) {
@@ -490,12 +494,25 @@ async function fetchAndRenderHistory(page = 1) {
     try {
         const accessToken = localStorage.getItem('accessToken');
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'LaunchDate', Ascending: false });
+
         const search = document.getElementById('historySearch')?.value;
         const type = document.getElementById('historyType')?.value;
         const status = document.getElementById('historyStatus')?.value;
+
+        // NOVOS CAMPOS
+        const startDate = document.getElementById('historyStartDate')?.value; // yyyy-MM-dd
+        const endDate = document.getElementById('historyEndDate')?.value;     // yyyy-MM-dd
+        const searchCategoryOrCustomer = document.getElementById('historyCategoryOrCustomer')?.value;
+
         if (search) params.append('Search', search);
         if (type) params.append('Type', type);
         if (status) params.append('Status', status);
+
+        // Anexa apenas se houver valor
+        if (startDate) params.append('StartDate', startDate);
+        if (endDate) params.append('EndDate', endDate);
+        if (searchCategoryOrCustomer) params.append('SearchCategoryOrCustomer', searchCategoryOrCustomer);
+
         const url = `${API_BASE_URL}/financial/launch/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         if (!response.ok) throw new Error(`Falha ao buscar lançamentos (Status: ${response.status})`);
