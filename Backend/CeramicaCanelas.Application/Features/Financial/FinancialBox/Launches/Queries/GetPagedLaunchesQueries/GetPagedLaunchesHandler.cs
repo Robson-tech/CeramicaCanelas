@@ -24,6 +24,14 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
                 launches = launches.Where(l => l.Description.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
             }
 
+            if (!string.IsNullOrWhiteSpace(request.SearchCategoryOrCustomer))
+            {
+                // Filtro por categoria ou cliente
+                launches = launches.Where(l =>
+                    (l.Category != null && l.Category.Name.Contains(request.SearchCategoryOrCustomer, StringComparison.OrdinalIgnoreCase)) ||
+                    (l.Customer != null && l.Customer.Name.Contains(request.SearchCategoryOrCustomer, StringComparison.OrdinalIgnoreCase)));
+            }
+
             // Filtro por tipo (Entrada/Saída)
             if (request.Type.HasValue)
             {

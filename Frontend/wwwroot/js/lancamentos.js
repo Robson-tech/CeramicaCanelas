@@ -1,6 +1,124 @@
 console.log('Script js/lancamento.js DEFINIDO.');
 
+// =======================================================
+// FUNÇÕES DE LIMPEZA E RESET DO FORMULÁRIO
+// =======================================================
 
+/**
+ * Limpa completamente todos os campos do formulário
+ */
+function resetFormCompletely() {
+    console.log('🧹 Limpando formulário completamente...');
+
+    // Limpar campos de texto e número
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+
+    // Limpar campo de data de vencimento
+    document.getElementById('dueDate').value = '';
+
+    // Definir data atual como padrão para data de lançamento
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('launchDate').value = today;
+
+    // Limpar seleção de cliente
+    resetClientSelection();
+
+    // Limpar seleção de categoria
+    resetCategorySelection();
+
+    // Limpar hidden inputs
+    document.getElementById('categoryId').value = '';
+    document.getElementById('customerId').value = '';
+
+    // Resetar selects para valores padrão
+    resetSelectsToDefault();
+
+    console.log('✅ Formulário limpo com sucesso!');
+}
+
+/**
+ * Limpa seleção de cliente
+ */
+function resetClientSelection() {
+    document.getElementById('customerId').value = '';
+    document.getElementById('selectedCustomerName').textContent = 'Nenhum cliente selecionado';
+}
+
+/**
+ * Limpa seleção de categoria
+ */
+function resetCategorySelection() {
+    document.getElementById('categoryId').value = '';
+    document.getElementById('selectedCategoryName').textContent = 'Nenhuma categoria selecionada';
+}
+
+/**
+ * Reseta os selects para valores padrão
+ */
+function resetSelectsToDefault() {
+    const paymentSelect = document.getElementById('paymentMethod');
+    const statusSelect = document.getElementById('status');
+
+    // Reset payment method para primeira opção
+    if (paymentSelect.options.length > 0) {
+        paymentSelect.selectedIndex = 0;
+    }
+
+    // Reset status para "Pago" (valor 1) que é o padrão
+    statusSelect.value = '1';
+
+    // Esconder campo de data de vencimento já que status é "Pago"
+    document.getElementById('group-dueDate').style.display = 'none';
+}
+
+/**
+ * Limpa o formulário quando o tipo de lançamento muda
+ */
+function resetFormOnTypeChange() {
+    console.log('🔄 Limpando formulário por mudança de tipo...');
+    resetFormCompletely();
+}
+
+/**
+ * Esconde o formulário e limpa tudo
+ */
+function hideAndResetForm() {
+    const launchForm = document.getElementById('launchForm');
+    const typeRadios = document.querySelectorAll('input[name="Type"]');
+
+    // Esconder formulário
+    launchForm.style.display = 'none';
+
+    // Desmarcar radio buttons
+    typeRadios.forEach(radio => {
+        radio.checked = false;
+    });
+
+    // Limpar todos os campos
+    resetFormCompletely();
+}
+
+/**
+ * Função adicional para forçar limpeza manual (se necessário)
+ */
+function forceResetForm() {
+    console.log('🔧 Forçando reset manual do formulário...');
+    hideAndResetForm();
+    populateEnumSelects();
+}
+
+/**
+ * Debug e monitoramento - log do estado atual do formulário
+ */
+function logFormState() {
+    console.log('📊 Estado atual do formulário:');
+    console.log('Cliente ID:', document.getElementById('customerId').value);
+    console.log('Cliente Nome:', document.getElementById('selectedCustomerName').textContent);
+    console.log('Categoria ID:', document.getElementById('categoryId').value);
+    console.log('Categoria Nome:', document.getElementById('selectedCategoryName').textContent);
+    console.log('Tipo selecionado:', document.querySelector('input[name="Type"]:checked')?.value || 'Nenhum');
+}
 
 // =======================================================
 // INICIALIZAÇÃO
@@ -21,21 +139,65 @@ function initializeLaunchForm() {
     const typeSelection = document.getElementById('type-selection-group');
     const launchForm = document.getElementById('launchForm');
     const statusSelect = document.getElementById('status');
+
+    // Popular selects inicialmente
     populateEnumSelects();
-    typeSelection.addEventListener('change', (event) => updateFormVisibility(event.target.value));
-    statusSelect.addEventListener('change', (event) => {
-        document.getElementById('group-dueDate').style.display = (event.target.value === '0') ? 'block' : 'none';
+
+    // Event listener para mudança de tipo com limpeza
+    typeSelection.addEventListener('change', (event) => {
+        if (event.target.name === 'Type') {
+            updateFormVisibility(event.target.value);
+        }
     });
+
+    // Event listener para mudança de status
+    statusSelect.addEventListener('change', (event) => {
+        const dueDateGroup = document.getElementById('group-dueDate');
+        dueDateGroup.style.display = (event.target.value === '0') ? 'block' : 'none';
+
+        // Se mudou para "Pago", limpar data de vencimento
+        if (event.target.value === '1') {
+            document.getElementById('dueDate').value = '';
+        }
+    });
+
+    // Event listener para submit do formulário
     launchForm.addEventListener('submit', handleLaunchSubmit);
+
+    console.log('✅ Formulário de lançamento inicializado com limpeza automática!');
 }
 
 function updateFormVisibility(type) {
     const launchForm = document.getElementById('launchForm');
     const categoryGroup = document.getElementById('group-categoryId');
     const customerGroup = document.getElementById('group-customerId');
+    const categoryInput = document.getElementById('categoryId');
+    const customerInput = document.getElementById('customerId');
+
     launchForm.style.display = 'block';
-    categoryGroup.style.display = (type === '2') ? 'block' : 'none';
-    customerGroup.style.display = (type === '1') ? 'block' : 'none';
+
+    resetFormOnTypeChange();
+
+    if (type === '1') { // Entrada
+        categoryGroup.style.display = 'none';
+        customerGroup.style.display = 'block';
+        resetCategorySelection();
+
+        categoryInput.disabled = true;   // <- não vai no FormData
+        customerInput.disabled = false;  // <- vai no FormData
+    } else if (type === '2') { // Saída
+        categoryGroup.style.display = 'block';
+        customerGroup.style.display = 'none';
+        resetClientSelection();
+
+        categoryInput.disabled = false;
+        customerInput.disabled = true;
+    } else {
+        categoryGroup.style.display = 'none';
+        customerGroup.style.display = 'none';
+        categoryInput.disabled = true;
+        customerInput.disabled = true;
+    }
 }
 
 function populateEnumSelects() {
@@ -60,13 +222,34 @@ function populateEnumSelects() {
 async function handleLaunchSubmit(event) {
     event.preventDefault();
     const form = event.target;
-    const formData = new FormData(form);
+
     const selectedType = document.querySelector('input[name="Type"]:checked');
     if (!selectedType) {
-        showErrorModal({ title: "Validação Falhou", detail: "Por favor, selecione se é uma Entrada ou Saída."});
+        showErrorModal({ title: "Validação Falhou", detail: "Selecione Entrada ou Saída." });
         return;
     }
-    formData.append('Type', selectedType.value);
+
+    const customerInput = document.getElementById('customerId');
+    const categoryInput = document.getElementById('categoryId');
+    const customerId = customerInput.value?.trim();
+    const categoryId = categoryInput.value?.trim();
+
+    const formData = new FormData(form);
+    formData.set('Type', selectedType.value); // radios estão fora do <form>, então força aqui
+
+    if (selectedType.value === '1') {            // Entrada
+        if (customerId) formData.set('CustomerId', customerId);
+        else formData.delete('CustomerId');        // não envie vazio
+        formData.delete('CategoryId');             // não aplica
+    } else if (selectedType.value === '2') {     // Saída
+        if (categoryId) formData.set('CategoryId', categoryId);
+        else formData.delete('CategoryId');
+        formData.delete('CustomerId');             // não aplica
+    } else {
+        formData.delete('CustomerId');
+        formData.delete('CategoryId');
+    }
+
     try {
         const accessToken = localStorage.getItem('accessToken');
         const response = await fetch(`${API_BASE_URL}/financial/launch`, {
@@ -74,6 +257,7 @@ async function handleLaunchSubmit(event) {
             headers: { 'Authorization': `Bearer ${accessToken}` },
             body: formData
         });
+
         if (response.ok) {
             alert('Lançamento salvo com sucesso!');
             form.reset();
@@ -92,6 +276,7 @@ async function handleLaunchSubmit(event) {
     }
 }
 
+
 // =======================================================
 // LÓGICA DAS MODAIS
 // =======================================================
@@ -99,20 +284,25 @@ function initializeLaunchCategoryModal() {
     const modal = document.getElementById('categorySearchModal');
     const openBtn = document.getElementById('openCategoryModalBtn');
     if (!modal || !openBtn) return;
+
     const closeBtn = modal.querySelector('.modal-close-btn');
     const filterBtn = modal.querySelector('#modalCategoryFilterBtn');
+
     openBtn.addEventListener('click', (e) => {
         e.preventDefault();
         modal.style.display = 'block';
         fetchAndRenderLaunchCategoriesInModal(1);
     });
-    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderLaunchCategoriesInModal(1));
+
+    if (closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if (filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderLaunchCategoriesInModal(1));
+
     modal.querySelector('#modalCategoryResultsContainer').addEventListener('click', (event) => {
         if (event.target.classList.contains('select-category-btn')) {
             document.getElementById('selectedCategoryName').textContent = event.target.dataset.name;
             document.getElementById('categoryId').value = event.target.dataset.id;
             modal.style.display = 'none';
+            console.log('✅ Categoria selecionada:', event.target.dataset.name);
         }
     });
 }
@@ -121,20 +311,25 @@ function initializeCustomerModal() {
     const modal = document.getElementById('customerSearchModal');
     const openBtn = document.getElementById('openCustomerModalBtn');
     if (!modal || !openBtn) return;
+
     const closeBtn = modal.querySelector('.modal-close-btn');
     const filterBtn = modal.querySelector('#modalCustomerFilterBtn');
+
     openBtn.addEventListener('click', (e) => {
         e.preventDefault();
         modal.style.display = 'block';
         fetchAndRenderCustomersInModal(1);
     });
-    if(closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
-    if(filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderCustomersInModal(1));
+
+    if (closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    if (filterBtn) filterBtn.addEventListener('click', () => fetchAndRenderCustomersInModal(1));
+
     modal.querySelector('#modalCustomerResultsContainer').addEventListener('click', (event) => {
         if (event.target.classList.contains('select-customer-btn')) {
             document.getElementById('selectedCustomerName').textContent = event.target.dataset.name;
             document.getElementById('customerId').value = event.target.dataset.id;
             modal.style.display = 'none';
+            console.log('✅ Cliente selecionado:', event.target.dataset.name);
         }
     });
 }
@@ -267,7 +462,7 @@ function initializeHistoryFilters() {
     const clearBtn = document.getElementById('historyClearBtn');
     const typeSelect = document.getElementById('historyType');
     const statusSelect = document.getElementById('historyStatus');
-    
+
     typeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
     statusSelect.innerHTML = '<option value="">Todos os Status</option>';
     for (const [key, value] of Object.entries(launchTypeMap)) {
@@ -277,15 +472,19 @@ function initializeHistoryFilters() {
         statusSelect.appendChild(new Option(value, key));
     }
 
-    if(filterBtn) filterBtn.onclick = () => fetchAndRenderHistory(1);
-    if(clearBtn) clearBtn.onclick = () => {
+    if (filterBtn) filterBtn.onclick = () => fetchAndRenderHistory(1);
+    if (clearBtn) clearBtn.onclick = () => {
         document.getElementById('historySearch').value = '';
+        document.getElementById('historyStartDate').value = '';
+        document.getElementById('historyEndDate').value = '';
+        document.getElementById('historyCategoryOrCustomer').value = '';
         typeSelect.value = '';
         statusSelect.value = '';
         document.getElementById('historyStartDate').value = ''; // Limpa data inicial
         document.getElementById('historyEndDate').value = '';   // Limpa data final
         fetchAndRenderHistory(1);
     };
+
 }
 
 async function fetchAndRenderHistory(page = 1) {
@@ -410,7 +609,7 @@ window.editLaunch = (item) => {
     const isoDate = new Date(item.launchDate).toISOString().split('T')[0];
     row.querySelector('[data-field="launchDate"]').innerHTML = `<input type="date" name="LaunchDate" class="edit-input" value="${isoDate}">`;
     let statusOptions = '';
-    for(const [key, value] of Object.entries(statusMap)) {
+    for (const [key, value] of Object.entries(statusMap)) {
         const selected = key == item.status ? 'selected' : '';
         statusOptions += `<option value="${key}" ${selected}>${value}</option>`;
     }
@@ -424,7 +623,7 @@ window.editLaunch = (item) => {
 window.saveLaunchChanges = async (launchId) => {
     const row = document.getElementById(`row-launch-${launchId}`);
     if (!row) return;
-    
+
     const formData = new FormData();
     formData.append('Id', launchId);
     formData.append('Description', row.querySelector('[name="Description"]').value);
