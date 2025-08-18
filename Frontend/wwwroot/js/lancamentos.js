@@ -171,26 +171,35 @@ function updateFormVisibility(type) {
     const launchForm = document.getElementById('launchForm');
     const categoryGroup = document.getElementById('group-categoryId');
     const customerGroup = document.getElementById('group-customerId');
+    const categoryInput = document.getElementById('categoryId');
+    const customerInput = document.getElementById('customerId');
 
-    // Mostrar formulário
     launchForm.style.display = 'block';
 
-    // Limpar formulário quando tipo muda
     resetFormOnTypeChange();
 
-    // Mostrar/esconder grupos baseado no tipo
-    categoryGroup.style.display = (type === '2') ? 'block' : 'none';
-    customerGroup.style.display = (type === '1') ? 'block' : 'none';
-
-    // Garantir que os campos não visíveis estejam limpos
-    if (type === '1') {
-        // Se é entrada, limpar categoria
+    if (type === '1') { // Entrada
+        categoryGroup.style.display = 'none';
+        customerGroup.style.display = 'block';
         resetCategorySelection();
-    } else if (type === '2') {
-        // Se é saída, limpar cliente
+
+        categoryInput.disabled = true;   // <- não vai no FormData
+        customerInput.disabled = false;  // <- vai no FormData
+    } else if (type === '2') { // Saída
+        categoryGroup.style.display = 'block';
+        customerGroup.style.display = 'none';
         resetClientSelection();
+
+        categoryInput.disabled = false;
+        customerInput.disabled = true;
+    } else {
+        categoryGroup.style.display = 'none';
+        customerGroup.style.display = 'none';
+        categoryInput.disabled = true;
+        customerInput.disabled = true;
     }
 }
+
 
 /**
  * VERSÃO CORRIGIDA: Limpa os selects antes de popular para evitar duplicatas.
@@ -218,15 +227,33 @@ function populateEnumSelects() {
 async function handleLaunchSubmit(event) {
     event.preventDefault();
     const form = event.target;
-    const formData = new FormData(form);
-    const selectedType = document.querySelector('input[name="Type"]:checked');
 
+    const selectedType = document.querySelector('input[name="Type"]:checked');
     if (!selectedType) {
-        showErrorModal({ title: "Validação Falhou", detail: "Por favor, selecione se é uma Entrada ou Saída." });
+        showErrorModal({ title: "Validação Falhou", detail: "Selecione Entrada ou Saída." });
         return;
     }
 
-    formData.append('Type', selectedType.value);
+    const customerInput = document.getElementById('customerId');
+    const categoryInput = document.getElementById('categoryId');
+    const customerId = customerInput.value?.trim();
+    const categoryId = categoryInput.value?.trim();
+
+    const formData = new FormData(form);
+    formData.set('Type', selectedType.value); // radios estão fora do <form>, então força aqui
+
+    if (selectedType.value === '1') {            // Entrada
+        if (customerId) formData.set('CustomerId', customerId);
+        else formData.delete('CustomerId');        // não envie vazio
+        formData.delete('CategoryId');             // não aplica
+    } else if (selectedType.value === '2') {     // Saída
+        if (categoryId) formData.set('CategoryId', categoryId);
+        else formData.delete('CategoryId');
+        formData.delete('CustomerId');             // não aplica
+    } else {
+        formData.delete('CustomerId');
+        formData.delete('CategoryId');
+    }
 
     try {
         const accessToken = localStorage.getItem('accessToken');
@@ -238,17 +265,9 @@ async function handleLaunchSubmit(event) {
 
         if (response.ok) {
             alert('Lançamento salvo com sucesso!');
-
-            // LIMPEZA COMPLETA APÓS SUCESSO
             hideAndResetForm();
-
-            // Repopular selects para restaurar estado padrão
             populateEnumSelects();
-
-            // Recarregar histórico
             fetchAndRenderHistory(1);
-
-            console.log('✅ Lançamento salvo e formulário resetado com sucesso!');
         } else {
             const errorData = await response.json();
             showErrorModal(errorData);
@@ -257,6 +276,7 @@ async function handleLaunchSubmit(event) {
         showErrorModal({ title: "Erro de Conexão", detail: error.message });
     }
 }
+
 
 // =======================================================
 // LÓGICA DAS MODAIS
