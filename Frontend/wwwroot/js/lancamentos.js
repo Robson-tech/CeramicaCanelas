@@ -183,22 +183,31 @@ function updateFormVisibility(type) {
         customerGroup.style.display = 'block';
         resetCategorySelection();
 
-        categoryInput.disabled = true;   // <- não vai no FormData
-        customerInput.disabled = false;  // <- vai no FormData
-    } else if (type === '2') { // Saída
+        categoryInput.disabled = true;
+        customerInput.disabled = false;
+
+        // restaura o label normal
+        document.querySelector('#group-categoryId label').innerHTML = "Categoria (Opcional)";
+    }
+    else if (type === '2') { // Saída
         categoryGroup.style.display = 'block';
         customerGroup.style.display = 'none';
         resetClientSelection();
 
         categoryInput.disabled = false;
         customerInput.disabled = true;
-    } else {
+
+        // aqui torna obrigatório visualmente
+        document.querySelector('#group-categoryId label').innerHTML = "Categoria <span style='color:red'>*</span>";
+    }
+    else {
         categoryGroup.style.display = 'none';
         customerGroup.style.display = 'none';
         categoryInput.disabled = true;
         customerInput.disabled = true;
     }
 }
+
 
 function populateEnumSelects() {
     const paymentSelect = document.getElementById('paymentMethod');
@@ -241,11 +250,15 @@ async function handleLaunchSubmit(event) {
         if (customerId) formData.set('CustomerId', customerId);
         else formData.delete('CustomerId');        // não envie vazio
         formData.delete('CategoryId');             // não aplica
-    } else if (selectedType.value === '2') {     // Saída
-        if (categoryId) formData.set('CategoryId', categoryId);
-        else formData.delete('CategoryId');
-        formData.delete('CustomerId');             // não aplica
-    } else {
+    } else if (selectedType.value === '2') { // Saída
+        if (!categoryId) {
+            showErrorModal({ title: "Validação Falhou", detail: "Selecione uma Categoria para lançamentos de Saída." });
+            return;
+        }
+        formData.set('CategoryId', categoryId);
+        formData.delete('CustomerId');
+    }
+     else {
         formData.delete('CustomerId');
         formData.delete('CategoryId');
     }
