@@ -16,7 +16,9 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
         public DateOnly? LaunchDate { get; set; }
         public LaunchType Type { get; set; }
         public string? CategoryName { get; set; }
+        public Guid? CategoryId { get; set; }
         public string? CustomerName { get; set; }
+        public Guid? CustomerId { get; set; }
         public PaymentMethod PaymentMethod { get; set; }
         public PaymentStatus Status { get; set; }
         public DateOnly? DueDate { get; set; }
@@ -33,6 +35,8 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.Q
             Type = launch.Type;
             CategoryName = launch.Category?.Name; // Acessa o nome da categoria relacionada
             CustomerName = launch.Customer?.Name; // Acessa o nome do cliente relacionado
+            CategoryId = launch.CategoryId;
+            CustomerId = launch.CustomerId;
             PaymentMethod = launch.PaymentMethod;
             Status = launch.Status;
             DueDate = launch.DueDate;
