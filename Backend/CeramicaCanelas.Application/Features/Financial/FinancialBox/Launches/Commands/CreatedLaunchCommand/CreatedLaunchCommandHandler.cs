@@ -23,35 +23,25 @@ namespace CeramicaCanelas.Application.Features.Financial.FinancialBox.Launches.C
         public async Task<Unit> Handle(CreatedLaunchCommand request, CancellationToken cancellationToken)
         {
             var user = await _logged.UserLogged();
-            if (user == null) throw new UnauthorizedAccessException("Usuário não autenticado.");
 
-            // Normalização defensiva para binder que envia Guid.Empty
-            if (request.CustomerId is Guid cid && cid == Guid.Empty) request.CustomerId = null;
-            if (request.CategoryId is Guid cat && cat == Guid.Empty) request.CategoryId = null;
-
-            // 👉 SANEAMENTO POR TIPO (mata qualquer “vazamento” do front)
-            if (request.Type == LaunchType.Income)
-            { // Entrada
-                request.CategoryId = null;
-            }
-            else if (request.Type == LaunchType.Expense)
-            { // Saída
-                request.CustomerId = null;
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Usuário não autenticado.");
             }
 
             await ValidateLaucnh(request, cancellationToken);
 
             var launch = request.AssignToLaunch();
-            if (launch == null) throw new BadRequestException("Erro ao criar o lançamento financeiro.");
 
-            // 👉 FORÇA os FKs e limpa navegação (EF não herda nada antigo)
-            launch.CustomerId = request.CustomerId;
-            launch.Customer = null;
-            launch.CategoryId = request.CategoryId;
-            launch.CategoryId = null;
+            if (launch == null)
+            {
+                throw new BadRequestException("Erro ao criar o lançamento financeiro.");
+            }
 
             launch.OperatorName = user.UserName!;
+
             await _launchRepository.CreateAsync(launch, cancellationToken);
+
             return Unit.Value;
         }
 

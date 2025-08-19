@@ -200,15 +200,10 @@ function updateFormVisibility(type) {
     }
 }
 
-
-/**
- * VERSÃO CORRIGIDA: Limpa os selects antes de popular para evitar duplicatas.
- */
 function populateEnumSelects() {
     const paymentSelect = document.getElementById('paymentMethod');
     const statusSelect = document.getElementById('status');
-
-    // Limpa as opções existentes
+    
     paymentSelect.innerHTML = '';
     statusSelect.innerHTML = '';
 
@@ -265,8 +260,12 @@ async function handleLaunchSubmit(event) {
 
         if (response.ok) {
             alert('Lançamento salvo com sucesso!');
-            hideAndResetForm();
+            form.reset();
             populateEnumSelects();
+            document.getElementById('selectedCategoryName').textContent = 'Nenhuma categoria selecionada';
+            document.getElementById('selectedCustomerName').textContent = 'Nenhum cliente selecionado';
+            selectedType.checked = false;
+            form.style.display = 'none';
             fetchAndRenderHistory(1);
         } else {
             const errorData = await response.json();
@@ -481,6 +480,8 @@ function initializeHistoryFilters() {
         document.getElementById('historyCategoryOrCustomer').value = '';
         typeSelect.value = '';
         statusSelect.value = '';
+        document.getElementById('historyStartDate').value = ''; // Limpa data inicial
+        document.getElementById('historyEndDate').value = '';   // Limpa data final
         fetchAndRenderHistory(1);
     };
 
@@ -494,24 +495,19 @@ async function fetchAndRenderHistory(page = 1) {
     try {
         const accessToken = localStorage.getItem('accessToken');
         const params = new URLSearchParams({ Page: page, PageSize: 10, OrderBy: 'LaunchDate', Ascending: false });
-
+        
+        // Coleta os valores de TODOS os filtros
         const search = document.getElementById('historySearch')?.value;
         const type = document.getElementById('historyType')?.value;
         const status = document.getElementById('historyStatus')?.value;
-
-        // NOVOS CAMPOS
-        const startDate = document.getElementById('historyStartDate')?.value; // yyyy-MM-dd
-        const endDate = document.getElementById('historyEndDate')?.value;     // yyyy-MM-dd
-        const searchCategoryOrCustomer = document.getElementById('historyCategoryOrCustomer')?.value;
-
-        if (search) params.append('Search', search);
-        if (type) params.append('Type', type);
-        if (status) params.append('Status', status);
-
-        // Anexa apenas se houver valor
-        if (startDate) params.append('StartDate', startDate);
-        if (endDate) params.append('EndDate', endDate);
-        if (searchCategoryOrCustomer) params.append('SearchCategoryOrCustomer', searchCategoryOrCustomer);
+        const startDate = document.getElementById('historyStartDate')?.value;
+        const endDate = document.getElementById('historyEndDate')?.value;
+        
+        if(search) params.append('Search', search);
+        if(type) params.append('Type', type);
+        if(status) params.append('Status', status);
+        if(startDate) params.append('StartDate', startDate);
+        if(endDate) params.append('EndDate', endDate);
 
         const url = `${API_BASE_URL}/financial/launch/paged?${params.toString()}`;
         const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
@@ -525,6 +521,7 @@ async function fetchAndRenderHistory(page = 1) {
         tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">${error.message}</td></tr>`;
     }
 }
+
 
 function renderHistoryTable(items, tableBody) {
     tableBody.innerHTML = '';
@@ -548,7 +545,7 @@ function renderHistoryTable(items, tableBody) {
                 <td data-field="launchDate">${formattedDate}</td>
                 <td data-field="type">${typeText}</td>
                 <td data-field="status">${statusText}</td>
-                <td data-field="OperatorName">${operator}</td>
+                <td data-field="operator">${operator}</td>
                 <td class="actions-cell" data-field="actions">
                     <button class="btn-action btn-edit" onclick='editLaunch(${itemJsonString})'>Editar</button>
                     <button class="btn-action btn-delete" onclick="deleteLaunch('${item.id}')">Excluir</button>
@@ -557,6 +554,7 @@ function renderHistoryTable(items, tableBody) {
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
     });
 }
+
 
 function renderHistoryPagination(paginationData) {
     const controlsContainer = document.getElementById('pagination-controls');
@@ -606,20 +604,16 @@ window.editLaunch = (item) => {
     const row = document.getElementById(`row-launch-${item.id}`);
     if (!row) return;
     originalRowHTML_Launch[item.id] = row.innerHTML;
-
     row.querySelector('[data-field="description"]').innerHTML = `<textarea name="Description" class="edit-input">${item.description}</textarea>`;
     row.querySelector('[data-field="amount"]').innerHTML = `<input type="number" name="Amount" class="edit-input" value="${item.amount}" step="0.01">`;
-
     const isoDate = new Date(item.launchDate).toISOString().split('T')[0];
     row.querySelector('[data-field="launchDate"]').innerHTML = `<input type="date" name="LaunchDate" class="edit-input" value="${isoDate}">`;
-
     let statusOptions = '';
     for (const [key, value] of Object.entries(statusMap)) {
         const selected = key == item.status ? 'selected' : '';
         statusOptions += `<option value="${key}" ${selected}>${value}</option>`;
     }
     row.querySelector('[data-field="status"]').innerHTML = `<select name="Status" class="edit-input">${statusOptions}</select>`;
-
     row.querySelector('[data-field="actions"]').innerHTML = `
         <button class="btn-action btn-save" onclick="saveLaunchChanges('${item.id}')">Salvar</button>
         <button class="btn-action btn-cancel" onclick="cancelLaunchEdit('${item.id}')">Cancelar</button>
